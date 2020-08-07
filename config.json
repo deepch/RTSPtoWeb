@@ -1,0 +1,26 @@
+{
+  "server": {
+    "http_demo": true,
+    "http_debug": true,
+    "http_port": ":8083",
+    "http_login": "demo",
+    "http_password": "demo"
+  },
+  "streams": {
+    "demo1": {
+      "debug": false,
+      "on_demand": true,
+      "url": "rtsp://admin:admin@10.128.18.205/mpeg4"
+    },
+    "demo2": {
+      "debug": false,
+      "on_demand": false,
+      "url": "rtsp://admin:Asd234856@fs1.vidux.hu/Streaming/Channels/1"
+    },
+    "demo3": {
+      "debug": false,
+      "on_demand": true,
+      "url": "rtsp://admin:admin@10.128.18.247:554/mpeg4"
+    }
+  }
+}
