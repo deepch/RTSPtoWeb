@@ -310,7 +310,9 @@ func (obj *StorageST) ClientAdd(uuid string) (string, chan *av.Packet, error) {
 	//Generate UUID client
 	cid := pseudoUUID()
 	ch := make(chan *av.Packet, 2000)
+	log.Println("Client Add", uuid, cid, len(obj.Streams[uuid].clients))
 	obj.Streams[uuid].clients[cid] = ClientST{outgoingPacket: ch}
+	log.Println("Client Finish", uuid, cid, len(obj.Streams[uuid].clients))
 	return cid, ch, nil
 
 }

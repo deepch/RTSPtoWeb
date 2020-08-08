@@ -2,13 +2,14 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/deepch/vdk/format/mp4f"
 	"github.com/deepch/vdk/format/ts"
-
+	"github.com/deepch/vdk/format/webrtc"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/websocket"
 )
@@ -45,9 +46,30 @@ func HTTPAPIServer() {
 		handler := websocket.Handler(HTTPAPIServerStreamMSE)
 		handler.ServeHTTP(c.Writer, c.Request)
 	})
-	public.GET("/stream/:uuid/webrtc", func(c *gin.Context) {
-		handler := websocket.Handler(HTTPAPIServerStreamWebRTC)
-		handler.ServeHTTP(c.Writer, c.Request)
+	public.POST("/stream/:uuid/webrtc", HTTPAPIServerStreamWebRTC)
+	//public.Any("/stream/:uuid/webrtc", func(c *gin.Context) {
+		//log.Println("go to RTC")
+		//c.Header("Access-Control-Allow-Origin", "*")
+		//handler := websocket.Handler(HTTPAPIServerStreamWebRTC)
+		//handler.ServeHTTP(c.Writer, c.Request)
+	//})
+	public.GET("/codec/:uuid", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		if Storage.StreamExist(c.Param("uuid")) {
+			codecs, _ := Storage.StreamCodecs(c.Param("uuid"))
+			if codecs == nil {
+				return
+			}
+			b, err := json.Marshal(codecs)
+			log.Println(string(b), err)
+			if err == nil {
+				_, err = c.Writer.Write(b)
+				if err == nil {
+					log.Println("Write Codec Info error", err)
+					return
+				}
+			}
+		}
 	})
 	/*
 		Static HTML Files Demo Mode
@@ -196,10 +218,92 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 }
 
 //HTTPAPIServerStreamWebRTC need work
-func HTTPAPIServerStreamWebRTC(ws *websocket.Conn) {
-	defer ws.Close()
-	uuid := ws.Request().FormValue("uuid")
-	log.Println(uuid)
+func HTTPAPIServerStreamWebRTC(c *gin.Context) {
+	uuid := c.Param("uuid")
+	data := c.PostForm("data")
+	log.Println("HTTPAPIServerStreamWebRTC===> 1 ")
+//	defer ws.Close()
+//	uuid := ws.Request().FormValue("uuid")
+
+	log.Println("HTTPAPIServerStreamWebRTC===> 2",uuid)
+
+
+	//Check Has Stream
+	if !Storage.StreamExist(uuid) {
+		log.Println("Not Found Error")
+		return
+	}
+
+
+	Storage.StreamRun(uuid)
+	codecs, err := Storage.StreamCodecs(uuid)
+	if err != nil {
+		return
+	}
+	Muxer := webrtc.NewMuxer()
+	answer , err := Muxer.WriteHeader(codecs, data)
+	//_, err = c.Writer.Write([]byte(base64.StdEncoding.EncodeToString([]byte(answer.SDP))))
+	if err != nil {
+		log.Println("WriteHeader error", err)
+		return
+	}
+	_, err = c.Writer.Write([]byte(answer))
+	if err != nil {
+		log.Println("Writer SDP error", err)
+		return
+	}
+	go func() {
+		cid, ch, err := Storage.ClientAdd(uuid)
+		if err != nil {
+			return
+		}
+		defer Storage.ClientDelete(uuid, cid)
+		log.Println("Start Loop")
+		defer func() {
+			log.Println("End Loop")
+		}()
+		var start bool
+		for {
+
+			select {
+			case pck := <-ch:
+				if !Muxer.Connected{
+					continue
+				}
+				if pck.IsKeyFrame {
+					start = true
+				}
+				if !start {
+					continue
+				}
+				//log.Println("Call Write")
+				err = Muxer.WritePacket(*pck)
+				if err != nil {
+					log.Println("End Packet")
+					return
+				}
+				//log.Println("Write Packet")
+				/*
+				if pck.IsKeyFrame {
+					start = true
+				}
+				if !start {
+					continue
+				}
+				ready, buf, _ := muxer.WritePacket(*pck, false)
+				if ready {
+					ws.SetWriteDeadline(time.Now().Add(10 * time.Second))
+					err := websocket.Message.Send(ws, buf)
+					if err != nil {
+						return
+					}
+				}
+
+				 */
+			}
+		}
+	}()
+	//select{}
 	//TODO add it
 }
 
@@ -261,7 +365,6 @@ func HTTPAPIServerStreamHLSTS(c *gin.Context) {
 	}
 	for _, v := range data {
 		v.CompositionTime = 1
-		log.Println(v.Time)
 		err = Muxer.WritePacket(*v)
 		if err != nil {
 			c.IndentedJSON(500, err.Error())

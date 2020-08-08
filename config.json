@@ -15,7 +15,7 @@
     "demo2": {
       "debug": false,
       "on_demand": false,
-      "url": "rtsp://admin:Asd234856@fs1.vidux.hu/Streaming/Channels/1"
+      "url": "rtsp://admin:admin@10.128.18.247:554/mpeg4"
     },
     "demo3": {
       "debug": false,

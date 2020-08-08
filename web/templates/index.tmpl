@@ -7,6 +7,7 @@
 <script type="text/javascript" src="/static/js/jquery-3.4.1.min.js"></script>
 <script src="/static/js/bootstrap.min.js"></script>
 <script src="http://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="/static/js/adapter-latest.js"></script>
 
 <h2 align=center>
     Play Stream {{ .suuid }}
@@ -25,7 +26,16 @@
             <input type="hidden" name="port" id="port" value="{{ .port }}">
             <video id="livestream" style="width:600px;" controls autoplay muted></video>
             <video id="video" style="width:600px;" controls autoplay muted></video>
-            <video id="video2" style="width:600px;" controls autoplay muted></video>
+
+
+                        <input type="hidden" id="localSessionDescription" readonly="true">
+                        <input type="hidden" id="remoteSessionDescription">
+                        <div id="remoteVideos"></div>
+                        <button onclick="startSession()"> Start Session </button>
+                        <div id="div"></div>
+
+
+
         </div>
     </div>
 </div>
@@ -35,8 +45,7 @@
 <script>
   var video = document.getElementById('video');
   var videoSrc = 'http://127.0.0.1:8083/stream/demo2/hls/live/index.m3u8';
-  var video2 = document.getElementById('video2');
-  var videoSrc2 = 'http://127.0.0.1:8083/hlsv2/{{ .suuid }}/index.m3u8';
+
   if (Hls.isSupported()) {
     var hls = new Hls({debug: true, manifestLoadingTimeOut: 40000});
     hls.loadSource(videoSrc);
@@ -44,23 +53,10 @@
     hls.on(Hls.Events.MANIFEST_PARSED, function() {
       video.play();
     });
-
-        var hls2 = new Hls({debug: true, manifestLoadingTimeOut: 40000});
-        hls2.loadSource(videoSrc2);
-        hls2.attachMedia(video2);
-        hls2.on(Hls.Events.MANIFEST_PARSED, function() {
-          video2.play();
-        });
-
   }else if (video.canPlayType('application/vnd.apple.mpegurl')) {
     video.src = videoSrc;
     video.addEventListener('loadedmetadata', function() {
       video.play();
     });
-
-     video2.src = videoSrc2;
-        video2.addEventListener('loadedmetadata', function() {
-          video2.play();
-      });
   }
 </script>
