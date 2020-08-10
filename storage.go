@@ -42,6 +42,7 @@ type ServerST struct {
 }
 
 type StreamST struct {
+	Name             string `json:"name"`
 	URL              string `json:"url"`
 	OnDemand         bool   `json:"on_demand"`
 	Debug            bool   `json:"debug"`
