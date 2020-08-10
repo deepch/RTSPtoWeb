@@ -27,7 +27,11 @@ func StreamServerRunStreamDo(name string) {
 }
 func StreamServerRunStream(name string) (bool, error) {
 	keyTest := time.NewTimer(20 * time.Second)
-	Control := Storage.StreamControl(name)
+	Control, err := Storage.StreamControl(name)
+	if err != nil {
+		//TODO fix it
+		return true, ErrorNotFound
+	}
 	var preKeyTS = time.Duration(0)
 	var Seq []*av.Packet
 	RTSPClient, err := rtspv2.Dial(rtspv2.RTSPClientOptions{URL: Control.URL, DisableAudio: true, DialTimeout: 3 * time.Second, ReadWriteTimeout: time.Second * 5 * time.Second, Debug: Control.Debug})

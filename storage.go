@@ -22,8 +22,9 @@ const (
 )
 
 var (
-	ErrorNotFound = errors.New("Stream Not Found")
-	//ErrEmptyString = errors.New("an empty string cannot be parsed")
+	ErrorNotFound      = errors.New("stream not found")
+	ErrorFound         = errors.New("stream already exists")
+	ErrorCodecNotFound = errors.New("stream codec data not found")
 )
 
 type StorageST struct {
@@ -31,6 +32,7 @@ type StorageST struct {
 	Server  ServerST            `json:"server"`
 	Streams map[string]StreamST `json:"streams"`
 }
+
 type ServerST struct {
 	HTTPDemo     bool   `json:"http_demo"`
 	HTTPDebug    bool   `json:"http_debug"`
@@ -38,6 +40,7 @@ type ServerST struct {
 	HTTPPassword string `json:"http_password"`
 	HTTPPort     string `json:"http_port"`
 }
+
 type StreamST struct {
 	URL              string `json:"url"`
 	OnDemand         bool   `json:"on_demand"`
@@ -50,12 +53,14 @@ type StreamST struct {
 	hlsSegmentNumber int
 	clients          map[string]ClientST
 }
+
 type ClientST struct {
 	mode           int
 	signals        chan int
 	outgoingPacket chan *av.Packet
 	socket         net.Conn
 }
+
 type Segment struct {
 	dur  time.Duration
 	data []*av.Packet
@@ -68,13 +73,13 @@ func NewStreamCore() *StorageST {
 		log.Fatalln(err)
 	}
 	err = json.Unmarshal(data, &tmp)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	for i, i2 := range tmp.Streams {
 		i2.clients = make(map[string]ClientST)
 		i2.hlsSegmentBuffer = make(map[int]Segment)
 		tmp.Streams[i] = i2
-	}
-	if err != nil {
-		log.Fatalln(err)
 	}
 	return &tmp
 }
@@ -116,12 +121,14 @@ func (obj *StorageST) ServerHTTPPort() string {
 /*
  Stream Sections
 */
+
 func (obj *StorageST) StreamExist(key string) bool {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
 	_, ok := obj.Streams[key]
 	return ok
 }
+
 func (obj *StorageST) StreamRunAll() {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
@@ -133,15 +140,17 @@ func (obj *StorageST) StreamRunAll() {
 		}
 	}
 }
+
 func (obj *StorageST) StreamRun(key string) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[key]; ok && !tmp.runLock {
 		tmp.runLock = true
-		log.Println("Storage Run Stream")
+		obj.Streams[key] = tmp
 		go StreamServerRunStreamDo(key)
 	}
 }
+
 func (obj *StorageST) StreamUnlock(key string) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
@@ -150,43 +159,84 @@ func (obj *StorageST) StreamUnlock(key string) {
 		obj.Streams[key] = tmp
 	}
 }
-func (obj *StorageST) StreamControl(key string) *StreamST {
+
+func (obj *StorageST) StreamControl(key string) (*StreamST, error) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[key]; ok {
-		return &tmp
+		return &tmp, nil
 	}
-	return nil
+	return nil, ErrorNotFound
 }
+
 func (obj *StorageST) List() map[string]StreamST {
 	obj.mutex.RLock()
-	obj.mutex.RUnlock()
+	defer obj.mutex.RUnlock()
 	tmp := make(map[string]StreamST)
 	for i, i2 := range obj.Streams {
 		tmp[i] = i2
 	}
-
 	return tmp
 }
-func (obj *StorageST) StreamAdd(key string, val StreamST) error {
+
+func (obj *StorageST) StreamAdd(uuid string, val StreamST) error {
 	obj.mutex.Lock()
-	obj.mutex.Unlock()
+	defer obj.mutex.Unlock()
+	if _, ok := obj.Streams[uuid]; ok {
+		return ErrorFound
+	}
+	obj.Streams[uuid] = val
+	err := obj.SaveConfig()
+	if err != nil {
+		return err
+	}
 	return nil
 }
-func (obj *StorageST) StreamEdit(key string, val StreamST) error {
+
+func (obj *StorageST) StreamEdit(uuid string, val StreamST) error {
 	obj.mutex.Lock()
-	obj.mutex.Unlock()
-	return nil
+	defer obj.mutex.Unlock()
+	if tmp, ok := obj.Streams[uuid]; ok {
+		if tmp.runLock {
+			tmp.signals <- SignalStreamStop
+		}
+		obj.Streams[uuid] = val
+		err := obj.SaveConfig()
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	return ErrorNotFound
 }
-func (obj *StorageST) StreamReload(key string) error {
-	obj.mutex.Lock()
-	obj.mutex.Unlock()
-	return nil
+
+func (obj *StorageST) StreamReload(uuid string) error {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	if tmp, ok := obj.Streams[uuid]; ok {
+		if tmp.runLock {
+			tmp.signals <- SignalStreamRestart
+		}
+		return nil
+	}
+	return ErrorNotFound
 }
-func (obj *StorageST) StreamDelete(key string) error {
+
+func (obj *StorageST) StreamDelete(uuid string) error {
 	obj.mutex.Lock()
-	obj.mutex.Unlock()
-	return nil
+	defer obj.mutex.Unlock()
+	if tmp, ok := obj.Streams[uuid]; ok {
+		if tmp.runLock {
+			tmp.signals <- SignalStreamStop
+		}
+		delete(obj.Streams, uuid)
+		err := obj.SaveConfig()
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	return ErrorNotFound
 }
 
 func (obj *StorageST) StreamInfo(uuid string) (*StreamST, error) {
@@ -213,46 +263,48 @@ func (obj *StorageST) StreamCodecs(key string) ([]av.CodecData, error) {
 		tmp, ok := obj.Streams[key]
 		obj.mutex.RUnlock()
 		if !ok {
-			return nil, errors.New("Stream Not Found")
+			return nil, ErrorNotFound
 		}
 		if tmp.codecs != nil {
 			return tmp.codecs, nil
 		}
 		time.Sleep(50 * time.Millisecond)
 	}
-	return nil, errors.New("No Codec Info Found")
+	return nil, ErrorCodecNotFound
 }
-func (obj *StorageST) StreamHLSAdd(suuid string, val []*av.Packet, dur time.Duration) {
+func (obj *StorageST) StreamHLSAdd(uuid string, val []*av.Packet, dur time.Duration) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
-	t := obj.Streams[suuid]
-	t.hlsSegmentNumber++
-	t.hlsSegmentBuffer[t.hlsSegmentNumber] = Segment{data: val, dur: dur}
-	if len(t.hlsSegmentBuffer) >= 6 {
-		delete(t.hlsSegmentBuffer, t.hlsSegmentNumber-6-1)
+	if tmp, ok := obj.Streams[uuid]; ok {
+		tmp.hlsSegmentNumber++
+		tmp.hlsSegmentBuffer[tmp.hlsSegmentNumber] = Segment{data: val, dur: dur}
+		if len(tmp.hlsSegmentBuffer) >= 6 {
+			delete(tmp.hlsSegmentBuffer, tmp.hlsSegmentNumber-6-1)
+		}
+		obj.Streams[uuid] = tmp
 	}
-	//log.Println("Add Seq to buffer", t.SeqN, dur)
-	obj.Streams[suuid] = t
 }
-func (obj *StorageST) StreamHLSm3u8(suuid string) (string, int) {
+
+func (obj *StorageST) StreamHLSm3u8(uuid string) (string, int, error) {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
-	t := obj.Streams[suuid]
-	var out string
-	out += "#EXTM3U\r\n#EXT-X-TARGETDURATION:4\r\n#EXT-X-VERSION:4\r\n#EXT-X-MEDIA-SEQUENCE:" + strconv.Itoa(t.hlsSegmentNumber) + "\r\n"
-	var keys []int
-	for k := range t.hlsSegmentBuffer {
-		keys = append(keys, k)
-	}
-	sort.Ints(keys)
-	var count int
-	for _, i := range keys {
-		count++
-		out += "#EXTINF:" + strconv.FormatFloat(float64(t.hlsSegmentBuffer[i].dur.Seconds()), 'f', 1, 64) + ",\r\nsegment/" + strconv.Itoa(i) + "/file.ts\r\n"
+	if tmp, ok := obj.Streams[uuid]; ok {
+		var out string
+		out += "#EXTM3U\r\n#EXT-X-TARGETDURATION:4\r\n#EXT-X-VERSION:4\r\n#EXT-X-MEDIA-SEQUENCE:" + strconv.Itoa(tmp.hlsSegmentNumber) + "\r\n"
+		var keys []int
+		for k := range tmp.hlsSegmentBuffer {
+			keys = append(keys, k)
+		}
+		sort.Ints(keys)
+		var count int
+		for _, i := range keys {
+			count++
+			out += "#EXTINF:" + strconv.FormatFloat(tmp.hlsSegmentBuffer[i].dur.Seconds(), 'f', 1, 64) + ",\r\nsegment/" + strconv.Itoa(i) + "/file.ts\r\n"
 
+		}
+		return out, count, nil
 	}
-	//log.Println(out)
-	return out, count
+	return "", 0, ErrorNotFound
 }
 
 //ready
@@ -310,9 +362,7 @@ func (obj *StorageST) ClientAdd(uuid string) (string, chan *av.Packet, error) {
 	//Generate UUID client
 	cid := pseudoUUID()
 	ch := make(chan *av.Packet, 2000)
-	log.Println("Client Add", uuid, cid, len(obj.Streams[uuid].clients))
 	obj.Streams[uuid].clients[cid] = ClientST{outgoingPacket: ch}
-	log.Println("Client Finish", uuid, cid, len(obj.Streams[uuid].clients))
 	return cid, ch, nil
 
 }
@@ -325,4 +375,18 @@ func (obj *StorageST) ClientDelete(uuid string, cid string) {
 	if _, ok := obj.Streams[uuid]; ok {
 		delete(obj.Streams[uuid].clients, cid)
 	}
+}
+
+//ready
+//ClientDelete Delete Client
+func (obj *StorageST) SaveConfig() error {
+	res, err := json.MarshalIndent(obj, "", "  ")
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile("config.json", res, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }

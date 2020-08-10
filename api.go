@@ -47,12 +47,7 @@ func HTTPAPIServer() {
 		handler.ServeHTTP(c.Writer, c.Request)
 	})
 	public.POST("/stream/:uuid/webrtc", HTTPAPIServerStreamWebRTC)
-	//public.Any("/stream/:uuid/webrtc", func(c *gin.Context) {
-		//log.Println("go to RTC")
-		//c.Header("Access-Control-Allow-Origin", "*")
-		//handler := websocket.Handler(HTTPAPIServerStreamWebRTC)
-		//handler.ServeHTTP(c.Writer, c.Request)
-	//})
+	//TODO Fix It
 	public.GET("/codec/:uuid", func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		if Storage.StreamExist(c.Param("uuid")) {
@@ -161,7 +156,10 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 	if !Storage.StreamExist(uuid) {
 		return
 	}
-	ws.SetWriteDeadline(time.Now().Add(5 * time.Second))
+	err := ws.SetWriteDeadline(time.Now().Add(5 * time.Second))
+	if err != nil {
+		return
+	}
 	cid, ch, err := Storage.ClientAdd(uuid)
 	if err != nil {
 		return
@@ -174,7 +172,10 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 	}
 
 	muxer := mp4f.NewMuxer(nil)
-	muxer.WriteHeader(codecs)
+	err = muxer.WriteHeader(codecs)
+	if err != nil {
+		return
+	}
 	meta, init := muxer.GetInit(codecs)
 	err = websocket.Message.Send(ws, append([]byte{9}, meta...))
 	if err != nil {
@@ -191,7 +192,10 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 			var message string
 			err := websocket.Message.Receive(ws, &message)
 			if err != nil {
-				ws.Close()
+				err = ws.Close()
+				if err != nil {
+					return
+				}
 				return
 			}
 		}
@@ -207,8 +211,11 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 			}
 			ready, buf, _ := muxer.WritePacket(*pck, false)
 			if ready {
-				ws.SetWriteDeadline(time.Now().Add(10 * time.Second))
-				err := websocket.Message.Send(ws, buf)
+				err := ws.SetWriteDeadline(time.Now().Add(10 * time.Second))
+				if err != nil {
+					return
+				}
+				err = websocket.Message.Send(ws, buf)
 				if err != nil {
 					return
 				}
@@ -221,35 +228,25 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 	uuid := c.Param("uuid")
 	data := c.PostForm("data")
-	log.Println("HTTPAPIServerStreamWebRTC===> 1 ")
-//	defer ws.Close()
-//	uuid := ws.Request().FormValue("uuid")
-
-	log.Println("HTTPAPIServerStreamWebRTC===> 2",uuid)
-
-
-	//Check Has Stream
 	if !Storage.StreamExist(uuid) {
-		log.Println("Not Found Error")
+		c.IndentedJSON(500, ErrorNotFound)
 		return
 	}
-
-
 	Storage.StreamRun(uuid)
 	codecs, err := Storage.StreamCodecs(uuid)
 	if err != nil {
+		c.IndentedJSON(500, err)
 		return
 	}
 	Muxer := webrtc.NewMuxer()
-	answer , err := Muxer.WriteHeader(codecs, data)
-	//_, err = c.Writer.Write([]byte(base64.StdEncoding.EncodeToString([]byte(answer.SDP))))
+	answer, err := Muxer.WriteHeader(codecs, data)
 	if err != nil {
-		log.Println("WriteHeader error", err)
+		c.IndentedJSON(400, err)
 		return
 	}
 	_, err = c.Writer.Write([]byte(answer))
 	if err != nil {
-		log.Println("Writer SDP error", err)
+		c.IndentedJSON(400, err)
 		return
 	}
 	go func() {
@@ -258,16 +255,12 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 			return
 		}
 		defer Storage.ClientDelete(uuid, cid)
-		log.Println("Start Loop")
-		defer func() {
-			log.Println("End Loop")
-		}()
 		var start bool
 		for {
 
 			select {
 			case pck := <-ch:
-				if !Muxer.Connected{
+				if !Muxer.Connected {
 					continue
 				}
 				if pck.IsKeyFrame {
@@ -276,35 +269,14 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 				if !start {
 					continue
 				}
-				//log.Println("Call Write")
 				err = Muxer.WritePacket(*pck)
 				if err != nil {
 					log.Println("End Packet")
 					return
 				}
-				//log.Println("Write Packet")
-				/*
-				if pck.IsKeyFrame {
-					start = true
-				}
-				if !start {
-					continue
-				}
-				ready, buf, _ := muxer.WritePacket(*pck, false)
-				if ready {
-					ws.SetWriteDeadline(time.Now().Add(10 * time.Second))
-					err := websocket.Message.Send(ws, buf)
-					if err != nil {
-						return
-					}
-				}
-
-				 */
 			}
 		}
 	}()
-	//select{}
-	//TODO add it
 }
 
 //ready
@@ -319,7 +291,11 @@ func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
 	Storage.StreamRun(uuid)
 	//If stream mode on_demand need wait ready segment's
 	for i := 0; i < 40; i++ {
-		index, seq := Storage.StreamHLSm3u8(uuid)
+		index, seq, err := Storage.StreamHLSm3u8(uuid)
+		if err != nil {
+			c.IndentedJSON(500, err)
+			return
+		}
 		if seq >= 6 {
 			_, err := c.Writer.Write([]byte(index))
 			if err != nil {

@@ -2,25 +2,22 @@
   "server": {
     "http_demo": true,
     "http_debug": true,
-    "http_port": ":8083",
     "http_login": "demo",
-    "http_password": "demo"
+    "http_password": "demo",
+    "http_port": ":8083"
   },
   "streams": {
     "demo1": {
-      "debug": false,
+      "url": "rtsp://admin:admin@10.128.18.205/mpeg4",
       "on_demand": true,
-      "url": "rtsp://admin:admin@10.128.18.205/mpeg4"
+      "debug": false,
+      "status": 0
     },
     "demo2": {
-      "debug": false,
+      "url": "rtsp://admin:admin@10.128.18.247:554/mpeg4",
       "on_demand": false,
-      "url": "rtsp://admin:admin@10.128.18.247:554/mpeg4"
-    },
-    "demo3": {
       "debug": false,
-      "on_demand": true,
-      "url": "rtsp://admin:admin@10.128.18.247:554/mpeg4"
+      "status": 1
     }
   }
 }
