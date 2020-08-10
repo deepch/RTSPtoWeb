@@ -81,7 +81,8 @@ func HTTPAPIServerIndex(c *gin.Context) {
 	//fi, all := Storage.List()
 	//sort.Strings(all)
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
-		"port": Storage.ServerHTTPPort(),
+		"port":    Storage.ServerHTTPPort(),
+		"streams": Storage.Streams,
 		//	"uuid":    fi,
 		//	"uuidMap": all,
 		"version": time.Now().String(),
