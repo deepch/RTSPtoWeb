@@ -172,12 +172,12 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		return
 	}
 
-	muxer := mp4f.NewMuxer(nil)
-	err = muxer.WriteHeader(codecs)
+	muxerMSE := mp4f.NewMuxer(nil)
+	err = muxerMSE.WriteHeader(codecs)
 	if err != nil {
 		return
 	}
-	meta, init := muxer.GetInit(codecs)
+	meta, init := muxerMSE.GetInit(codecs)
 	err = websocket.Message.Send(ws, append([]byte{9}, meta...))
 	if err != nil {
 		return
@@ -186,8 +186,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 	if err != nil {
 		return
 	}
-	var start bool
-	//fix it need work on message socket
+	var videoStart bool
 	go func() {
 		for {
 			var message string
@@ -201,16 +200,23 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 			}
 		}
 	}()
+	noVideo := time.NewTimer(10 * time.Second)
 	for {
 		select {
+		case <-noVideo.C:
+			return
 		case pck := <-ch:
 			if pck.IsKeyFrame {
-				start = true
+				noVideo.Reset(10 * time.Second)
+				videoStart = true
 			}
-			if !start {
+			if !videoStart {
 				continue
 			}
-			ready, buf, _ := muxer.WritePacket(*pck, false)
+			ready, buf, err := muxerMSE.WritePacket(*pck, false)
+			if err != nil {
+				return
+			}
 			if ready {
 				err := ws.SetWriteDeadline(time.Now().Add(10 * time.Second))
 				if err != nil {
@@ -239,8 +245,8 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 		c.IndentedJSON(500, err)
 		return
 	}
-	Muxer := webrtc.NewMuxer()
-	answer, err := Muxer.WriteHeader(codecs, data)
+	muxerWebRTC := webrtc.NewMuxer()
+	answer, err := muxerWebRTC.WriteHeader(codecs, data)
 	if err != nil {
 		c.IndentedJSON(400, err)
 		return
@@ -256,23 +262,22 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 			return
 		}
 		defer Storage.ClientDelete(uuid, cid)
-		var start bool
+		var videoStart bool
+		noVideo := time.NewTimer(10 * time.Second)
 		for {
-
 			select {
+			case <-noVideo.C:
+				return
 			case pck := <-ch:
-				if !Muxer.Connected {
-					continue
-				}
 				if pck.IsKeyFrame {
-					start = true
+					noVideo.Reset(10 * time.Second)
+					videoStart = true
 				}
-				if !start {
+				if !videoStart {
 					continue
 				}
-				err = Muxer.WritePacket(*pck)
+				err = muxerWebRTC.WritePacket(*pck)
 				if err != nil {
-					log.Println("End Packet")
 					return
 				}
 			}
