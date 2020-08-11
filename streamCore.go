@@ -2,24 +2,24 @@ package main
 
 import (
 	"errors"
-	"log"
 	"time"
 
 	"github.com/deepch/vdk/av"
 	"github.com/deepch/vdk/format/rtspv2"
 )
 
+//StreamServerRunStreamDo stream run do mux
 func StreamServerRunStreamDo(name string) {
 	defer Storage.StreamUnlock(name)
 	for {
-		log.Println("Run Stream", name)
+		loggingPrintln("Run Stream", name)
 		exit, err := StreamServerRunStream(name)
 		if exit {
-			log.Println("Stream Exit by Signal")
+			loggingPrintln("Stream Exit by Signal or Not Client")
 			return
 		}
 		if err != nil {
-			log.Println("Stream Error", err)
+			loggingPrintln("Stream Error", err)
 		}
 		time.Sleep(2 * time.Second)
 
@@ -27,6 +27,7 @@ func StreamServerRunStreamDo(name string) {
 }
 func StreamServerRunStream(name string) (bool, error) {
 	keyTest := time.NewTimer(20 * time.Second)
+	checkClients := time.NewTimer(20 * time.Second)
 	Control, err := Storage.StreamControl(name)
 	if err != nil {
 		//TODO fix it
@@ -42,16 +43,22 @@ func StreamServerRunStream(name string) (bool, error) {
 	defer func() {
 		RTSPClient.Close()
 		Storage.StreamStatus(name, OFFLINE)
+		Storage.StreamHLSFlush(name)
 	}()
 
 	//if codec data recived
 	if len(RTSPClient.CodecData) > 0 {
 		Storage.StreamCodecsUpdate(name, RTSPClient.CodecData)
 	}
-	log.Println("Stream", name, "success connection RTSP")
+	loggingPrintln("Stream", name, "success connection RTSP")
 	for {
 		select {
 		//Read no video timeout
+		case <-checkClients.C:
+			if Control.OnDemand && !Storage.ClientHas(name) {
+				return true, errors.New("not clients on steam")
+			}
+			checkClients.Reset(20 * time.Second)
 		case <-keyTest.C:
 			return false, errors.New("Video Stream No Send Key Frame")
 		//Read core signals
@@ -62,13 +69,13 @@ func StreamServerRunStream(name string) (bool, error) {
 			case SignalStreamRestart:
 				return false, errors.New("Core Restart Signal")
 			case SignalStreamClient:
-				log.Println("New Viwer Signal")
+				loggingPrintln("New Viwer Signal")
 			}
 		//Read rtsp signals
 		case signals := <-RTSPClient.Signals:
 			switch signals {
 			case rtspv2.SignalCodecUpdate:
-				log.Println("Update Code Info")
+				loggingPrintln("Update Code Info")
 				Storage.StreamCodecsUpdate(name, RTSPClient.CodecData)
 			case rtspv2.SignalStreamRTPStop:
 				return false, errors.New("RTSP Client Restart Signal")
@@ -83,13 +90,9 @@ func StreamServerRunStream(name string) (bool, error) {
 					Seq = []*av.Packet{}
 				}
 				preKeyTS = packet.Time
-				//log.Println("Make Seq", time.Duration(durA)*time.Microsecond, len(Seq))
-				//Config.AddHlsSeq(name, Seq, time.Duration(durA)*time.Microsecond)
-				//KeyPerSeq, durA, Seq = 0, 0, []av.Packet{}
 			}
 			Seq = append(Seq, packet)
 			Storage.Cast(name, packet)
 		}
 	}
-	return false, nil
 }
