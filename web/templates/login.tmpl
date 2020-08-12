@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Log in</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../static/plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="../static/css/adminlte.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+
+<body class="hold-transition login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <a href="#"><b>RTSP</b>toWEB</a>
+    </div>
+    <div class="card">
+      <div class="card-body login-card-body">
+        <p class="login-box-msg">Sign in to start your session</p>
+
+        <form id="loginForm">
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" name="login" placeholder="Login">
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <span class="fas fa-user"></span>
+              </div>
+            </div>
+          </div>
+          <div class="input-group mb-3">
+            <input type="password" class="form-control" name="password" placeholder="Password">
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <span class="fas fa-lock"></span>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-8">
+              <!-- <div class="icheck-primary">
+                <input type="checkbox" id="remember">
+                <label for="remember">
+                  Remember Me
+                </label>
+              </div> -->
+            </div>
+            <div class="col-4">
+              <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            </div>
+
+          </div>
+        </form>
+        <div class="social-auth-links text-center mb-3 text-danger" id="error" style="opacity:0;">
+          <p>Access denied</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="../static/plugins/jquery/jquery.min.js"></script>
+  <script src="../static/plugins/bootstrap/js/bootstrap.bundle.js"></script>
+  <script src="../static/js/adminlte.min.js"></script>
+  <script>
+    let authUrl = '/auth';
+    $("#loginForm").on('submit', function(e) {
+      e.preventDefault();
+      if ($("#loginForm").find('button[type="submit"]').hasClass('disabled')) {
+        return;
+      }
+      let form = this;
+      $.ajax({
+        url: authUrl,
+        type: 'POST',
+        data: $(form).serialize(),
+        beforeSend: function() {
+          $("#loginForm").find('button[type="submit"]').addClass('disabled');
+        },
+        success: function(r) {
+          try {
+            r = JSON.parse(r);
+            if (!!r.status && r.status != 0) {
+              window.location.href = '/';
+            } else {
+              showError();
+            }
+          } catch (e) {
+            showError();
+          }
+
+        },
+        error: function(e) {
+          showError();
+        },
+        complete: function() {
+          $("#loginForm").find('button[type="submit"]').removeClass('disabled');
+        }
+      })
+    });
+
+    function showError() {
+      $('#error').css('opacity', 1);
+      $("#error").animate({
+        opacity: 0,
+
+      }, 5000);
+    }
+  </script>
+</body>
+
+</html>

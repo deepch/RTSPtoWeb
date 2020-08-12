@@ -1,62 +1,164 @@
-<html>
-<meta http-equiv="Expires" content="0">
-<meta http-equiv="Last-Modified" content="0">
-<meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<link rel="stylesheet" href="/static/css/bootstrap.min.css">
-<script type="text/javascript" src="/static/js/jquery-3.4.1.min.js"></script>
-<script src="/static/js/bootstrap.min.js"></script>
-<script src="http://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script src="/static/js/adapter-latest.js"></script>
+{{template "head.tmpl" .}}
+<!-- Main content -->
 
-<h2 align=center>
-    Play Stream {{ .suuid }}
-</h2>
-<div class="container">
-  <div class="row">
-    <div class="col-3">
-      <div class="list-group">
-  {{ range .suuidMap }}
-    <a href="/player/{{ . }}" id="{{ . }}" name="{{ . }}" class="list-group-item list-group-item-action">{{ . }}</a>
-  {{ end }}
-</div>
+<!-- {{ range $key, $value := .streams }}
+
+
+{{ if eq .Status 1}}
+<p>{{.Status}} online {{ $key }} {{ .Name }}</p>
+{{else}}
+  <p>{{.Status}} offline {{ $key }} {{ .Name }}</p>
+  {{end}}
+  {{ end }} -->
+
+<div class="content">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h3 class="m-0 text-dark">Info</h3>
+      </div>
+
     </div>
-        <div class="col">
-            <input type="hidden" name="suuid" id="suuid" value="{{ .suuid }}">
-            <input type="hidden" name="port" id="port" value="{{ .port }}">
-            <video id="livestream" style="width:600px;" controls autoplay muted></video>
-            <video id="video" style="width:600px;" controls autoplay muted></video>
+    <div class="row">
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box">
+          <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cog"></i></span>
 
-
-                        <input type="hidden" id="localSessionDescription" readonly="true">
-                        <input type="hidden" id="remoteSessionDescription">
-                        <div id="remoteVideos"></div>
-                        <button onclick="startSession()"> Start Session </button>
-                        <div id="div"></div>
-
-
-
+          <div class="info-box-content">
+            <span class="info-box-text">CPU</span>
+            <span class="info-box-number">
+              0
+              <!-- <small>%</small> -->
+            </span>
+          </div>
+          <!-- /.info-box-content -->
         </div>
+        <!-- /.info-box -->
+      </div>
+      <!-- /.col -->
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box mb-3">
+          <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-chart-line"></i></span>
+
+          <div class="info-box-content">
+            <span class="info-box-text">Bitrate</span>
+            <span class="info-box-number">0</span>
+          </div>
+          <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+      </div>
+      <!-- /.col -->
+
+      <!-- fix for small devices only -->
+      <div class="clearfix hidden-md-up"></div>
+
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box mb-3">
+          <span class="info-box-icon bg-success elevation-1"><i class="fas fa-photo-video"></i></span>
+
+          <div class="info-box-content">
+            <span class="info-box-text">Streams</span>
+            <span class="info-box-number">{{ len .streams}}</span>
+          </div>
+          <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+      </div>
+      <!-- /.col -->
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box mb-3">
+          <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
+
+          <div class="info-box-content">
+            <span class="info-box-text">Viewers</span>
+            <span class="info-box-number">0</span>
+          </div>
+          <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+      </div>
+      <!-- /.col -->
     </div>
+    <div class="row mb-2 d-none" id="player-wrapper">
+      <div class="col-sm-12">
+        <video id="videoPlayer" autoplay controls></video>
+        <canvas id="canvas" class="d-none"></canvas>
+      </div>
+
+    </div>
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h3 class="m-0 text-dark">Streams</h3>
+      </div>
+
+    </div>
+
+    <div class="row d-flex align-items-stretch">
+      {{ range $key, $value := .streams }}
+      <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch" id="{{ $key }}">
+        <div class="card bg-light">
+
+          {{ if eq .Status 1}}
+          <div class="card-header text-muted text-green border-bottom-0">
+            ONLINE
+          </div>
+          {{else}}
+            <div class="card-header text-muted text-red border-bottom-0">
+              OFFLINE
+            </div>
+            {{end}}
+            <div class="card-body pt-0">
+              <div class="row">
+                <div class="col-5">
+                  <h2 class="lead"><b>{{ .Name }}</b></h2>
+                  <!-- <p class="text-muted text-sm"><b>About: </b> Web Designer / UX / Graphic Artist / Coffee Lover </p> -->
+                  <ul class="ml-4 mb-0 fa-ul text-muted">
+                    <li class="small"><span class="fa-li"><i class="fas fa-photo-video"></i></span> : h.268</li>
+                    <li class="small"><span class="fa-li"><i class="fas fa-expand-arrows-alt"></i></span> : <span>1920x1080</span></li>
+                    <li class="small"><span class="fa-li"><i class="fas fa-users"></i></span> : 1</li>
+                    <li class="small"><span class="fa-li"><i class="fas fa-chart-line"></i></span> : 1500 KB/s</li>
+                  </ul>
+                </div>
+                <div class="col-7 text-center">
+                  <img src="../static/img/noimage.svg" alt="" class="img-fluid stream-img">
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <div class="text-center">
+                <a href="#" onclick="startPlay('rtc', '{{ $key }}') " class="btn  btn-outline-primary btn-xs">
+                  <i class="fas fa-play"> WebRTC</i>
+                </a>
+                <a href="#" onclick="startPlay('mse', '{{ $key }}') " class="btn  btn-outline-primary btn-xs">
+                  <i class="fas fa-play"> FMP4</i>
+                </a>
+                <a href="#" onclick="startPlay('hls', '{{ $key }}') " class="btn  btn-outline-primary btn-xs">
+                  <i class="fas fa-play"> HLS</i>
+                </a>
+                <a href="#" class="btn  btn-outline-success btn-xs">
+                  <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="#" onclick="deleteStream('{{ $key }}')" class="btn  btn-outline-danger btn-xs">
+                  <i class="fas fa-times"></i> Delete
+                </a>
+              </div>
+            </div>
+        </div>
+      </div>
+
+      {{ end }}
+
+      <!-- CARD -->
+
+
+
+      <!-- END-CARD -->
+    </div>
+
+
+  </div><!-- /.container-fluid -->
 </div>
-<script type="text/javascript" src="/static/js/app.js?ver={{ .version }}"></script>
-</html>
+<!-- /.content -->
 
-<script>
-  var video = document.getElementById('video');
-  var videoSrc = 'http://127.0.0.1:8083/stream/demo2/hls/live/index.m3u8';
-
-  if (Hls.isSupported()) {
-    var hls = new Hls({debug: true, manifestLoadingTimeOut: 40000});
-    hls.loadSource(videoSrc);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, function() {
-      video.play();
-    });
-  }else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = videoSrc;
-    video.addEventListener('loadedmetadata', function() {
-      video.play();
-    });
-  }
-</script>
+{{template "foot.tmpl" .}}
