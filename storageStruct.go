@@ -17,18 +17,27 @@ const (
 	ONLINE
 )
 
+//Default stream errors
 var (
-	ErrorNotFound      = errors.New("stream not found")
-	ErrorFound         = errors.New("stream already exists")
-	ErrorCodecNotFound = errors.New("stream codec data not found")
+	Success                   = "success"
+	ErrorStreamNotFound       = errors.New("stream not found")
+	ErrorStreamAlreadyExists  = errors.New("stream already exists")
+	ErrorStreamNotHLSSegments = errors.New("stream hls not ts seq found")
+	ErrorStreamNoVideo        = errors.New("stream no video")
+	ErrorStreamNoClients      = errors.New("stream no clients")
+	ErrorStreamRestart        = errors.New("stream restart")
+	ErrorStreamStopCoreSignal = errors.New("stream stop core signal")
+	ErrorStreamStopRTSPSignal = errors.New("stream stop rtsp signal")
 )
 
+//StorageST main storage struct
 type StorageST struct {
 	mutex   sync.RWMutex
 	Server  ServerST            `json:"server"`
 	Streams map[string]StreamST `json:"streams"`
 }
 
+//ServerST server storage section
 type ServerST struct {
 	Debug        bool   `json:"debug"`
 	HTTPDemo     bool   `json:"http_demo"`
@@ -38,6 +47,7 @@ type ServerST struct {
 	HTTPPort     string `json:"http_port"`
 }
 
+//ServerST stream storage section
 type StreamST struct {
 	Name             string `json:"name"`
 	URL              string `json:"url"`
@@ -53,6 +63,7 @@ type StreamST struct {
 	ack              time.Time
 }
 
+//ClientST client storage section
 type ClientST struct {
 	mode           int
 	signals        chan int
@@ -60,6 +71,7 @@ type ClientST struct {
 	socket         net.Conn
 }
 
+//Segment HLS cache section
 type Segment struct {
 	dur  time.Duration
 	data []*av.Packet

@@ -8,17 +8,26 @@
     "http_port": ":8083"
   },
   "streams": {
+    "346ee479-cdfa-45f8-b719-85253b549d72": {
+      "name": "Проверка",
+      "url": "rtsp://admin:123456@10.128.18.211/mpeg4",
+      "on_demand": false,
+      "debug": false,
+      "status": 0
+    },
     "demo1": {
-      "url": "rtsp://admin:admin@10.128.18.205/mpeg4",
+      "name": "Проверка 2 ",
+      "url": "rtsp://admin:123456@10.128.18.211/mpeg4",
       "on_demand": true,
       "debug": false,
       "status": 0
     },
     "demo2": {
-      "url": "rtsp://admin:admin@10.128.18.247:554/mpeg4",
+      "name": "Проверка 3",
+      "url": "rtsp://admin:123456@10.128.18.211/mpeg4",
       "on_demand": true,
       "debug": false,
-      "status": 1
+      "status": 0
     }
   }
 }

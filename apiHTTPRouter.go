@@ -1,15 +1,21 @@
 package main
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/websocket"
 )
 
+//Message resp struct
+type Message struct {
+	Status  int         `json:"status"`
+	Payload interface{} `json:"payload"`
+}
+
+//HTTPAPIServer start http server routes
 func HTTPAPIServer() {
 	//Set HTTP API mode
 	var public *gin.Engine
@@ -38,6 +44,7 @@ func HTTPAPIServer() {
 	privat.GET("/stream/:uuid/delete", HTTPAPIServerStreamDelete)
 	privat.GET("/stream/:uuid/reload", HTTPAPIServerStreamReload)
 	privat.GET("/stream/:uuid/info", HTTPAPIServerStreamInfo)
+	privat.GET("/stream/:uuid/codec", HTTPAPIServerStreamCodec)
 	/*
 		Stream video elements
 	*/
@@ -48,25 +55,6 @@ func HTTPAPIServer() {
 		handler.ServeHTTP(c.Writer, c.Request)
 	})
 	public.POST("/stream/:uuid/webrtc", HTTPAPIServerStreamWebRTC)
-	//TODO Fix It
-	public.GET("/codec/:uuid", func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		if Storage.StreamExist(c.Param("uuid")) {
-			codecs, _ := Storage.StreamCodecs(c.Param("uuid"))
-			if codecs == nil {
-				return
-			}
-			b, err := json.Marshal(codecs)
-			log.Println(string(b), err)
-			if err == nil {
-				_, err = c.Writer.Write(b)
-				if err == nil {
-					log.Println("Write Codec Info error", err)
-					return
-				}
-			}
-		}
-	})
 	/*
 		Static HTML Files Demo Mode
 	*/
@@ -75,23 +63,21 @@ func HTTPAPIServer() {
 	}
 	err := public.Run(Storage.ServerHTTPPort())
 	if err != nil {
-		log.Fatalln(err)
+		loggingPrintln(Message{Status: 0, Payload: err.Error()})
+		os.Exit(1)
 	}
 }
+
+//HTTPAPIServerIndex index file
 func HTTPAPIServerIndex(c *gin.Context) {
-	//fi, all := Storage.List()
-	//sort.Strings(all)
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"port":    Storage.ServerHTTPPort(),
 		"streams": Storage.Streams,
-		//	"uuid":    fi,
-		//	"uuidMap": all,
 		"version": time.Now().String(),
 	})
 
 }
 
-//ready
 //CrossOrigin Access-Control-Allow-Origin any methods
 func CrossOrigin() gin.HandlerFunc {
 	return func(c *gin.Context) {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"time"
 
 	"github.com/deepch/vdk/av"
@@ -19,25 +18,27 @@ func StreamServerRunStreamDo(name string) {
 			return
 		}
 		if err != nil {
-			loggingPrintln("Stream Error", err)
+			loggingPrintln("Stream Error", err, "Restart Stream")
 		}
 		time.Sleep(2 * time.Second)
 
 	}
 }
+
+//StreamServerRunStream core stream
 func StreamServerRunStream(name string) (bool, error) {
 	keyTest := time.NewTimer(20 * time.Second)
 	checkClients := time.NewTimer(20 * time.Second)
 	Control, err := Storage.StreamControl(name)
 	if err != nil {
 		//TODO fix it
-		return true, ErrorNotFound
+		return true, ErrorStreamNotFound
 	}
 	var preKeyTS = time.Duration(0)
 	var Seq []*av.Packet
 	RTSPClient, err := rtspv2.Dial(rtspv2.RTSPClientOptions{URL: Control.URL, DisableAudio: true, DialTimeout: 3 * time.Second, ReadWriteTimeout: time.Second * 5 * time.Second, Debug: Control.Debug})
 	if err != nil {
-		return false, errors.New("RTSP Client Error " + err.Error())
+		return false, err
 	}
 	Storage.StreamStatus(name, ONLINE)
 	defer func() {
@@ -45,43 +46,41 @@ func StreamServerRunStream(name string) (bool, error) {
 		Storage.StreamStatus(name, OFFLINE)
 		Storage.StreamHLSFlush(name)
 	}()
-
-	//if codec data recived
 	if len(RTSPClient.CodecData) > 0 {
 		Storage.StreamCodecsUpdate(name, RTSPClient.CodecData)
 	}
 	loggingPrintln("Stream", name, "success connection RTSP")
 	for {
 		select {
-		//Read no video timeout
+		//Check stream have clients
 		case <-checkClients.C:
 			if Control.OnDemand && !Storage.ClientHas(name) {
-				return true, errors.New("not clients on steam")
+				return true, ErrorStreamNoClients
 			}
 			checkClients.Reset(20 * time.Second)
+		//Check stream send key
 		case <-keyTest.C:
-			return false, errors.New("Video Stream No Send Key Frame")
+			return false, ErrorStreamNoVideo
 		//Read core signals
 		case signals := <-Control.signals:
 			switch signals {
 			case SignalStreamStop:
-				return true, errors.New("Core Stop Signal")
+				return true, ErrorStreamStopCoreSignal
 			case SignalStreamRestart:
-				return false, errors.New("Core Restart Signal")
+				return false, ErrorStreamRestart
 			case SignalStreamClient:
-				loggingPrintln("New Viwer Signal")
+				return true, ErrorStreamNoClients
 			}
 		//Read rtsp signals
 		case signals := <-RTSPClient.Signals:
 			switch signals {
 			case rtspv2.SignalCodecUpdate:
-				loggingPrintln("Update Code Info")
 				Storage.StreamCodecsUpdate(name, RTSPClient.CodecData)
 			case rtspv2.SignalStreamRTPStop:
-				return false, errors.New("RTSP Client Restart Signal")
+				return false, ErrorStreamStopRTSPSignal
 			}
 		case <-RTSPClient.OutgoingProxy:
-			//Add Raw Proxy Next Version
+			//TODO Add Raw Proxy Next Version
 		case packet := <-RTSPClient.OutgoingPacket:
 			if packet.IsKeyFrame {
 				keyTest.Reset(20 * time.Second)

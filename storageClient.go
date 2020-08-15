@@ -6,14 +6,13 @@ import (
 	"github.com/deepch/vdk/av"
 )
 
-//ready
 //ClientAdd Add New Client to Translations
 func (obj *StorageST) ClientAdd(uuid string) (string, chan *av.Packet, error) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	tmp, ok := obj.Streams[uuid]
 	if !ok {
-		return "", nil, ErrorNotFound
+		return "", nil, ErrorStreamNotFound
 	}
 	//Generate UUID client
 	cid, err := generateUUID()
@@ -28,7 +27,6 @@ func (obj *StorageST) ClientAdd(uuid string) (string, chan *av.Packet, error) {
 
 }
 
-//ready
 //ClientDelete Delete Client
 func (obj *StorageST) ClientDelete(uuid string, cid string) {
 	obj.mutex.Lock()
@@ -38,6 +36,7 @@ func (obj *StorageST) ClientDelete(uuid string, cid string) {
 	}
 }
 
+//ClientHas check is client ext
 func (obj *StorageST) ClientHas(uuid string) bool {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()

@@ -6,10 +6,7 @@ import (
 	"github.com/deepch/vdk/av"
 )
 
-/*
- Stream Sections
-*/
-
+//StreamExist check stream exist
 func (obj *StorageST) StreamExist(key string) bool {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
@@ -21,6 +18,7 @@ func (obj *StorageST) StreamExist(key string) bool {
 	return false
 }
 
+//StreamRunAll run all stream go
 func (obj *StorageST) StreamRunAll() {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
@@ -33,6 +31,7 @@ func (obj *StorageST) StreamRunAll() {
 	}
 }
 
+//StreamRun one stream and lock
 func (obj *StorageST) StreamRun(key string) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
@@ -45,6 +44,7 @@ func (obj *StorageST) StreamRun(key string) {
 	}
 }
 
+//StreamUnlock unlock status to no lock
 func (obj *StorageST) StreamUnlock(key string) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
@@ -54,15 +54,17 @@ func (obj *StorageST) StreamUnlock(key string) {
 	}
 }
 
+//StreamControl get stream
 func (obj *StorageST) StreamControl(key string) (*StreamST, error) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[key]; ok {
 		return &tmp, nil
 	}
-	return nil, ErrorNotFound
+	return nil, ErrorStreamNotFound
 }
 
+//List list all stream
 func (obj *StorageST) List() map[string]StreamST {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
@@ -73,12 +75,16 @@ func (obj *StorageST) List() map[string]StreamST {
 	return tmp
 }
 
+//StreamAdd add stream
 func (obj *StorageST) StreamAdd(uuid string, val StreamST) error {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if _, ok := obj.Streams[uuid]; ok {
-		return ErrorFound
+		return ErrorStreamAlreadyExists
 	}
+	val.clients = make(map[string]ClientST)
+	val.ack = time.Now().Add(-255 * time.Hour)
+	val.hlsSegmentBuffer = make(map[int]Segment)
 	obj.Streams[uuid] = val
 	err := obj.SaveConfig()
 	if err != nil {
@@ -87,6 +93,7 @@ func (obj *StorageST) StreamAdd(uuid string, val StreamST) error {
 	return nil
 }
 
+//StreamAdd edit stream
 func (obj *StorageST) StreamEdit(uuid string, val StreamST) error {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
@@ -101,9 +108,10 @@ func (obj *StorageST) StreamEdit(uuid string, val StreamST) error {
 		}
 		return nil
 	}
-	return ErrorNotFound
+	return ErrorStreamNotFound
 }
 
+//StreamReload reload stream
 func (obj *StorageST) StreamReload(uuid string) error {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
@@ -113,9 +121,10 @@ func (obj *StorageST) StreamReload(uuid string) error {
 		}
 		return nil
 	}
-	return ErrorNotFound
+	return ErrorStreamNotFound
 }
 
+//StreamDelete stream
 func (obj *StorageST) StreamDelete(uuid string) error {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
@@ -130,18 +139,20 @@ func (obj *StorageST) StreamDelete(uuid string) error {
 		}
 		return nil
 	}
-	return ErrorNotFound
+	return ErrorStreamNotFound
 }
 
+//StreamInfo return stream info
 func (obj *StorageST) StreamInfo(uuid string) (*StreamST, error) {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
 	if tmp, ok := obj.Streams[uuid]; ok {
 		return &tmp, nil
 	}
-	return nil, ErrorNotFound
+	return nil, ErrorStreamNotFound
 }
 
+//StreamCodecsUpdate update stream codec storage
 func (obj *StorageST) StreamCodecsUpdate(key string, val []av.CodecData) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
@@ -151,36 +162,39 @@ func (obj *StorageST) StreamCodecsUpdate(key string, val []av.CodecData) {
 	}
 }
 
+//StreamCodecs get stream codec storage or wait
 func (obj *StorageST) StreamCodecs(key string) ([]av.CodecData, error) {
 	for i := 0; i < 100; i++ {
 		obj.mutex.RLock()
 		tmp, ok := obj.Streams[key]
 		obj.mutex.RUnlock()
 		if !ok {
-			return nil, ErrorNotFound
+			return nil, ErrorStreamNotFound
 		}
 		if tmp.codecs != nil {
 			return tmp.codecs, nil
 		}
 		time.Sleep(50 * time.Millisecond)
 	}
-	return nil, ErrorCodecNotFound
+	return nil, ErrorStreamNotFound
 }
 
-//ready
 //Cast broadcast stream
 func (obj *StorageST) Cast(key string, val *av.Packet) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[key]; ok {
 		if len(tmp.clients) > 0 {
-			for _, i2 := range tmp.clients {
+			for ic, i2 := range tmp.clients {
 				if len(i2.outgoingPacket) < 1000 {
 					i2.outgoingPacket <- val
-				} else {
+				} else if len(i2.signals) < 10 {
 					//send stop signals to client
 					i2.signals <- SignalStreamStop
-					i2.socket.Close()
+					err := i2.socket.Close()
+					if err != nil {
+						loggingPrintln(ic, "close client error", err)
+					}
 				}
 			}
 			tmp.ack = time.Now()
@@ -189,7 +203,6 @@ func (obj *StorageST) Cast(key string, val *av.Packet) {
 	}
 }
 
-//ready
 //StreamStatus change stream status
 func (obj *StorageST) StreamStatus(key string, val int) {
 	obj.mutex.Lock()

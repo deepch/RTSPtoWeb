@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"flag"
 	"io/ioutil"
-	"log"
+	"os"
 	"time"
 )
 
+//debug global
 var debug bool
 
+//NewStreamCore do load config file
 func NewStreamCore() *StorageST {
 	argConfigPatch := flag.String("config", "config.json", "config patch (/etc/server/config.json or config.json)")
 	argDebug := flag.Bool("debug", true, "set debug mode")
@@ -18,11 +20,13 @@ func NewStreamCore() *StorageST {
 	var tmp StorageST
 	data, err := ioutil.ReadFile(*argConfigPatch)
 	if err != nil {
-		log.Fatalln(err)
+		loggingPrintln("Server config read error", err)
+		os.Exit(1)
 	}
 	err = json.Unmarshal(data, &tmp)
 	if err != nil {
-		log.Fatalln(err)
+		loggingPrintln("Server config decode error", err)
+		os.Exit(1)
 	}
 	debug = tmp.Server.Debug
 	for i, i2 := range tmp.Streams {
@@ -34,11 +38,6 @@ func NewStreamCore() *StorageST {
 	return &tmp
 }
 
-/*
- Client Sections
-*/
-
-//ready
 //ClientDelete Delete Client
 func (obj *StorageST) SaveConfig() error {
 	res, err := json.MarshalIndent(obj, "", "  ")

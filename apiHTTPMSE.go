@@ -8,50 +8,59 @@ import (
 )
 
 func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
-	defer ws.Close()
-	uuid := ws.Request().FormValue("uuid")
-	if !Storage.StreamExist(uuid) {
+	defer func() {
+		err := ws.Close()
+		loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err})
+	}()
+	if !Storage.StreamExist(ws.Request().FormValue("uuid")) {
+		loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		return
 	}
 	err := ws.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	if err != nil {
+		loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err.Error()})
 		return
 	}
-	cid, ch, err := Storage.ClientAdd(uuid)
+	cid, ch, err := Storage.ClientAdd(ws.Request().FormValue("uuid"))
 	if err != nil {
+		loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err.Error()})
 		return
 	}
-	defer Storage.ClientDelete(uuid, cid)
-	Storage.StreamRun(uuid)
-	codecs, err := Storage.StreamCodecs(uuid)
+	defer Storage.ClientDelete(ws.Request().FormValue("uuid"), cid)
+	Storage.StreamRun(ws.Request().FormValue("uuid"))
+	codecs, err := Storage.StreamCodecs(ws.Request().FormValue("uuid"))
 	if err != nil {
+		loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err.Error()})
 		return
 	}
-
 	muxerMSE := mp4f.NewMuxer(nil)
 	err = muxerMSE.WriteHeader(codecs)
 	if err != nil {
+		loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err.Error()})
 		return
 	}
 	meta, init := muxerMSE.GetInit(codecs)
 	err = websocket.Message.Send(ws, append([]byte{9}, meta...))
 	if err != nil {
+		loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err.Error()})
 		return
 	}
 	err = websocket.Message.Send(ws, init)
 	if err != nil {
+		loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err.Error()})
 		return
 	}
 	var videoStart bool
 	go func() {
+		defer func() {
+			err := ws.Close()
+			loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err})
+		}()
 		for {
 			var message string
 			err := websocket.Message.Receive(ws, &message)
 			if err != nil {
-				err = ws.Close()
-				if err != nil {
-					return
-				}
+				loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err.Error()})
 				return
 			}
 		}
@@ -60,6 +69,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 	for {
 		select {
 		case <-noVideo.C:
+			loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: ErrorStreamNoVideo.Error()})
 			return
 		case pck := <-ch:
 			if pck.IsKeyFrame {
@@ -71,15 +81,18 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 			}
 			ready, buf, err := muxerMSE.WritePacket(*pck, false)
 			if err != nil {
+				loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err.Error()})
 				return
 			}
 			if ready {
 				err := ws.SetWriteDeadline(time.Now().Add(10 * time.Second))
 				if err != nil {
+					loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err.Error()})
 					return
 				}
 				err = websocket.Message.Send(ws, buf)
 				if err != nil {
+					loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err.Error()})
 					return
 				}
 			}
