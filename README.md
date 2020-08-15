@@ -4,14 +4,14 @@ RTSP Stream to WebBrowser MSE or WebRTC or HLS, full native! not use ffmpeg or g
 
 ## Table of Contents
 
-- [Installation from binary](#installation from binary)
-- [Installation from source](#installation from source)
+- [Installation from binary](#Installation from binary)
+- [Installation from source](#Installation from source)
 - [Configuration](#Configuration)
 - [API Documentation](#API documentation)
 - [Limitations](#Limitations)
 - [Performance](#Performance)
 - [Authors](#Authors)
-- [License](#license)
+- [License](#license) 
 
 ## Installation from binary
 
