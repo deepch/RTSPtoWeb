@@ -75,6 +75,7 @@ func (obj *StorageST) List() map[string]StreamST {
 	return tmp
 }
 
+//curl --header "Content-Type: application/json"   --request POST   --data '{"name": "test name 1","url": "rtsp://admin:123456@127.0.0.1:550/mpeg4", "on_demand": false,"debug": false}'   http://demo:demo@127.0.0.1:8083/stream/demo5/add
 //StreamAdd add stream
 func (obj *StorageST) StreamAdd(uuid string, val StreamST) error {
 	obj.mutex.Lock()
@@ -85,6 +86,11 @@ func (obj *StorageST) StreamAdd(uuid string, val StreamST) error {
 	val.clients = make(map[string]ClientST)
 	val.ack = time.Now().Add(-255 * time.Hour)
 	val.hlsSegmentBuffer = make(map[int]Segment)
+	val.signals = make(chan int, 100)
+	if !val.OnDemand {
+		val.runLock = true
+		go StreamServerRunStreamDo(uuid)
+	}
 	obj.Streams[uuid] = val
 	err := obj.SaveConfig()
 	if err != nil {
@@ -93,7 +99,7 @@ func (obj *StorageST) StreamAdd(uuid string, val StreamST) error {
 	return nil
 }
 
-//StreamAdd edit stream
+//StreamEdit edit stream
 func (obj *StorageST) StreamEdit(uuid string, val StreamST) error {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()

@@ -13,11 +13,11 @@
       "url": "rtsp://admin:123456@10.128.18.211/mpeg4",
       "on_demand": false,
       "debug": false,
-      "status": 0
+      "status": 1
     },
     "demo1": {
-      "name": "Проверка 2 ",
-      "url": "rtsp://admin:123456@10.128.18.211/mpeg4",
+      "name": "test name 1",
+      "url": "rtsp://admin:123456@127.0.0.1:550/mpeg4",
       "on_demand": true,
       "debug": false,
       "status": 0
@@ -25,6 +25,34 @@
     "demo2": {
       "name": "Проверка 3",
       "url": "rtsp://admin:123456@10.128.18.211/mpeg4",
+      "on_demand": false,
+      "debug": false,
+      "status": 1
+    },
+    "demo4": {
+      "name": "test name 1",
+      "url": "rtsp://admin:123456@127.0.0.1:550/mpeg4",
+      "on_demand": true,
+      "debug": false,
+      "status": 0
+    },
+    "demo5": {
+      "name": "test name 1",
+      "url": "rtsp://admin:123456@127.0.0.1:550/mpeg4",
+      "on_demand": true,
+      "debug": false,
+      "status": 0
+    },
+    "demo6": {
+      "name": "test name 1",
+      "url": "rtsp://admin:123456@127.0.0.1:550/mpeg4",
+      "on_demand": true,
+      "debug": false,
+      "status": 0
+    },
+    "demo7": {
+      "name": "test name 1",
+      "url": "rtsp://admin:123456@127.0.0.1:550/mpeg4",
       "on_demand": true,
       "debug": false,
       "status": 0

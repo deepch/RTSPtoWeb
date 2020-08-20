@@ -20,7 +20,7 @@ func (obj *StorageST) ClientAdd(uuid string) (string, chan *av.Packet, error) {
 		return "", nil, err
 	}
 	ch := make(chan *av.Packet, 2000)
-	tmp.clients[cid] = ClientST{outgoingPacket: ch}
+	tmp.clients[cid] = ClientST{outgoingPacket: ch, signals: make(chan int, 100)}
 	tmp.ack = time.Now()
 	obj.Streams[uuid] = tmp
 	return cid, ch, nil
