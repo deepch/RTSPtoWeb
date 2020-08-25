@@ -1,24 +1,35 @@
 {{template "head.tmpl" .}}
-<!-- Main content -->
-
-<!-- {{ range $key, $value := .streams }}
-
-
-{{ if eq .Status 1}}
-<p>{{.Status}} online {{ $key }} {{ .Name }}</p>
-{{else}}
-  <p>{{.Status}} offline {{ $key }} {{ .Name }}</p>
-  {{end}}
-  {{ end }} -->
-
-<div class="content">
+<div class="content-header">
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h3 class="m-0 text-dark">Info</h3>
+        <h1 class="m-0 text-dark">Dashboard</h1>
+      </div>
+    <div class="col-sm-6">
+      <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active">Dashboard</li>
+      </ol>
+    </div>
+  </div>
+  </div><!-- /.container-fluid -->
+</div>
+<!-- Main content -->
+<div class="content">
+  <div class="container-fluid">
+    <!-- <div class="row mb-2">
+      <div class="col-sm-6">
+        <h3 class="m-0 text-dark">System information</h3>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item active">Dashboard</li>
+        </ol>
       </div>
 
-    </div>
+    </div> -->
+    <h5 class="mt-4 mb-2">System information</h5>
     <div class="row">
       <div class="col-12 col-sm-6 col-md-3">
         <div class="info-box">
@@ -80,21 +91,75 @@
       </div>
       <!-- /.col -->
     </div>
-    <div class="row mb-2 d-none" id="player-wrapper">
-      <div class="col-sm-12">
-        <video id="videoPlayer" autoplay controls></video>
-        <canvas id="canvas" class="d-none"></canvas>
+
+
+    <div class="row">
+      <div class="col-6">
+        <h5 class="mt-4 mb-2">Streams</h5>
       </div>
+      <div class="col-6">
 
-    </div>
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h3 class="m-0 text-dark">Streams</h3>
+          <div class="input-group-prepend float-right mt-3">
+            <a class="btn" data-toggle="dropdown" style="padding-right: 0;">
+              <i class="fas fa-lg fa-sort"></i>
+            </a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="#">Name <i class="fas fa-sort-alpha-down float-right"></i> </a>
+              <a class="dropdown-item" href="#">Name <i class="fas fa-sort-alpha-up float-right"></i></a>
+            </div>
+          </div>
+
       </div>
-
     </div>
+    <div class="row mt-3 ">
+      <div class="col-12">
+        <div class="streams-vs-player">
+          <div class="player mb-3">
+            <video id="videoPlayer" autoplay controls></video>
+            <canvas id="canvas" class="d-none"></canvas>
+          </div>
+          <div class="streams-wrapper">
+            <div class="streams">
+              {{ range $key, $value := .streams }}
+              <div class="item" id="{{ $key }}">
+                <div class="stream">
+                  <div class="thumbs" onclick="rtspPlayer.livePlayer(0, '{{ $key }}')">
+                    <img src="../static/img/noimage.svg" alt="" class="stream-img">
+                  </div>
+                  <div class="text">
+                    <h5> {{ .Name }}</h5>
+                    <p>
+                      property
+                    </p>
+                    <div class="input-group-prepend dropleft text-muted">
+                      <a class="btn" data-toggle="dropdown" >
+                        <i class="fas fa-ellipsis-v"></i>
+                      </a>
+                      <div class="dropdown-menu">
+                        <a class="dropdown-item" onclick="rtspPlayer.livePlayer('hls', '{{ $key }}')" href="#">Play HLS</a>
+                        <a class="dropdown-item" onclick="rtspPlayer.livePlayer('mse', '{{ $key }}')" href="#">Play MSE</a>
+                        <a class="dropdown-item" onclick="rtspPlayer.livePlayer('webrtc', '{{ $key }}')" href="#">Play WebRTC</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" onclick="showEditStream('{{ $key }}')" href="#">Edit</a>
+                        <a class="dropdown-item" onclick="deleteStream('{{ $key }}')" href="#">Delete</a>
+                      </div>
+                    </div>
+                  </div>
 
-    <div class="row d-flex align-items-stretch">
+                </div>
+              </div>
+              {{end}}
+
+
+
+
+          </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="row d-flex align-items-stretch">
       {{ range $key, $value := .streams }}
       <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch" id="{{ $key }}">
         <div class="card bg-light">
@@ -112,7 +177,6 @@
               <div class="row">
                 <div class="col-5">
                   <h2 class="lead"><b>{{ .Name }}</b></h2>
-                  <!-- <p class="text-muted text-sm"><b>About: </b> Web Designer / UX / Graphic Artist / Coffee Lover </p> -->
                   <ul class="ml-4 mb-0 fa-ul text-muted">
                     <li class="small"><span class="fa-li"><i class="fas fa-photo-video"></i></span> : h.268</li>
                     <li class="small"><span class="fa-li"><i class="fas fa-expand-arrows-alt"></i></span> : <span>1920x1080</span></li>
@@ -149,16 +213,14 @@
 
       {{ end }}
 
-      <!-- CARD -->
-
-
-
-      <!-- END-CARD -->
-    </div>
+    </div> -->
 
 
   </div><!-- /.container-fluid -->
 </div>
 <!-- /.content -->
-
+<script>
+var streams={{.streams}};
+console.log(streams);
+</script>
 {{template "foot.tmpl" .}}

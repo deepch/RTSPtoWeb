@@ -35,6 +35,7 @@ func HTTPAPIServer() {
 		Html template
 	*/
 	public.GET("/", HTTPAPIServerIndex)
+	public.GET("/documentation", HTTPAPIServerDocumentation)
 	/*
 		Stream Control elements
 	*/
@@ -74,6 +75,18 @@ func HTTPAPIServerIndex(c *gin.Context) {
 		"port":    Storage.ServerHTTPPort(),
 		"streams": Storage.Streams,
 		"version": time.Now().String(),
+		"page":    "index",
+	})
+
+}
+
+//HTTPAPIServerDocumentation
+func HTTPAPIServerDocumentation(c *gin.Context) {
+	c.HTML(http.StatusOK, "documentation.tmpl", gin.H{
+		"port":    Storage.ServerHTTPPort(),
+		"streams": Storage.Streams,
+		"version": time.Now().String(),
+		"page":    "documentation",
 	})
 
 }

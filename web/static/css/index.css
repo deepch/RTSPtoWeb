@@ -1,4 +1,167 @@
 #videoPlayer{
   width: 100%;
   background: black;
+  position: -webkit-sticky; /* Safari */
+ position: sticky;
+ top: 15px;
+}
+
+.streams-vs-player{
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+.streams-vs-player .player{
+  display: none;
+  margin-bottom: 15px;
+}
+.streams-vs-player .streams-wrapper{
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+.streams-vs-player .streams-wrapper .streams{
+  /* max-width: 100%; */
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -7.5px;
+  margin-left: -7.5px;
+}
+.streams-vs-player .streams-wrapper .streams .item{
+  position: relative;
+  width: 100%;
+  padding-right: 7.5px;
+  padding-left: 7.5px;
+  margin-bottom: 15px;
+
+}
+.streams-vs-player .streams-wrapper .streams .item .stream{
+  max-width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+  border-radius: .25rem;
+  background: #fff;
+}
+.streams-vs-player .streams-wrapper .streams .item .stream>div{
+  flex: 0 0 50%;
+  max-width: 50%;
+  padding: 5px;
+  /* overflow: hidden; */
+}
+.streams-vs-player .streams-wrapper .streams .item .stream>div.thumbs{
+  background: black;
+  padding: 0px;
+  cursor: pointer;
+}
+.streams-vs-player .streams-wrapper .streams .item .stream>div.thumbs img{
+  width: 100%;
+}
+.streams-vs-player .streams-wrapper .streams .item .stream>div.text{
+  position: relative;
+  padding: 5px 15px 15px 15px;
+}
+.streams-vs-player .streams-wrapper .streams .item .stream>div.text .input-group-prepend {
+  position: absolute;
+  right: 5px;
+  top:3px;
+}
+.streams-vs-player .streams-wrapper .streams .item .stream>div.text h5{
+  font-weight: bold;
+  max-width: 100%;
+  height: 2.6rem;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/*ACTIVE*/
+.streams-vs-player.active-player .player{
+  display: block;
+  flex:0 0 100%;
+  max-width: 100%;
+}
+.streams-vs-player.active-player .streams-wrapper{
+  flex:0 0 100%;
+  max-width: 100%;
+}
+@media (min-width: 576px) {
+  .streams-vs-player .streams-wrapper .streams .item{
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  .streams-vs-player .streams-wrapper .streams .item .stream>div{
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  /*ACTIVE*/
+  .streams-vs-player.active-player .player{
+    flex:0 0 50%;
+    max-width: 50%;
+    padding-right: 30px;
+  }
+  .streams-vs-player.active-player .streams-wrapper{
+    flex:0 0 50%;
+    max-width: 50%;
+  }
+  .streams-vs-player.active-player .streams-wrapper .streams .item{
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .streams-vs-player.active-player .streams-wrapper .streams .item .stream>div{
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+}
+
+@media (min-width: 768px) {
+  .streams-vs-player .streams-wrapper .streams .item{
+    flex: 0 0 33%;
+    max-width: 33%;
+  }
+  /*ACTIVE*/
+  .streams-vs-player.active-player .player{
+    flex:0 0 60%;
+    max-width: 60%;
+
+  }
+  .streams-vs-player.active-player .streams-wrapper{
+    flex:0 0 40%;
+    max-width: 40%;
+  }
+}
+
+@media (min-width: 992px) {
+  .streams-vs-player .streams-wrapper .streams .item{
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+
+}
+/*
+@media (min-width: 1200px) {
+  .streams-vs-player .streams-wrapper .streams .item{
+    flex: 0 0 20%;
+    max-width: 20%;
+  }
+} */
+
+@media (min-width: 1200px) {
+  /*ACTIVE*/
+  .streams-vs-player.active-player .player{
+    flex:0 0 70%;
+    max-width: 70%;
+
+  }
+  .streams-vs-player.active-player .streams-wrapper{
+    flex:0 0 30%;
+    max-width: 30%;
+  }
+}
+
+@media (min-width: 1440px) {
+  .streams-vs-player .streams-wrapper .streams .item{
+    flex: 0 0 16.666%;
+    max-width: 16.666%;
+  }
 }

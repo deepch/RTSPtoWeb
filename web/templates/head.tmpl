@@ -37,7 +37,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
           <a class="nav-link" href="#" onclick="showAddStream()" role="button"><i class="fas fa-plus-square"></i> Add stream</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button"><i class="fas fa-sign-out-alt"></i> Exit</a>
+          <a class="nav-link" href="#" role="button"><i class="fas fa-sign-out-alt"></i> Exit</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button"><i class="fas fa-cogs"></i></a>
         </li>
         <!-- <li class="nav-item">
           <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button"><i class="fas fa-th-large"></i></a>
@@ -56,7 +59,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <nav class="mt-2">
           <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
-              <a href="#" class="nav-link active">
+              <a href="/" class="nav-link
+              {{ if eq .page "index"}}
+                active
+              {{end}}
+              ">
                 <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>
                   Dashboard
@@ -101,7 +108,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
             </li>
             <li class="nav-header">MISCELLANEOUS</li>
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="/documentation" class="nav-link
+              {{ if eq .page "documentation"}}
+                active
+              {{end}}">
                 <i class="nav-icon fas fa-file"></i>
                 <p>Documentation</p>
               </a>
@@ -122,19 +132,5 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
       <!-- Content Header (Page header) -->
-      <div class="content-header">
-        <div class="container-fluid">
-          <!-- <div class="row mb-2">
-            <div class="col-sm-6">
-              <h1 class="m-0 text-dark">Starter Page</h1>
-            </div>
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Starter Page</li>
-            </ol>
-          </div>
-        </div> -->
-        </div><!-- /.container-fluid -->
-      </div>
+
       <!-- /.content-header -->

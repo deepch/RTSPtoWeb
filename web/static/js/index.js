@@ -1,11 +1,15 @@
 $(document).ready(() => {
   localImages();
+  if(localStorage.getItem('defaultPlayer')!=null){
+    $('input[name=defaultPlayer]').val([localStorage.getItem('defaultPlayer')]);
+  }
+  //console.log(localStorage.getItem('defaultPlayer'));
+})
+$('input[name=defaultPlayer]').on('change',function(){
+  //console.log($(this).val());
+  localStorage.setItem('defaultPlayer', $(this).val());
 })
 
-$('body').on('click', '.nav-link', function() {
-  $('.nav-link').removeClass('active');
-  $(this).addClass('active');
-})
 var activeStream = null;
 
 function showAddStream(streamName, streamUrl) {
@@ -13,14 +17,28 @@ function showAddStream(streamName, streamUrl) {
   streamUrl = streamUrl || '';
   Swal.fire({
     title: 'Add stream',
-    html: '<label>Name</label><input id="stream-name" class="swal2-input" value="' + streamName + '">' +
-      '<label>Url</label><input id="stream-url" class="swal2-input" value="' + streamUrl + '">',
+    html: '<form class="text-left"> '
+    +'<div class="form-group">'
+    +'<label>Name</label>'
+    +'<input type="text" class="form-control" id="stream-name">'
+    +'<small class="form-text text-muted"></small>'
+    +'</div>'
+    +'<div class="form-group">'
+    +'  <label>URL</label>'
+    +'  <input type="text" class="form-control" id="stream-url">'
+    +'  </div>'
++'<div class="form-group form-check">'
+    +'<input type="checkbox" class="form-check-input" id="stream-ondemand">'
+    +'<label class="form-check-label">ondemand</label>'
+  +'</div>'
++'</form>',
     focusConfirm: true,
     showCancelButton: true,
     preConfirm: () => {
       var uuid = randomUuid(),
         name = $('#stream-name').val(),
-        url = $('#stream-url').val();
+        url = $('#stream-url').val(),
+        ondemand=$('#stream-ondemand').val();
       if (!validURL(url)) {
         Swal.fire({
           icon: 'error',
@@ -34,13 +52,11 @@ function showAddStream(streamName, streamUrl) {
       } else {
         goRequest('add', uuid, {
           name: name,
-          url: url
+          url: url,
+          ondemand:ondemand
         });
-        Swal.fire(
-          'Added!',
-          'Your stream has been Added.',
-          'success'
-        )
+
+
       }
       //console.log(uuid, name, url)
     }
@@ -48,13 +64,13 @@ function showAddStream(streamName, streamUrl) {
 
 }
 
-function showEditStream(uuid, name, url) {
-
+function showEditStream(uuid) {
+ console.log(streams[uuid]);
 }
 
 function deleteStream(uuid) {
   activeStream = uuid;
-  console.log(activeStream);
+  //console.log(activeStream);
   Swal.fire({
     title: 'Are you sure?',
     text: "Do you want delete this stream?",
@@ -65,16 +81,19 @@ function deleteStream(uuid) {
     confirmButtonText: 'Yes, delete it!'
   }).then((result) => {
     if (result.value) {
-      goRequest('delete', activeStream)
+      goRequest('delete', uuid)
 
     }
   })
 }
 
-
+function renewStreamlist(){
+  goRequest('streams');
+}
 
 function goRequest(method, uuid, data) {
   data = data || null;
+  uuid = uuid || null;
   var path = '';
   var type = 'GET';
   switch (method) {
@@ -102,7 +121,6 @@ function goRequest(method, uuid, data) {
       path = '';
       type = 'GET';
   }
-  console.log(path);
   if (path == '') {
     Swal.fire({
       icon: 'error',
@@ -116,7 +134,7 @@ function goRequest(method, uuid, data) {
   var ajaxParam = {
     url: path,
     type: type,
-    data: JSON.stringify(data),
+    dataType:'json',
     beforeSend: function(xhr) {
       xhr.setRequestHeader("Authorization", "Basic " + btoa("demo:demo"));
     },
@@ -129,28 +147,46 @@ function goRequest(method, uuid, data) {
   };
   if (data != null) {
     ajaxParam.data = JSON.stringify(data);
-    ajaxParam.dataType = 'json';
+    //ajaxParam.dataType = 'json';
   }
-  console.log(ajaxParam);
   $.ajax(ajaxParam);
 }
 
 function goRequestHandle(method, response, uuid) {
-  console.log(method, response);
   switch (method) {
     case 'add':
+
+      if(response.status==1){
+        renewStreamlist();
+        Swal.fire(
+          'Added!',
+          'Your stream has been Added.',
+          'success'
+        );
+      }else{
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Same mistake issset',
+        })
+      }
 
       break;
     case 'edit':
 
       break;
     case 'delete':
-      $('#' + uuid).remove();
-      Swal.fire(
-        'Deleted!',
-        'Your stream has been deleted.',
-        'success'
-      )
+
+      if(response.status==1){
+        $('#' + uuid).remove();
+        delete(streams[uuid]);
+        Swal.fire(
+          'Deleted!',
+          'Your stream has been deleted.',
+          'success'
+        )
+      }
+
       break;
     case 'reload':
 
@@ -159,7 +195,17 @@ function goRequestHandle(method, response, uuid) {
 
       break;
     case 'streams':
-
+      if(response.status==1){
+        streams=response.payload;
+        if(Object.keys(streams).length>0){
+          $.each(streams,function(uuid,param){
+            if($('#'+uuid).length==0){
+              $('.streams').append(streamHtmlTemplate(uuid,param.name));
+            }
+          })
+        }
+      }
+      //console.log(streams);
       break;
     default:
 
@@ -167,55 +213,13 @@ function goRequestHandle(method, response, uuid) {
 
 }
 
-function startPlay(type, uuid) {
-  activeStream = uuid;
-  $("#videoPlayer")[0].src = '';
-  $("#videoPlayer")[0].load();
-
-  switch (type) {
-    case 'hls':
-      playHls(uuid);
-      break;
-    default:
-      Swal.fire(
-        'Sorry',
-        'This option is still under development',
-        'question'
-      )
-      return;
-  }
-  $('#player-wrapper').removeClass('d-none');
-}
-var hls = null;
-if (Hls.isSupported()) {
-  hls = new Hls();
+if($("#videoPlayer").length>0){
+  $("#videoPlayer")[0].addEventListener('loadeddata', function() {
+    console.log('loadeddata');
+    makePic();
+  });
 }
 
-function playHls(uuid) {
-  var url = '/stream/' + uuid + '/hls/live/index.m3u8';
-  if ($("#videoPlayer")[0].canPlayType('application/vnd.apple.mpegurl')) {
-    $("#videoPlayer")[0].src = url;
-    $("#videoPlayer")[0].load();
-  } else {
-    if (hls != -null) {
-      hls.loadSource(url);
-      hls.attachMedia($("#videoPlayer")[0]);
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Your browser don`t support hls '
-      })
-    }
-    //console.log($("#videoPlayer")[0].canPlayType('application/vnd.apple.mpegurl'))
-
-  }
-}
-
-$("#videoPlayer")[0].addEventListener('loadeddata', function() {
-  console.log('loadeddata');
-  makePic();
-});
 
 function makePic() {
   ratio = $("#videoPlayer")[0].videoWidth / $("#videoPlayer")[0].videoHeight;
@@ -227,16 +231,15 @@ function makePic() {
   $('#canvas')[0].getContext('2d').drawImage($("#videoPlayer")[0], 0, 0, w, h);
   var imageData = $('#canvas')[0].toDataURL();
   var images = localStorage.getItem('images');
-  console.log(images);
   if (images != null) {
     images = JSON.parse(images);
   } else {
     images = {};
   }
-  images[activeStream] = imageData;
+
+  images[rtspPlayer.uuid] = imageData;
   localStorage.setItem('images', JSON.stringify(images));
-  $('#' + activeStream).find('.stream-img').attr('src', imageData);
-  //console.log($('#canvas')[0].toDataURL());
+  $('#' + rtspPlayer.uuid).find('.stream-img').attr('src', imageData);
 }
 
 function localImages() {
@@ -247,6 +250,36 @@ function localImages() {
       $('#' + k).find('.stream-img').attr('src', v);
     });
   }
+}
+function clearLocalImg(){
+  localStorage.setItem('images','{}');
+}
+
+function streamHtmlTemplate(uuid,name){
+  return '<div class="item" id="'+uuid+'">'
+    +'<div class="stream">'
+      +'<div class="thumbs" onclick="rtspPlayer.livePlayer(0, \''+uuid+'\')">'
+      +'<img src="../static/img/noimage.svg" alt="" class="stream-img">'
+      +'</div>'
+      +'<div class="text">'
+        +'<h5>'+name+'</h5>'
+        +'<p>property</p>'
+        +'<div class="input-group-prepend dropleft text-muted">'
+          +'<a class="btn" data-toggle="dropdown" >'
+            +'<i class="fas fa-ellipsis-v"></i>'
+          +'</a>'
+          +'<div class="dropdown-menu">'
+            +'<a class="dropdown-item" onclick="rtspPlayer.livePlayer(\'hls\', \''+uuid+'\')" href="#">Play HLS</a>'
+            +'<a class="dropdown-item" onclick="rtspPlayer.livePlayer(\'mse\', \''+uuid+'\')" href="#">Play MSE</a>'
+            +'<a class="dropdown-item" onclick="rtspPlayer.livePlayer(\'webrtc\', \''+uuid+'\')" href="#">Play WebRTC</a>'
+            +'<div class="dropdown-divider"></div>'
+            +'<a class="dropdown-item" onclick="showEditStream(\''+uuid+'\')" href="#">Edit</a>'
+            +'<a class="dropdown-item" onclick="deleteStream(\''+uuid+'\')" href="#">Delete</a>'
+          +'</div>'
+        +'</div>'
+      +'</div>'
+    +'</div>'
+  +'</div>';
 }
 
 function randomUuid() {
