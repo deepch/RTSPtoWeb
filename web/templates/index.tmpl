@@ -5,30 +5,18 @@
       <div class="col-sm-6">
         <h1 class="m-0 text-dark">Dashboard</h1>
       </div>
-    <div class="col-sm-6">
-      <ol class="breadcrumb float-sm-right">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item active">Dashboard</li>
-      </ol>
-    </div>
-  </div>
-  </div><!-- /.container-fluid -->
-</div>
-<!-- Main content -->
-<div class="content">
-  <div class="container-fluid">
-    <!-- <div class="row mb-2">
-      <div class="col-sm-6">
-        <h3 class="m-0 text-dark">System information</h3>
-      </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
           <li class="breadcrumb-item"><a href="/">Home</a></li>
           <li class="breadcrumb-item active">Dashboard</li>
         </ol>
       </div>
-
-    </div> -->
+    </div>
+  </div><!-- /.container-fluid -->
+</div>
+<!-- Main content -->
+<div class="content">
+  <div class="container-fluid">
     <h5 class="mt-4 mb-2">System information</h5>
     <div class="row">
       <div class="col-12 col-sm-6 col-md-3">
@@ -38,8 +26,8 @@
           <div class="info-box-content">
             <span class="info-box-text">CPU</span>
             <span class="info-box-number">
-              0
-              <!-- <small>%</small> -->
+              <label>0</label>
+              <small>%</small>
             </span>
           </div>
           <!-- /.info-box-content -->
@@ -53,7 +41,10 @@
 
           <div class="info-box-content">
             <span class="info-box-text">Bitrate</span>
-            <span class="info-box-number">0</span>
+            <span class="info-box-number">
+              <label>0</label>
+              <small>kbps</small>
+            </span>
           </div>
           <!-- /.info-box-content -->
         </div>
@@ -70,7 +61,10 @@
 
           <div class="info-box-content">
             <span class="info-box-text">Streams</span>
-            <span class="info-box-number">{{ len .streams}}</span>
+            <span class="info-box-number">
+              <label>{{ len .streams}}</label>
+              <small>st.</small>
+            </span>
           </div>
           <!-- /.info-box-content -->
         </div>
@@ -83,7 +77,10 @@
 
           <div class="info-box-content">
             <span class="info-box-text">Viewers</span>
-            <span class="info-box-number">0</span>
+            <span class="info-box-number">
+              <label>0</label>
+              <small>man</small>
+            </span>
           </div>
           <!-- /.info-box-content -->
         </div>
@@ -99,128 +96,61 @@
       </div>
       <div class="col-6">
 
-          <div class="input-group-prepend float-right mt-3">
-            <a class="btn" data-toggle="dropdown" style="padding-right: 0;">
-              <i class="fas fa-lg fa-sort"></i>
-            </a>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="#">Name <i class="fas fa-sort-alpha-down float-right"></i> </a>
-              <a class="dropdown-item" href="#">Name <i class="fas fa-sort-alpha-up float-right"></i></a>
-            </div>
+        <div class="input-group-prepend float-right mt-3">
+          <a class="btn" data-toggle="dropdown" style="padding-right: 0;">
+            <i class="fas fa-lg fa-sort"></i>
+          </a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="#">Name <i class="fas fa-sort-alpha-down float-right"></i> </a>
+            <a class="dropdown-item" href="#">Name <i class="fas fa-sort-alpha-up float-right"></i></a>
           </div>
+        </div>
 
       </div>
     </div>
     <div class="row mt-3 ">
-      <div class="col-12">
-        <div class="streams-vs-player">
-          <div class="player mb-3">
-            <video id="videoPlayer" autoplay controls></video>
-            <canvas id="canvas" class="d-none"></canvas>
-          </div>
-          <div class="streams-wrapper">
-            <div class="streams">
-              {{ range $key, $value := .streams }}
-              <div class="item" id="{{ $key }}">
-                <div class="stream">
-                  <div class="thumbs" onclick="rtspPlayer.livePlayer(0, '{{ $key }}')">
-                    <img src="../static/img/noimage.svg" alt="" class="stream-img">
-                  </div>
-                  <div class="text">
-                    <h5> {{ .Name }}</h5>
-                    <p>
-                      property
-                    </p>
-                    <div class="input-group-prepend dropleft text-muted">
-                      <a class="btn" data-toggle="dropdown" >
-                        <i class="fas fa-ellipsis-v"></i>
-                      </a>
-                      <div class="dropdown-menu">
-                        <a class="dropdown-item" onclick="rtspPlayer.livePlayer('hls', '{{ $key }}')" href="#">Play HLS</a>
-                        <a class="dropdown-item" onclick="rtspPlayer.livePlayer('mse', '{{ $key }}')" href="#">Play MSE</a>
-                        <a class="dropdown-item" onclick="rtspPlayer.livePlayer('webrtc', '{{ $key }}')" href="#">Play WebRTC</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" onclick="showEditStream('{{ $key }}')" href="#">Edit</a>
-                        <a class="dropdown-item" onclick="deleteStream('{{ $key }}')" href="#">Delete</a>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-              {{end}}
-
-
-
-
-          </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- <div class="row d-flex align-items-stretch">
       {{ range $key, $value := .streams }}
-      <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch" id="{{ $key }}">
-        <div class="card bg-light">
+      <div class="col-12 col-sm-6 col-md-3">
+        {{ if eq .Status 1}}
+          <div class="card card-outline card-success" id="{{ $key }}">
+        {{ else }}
+          <div class="card card-outline card-danger"  id="{{ $key }}">
+        {{end}}
+        <div class="card-body p-0">
+          <div class="row">
+            <div class="col-12">
+              <div class="img-wrapper">
+                <a href="/play_mse/{{$key}}"><img src="../static/img/noimage.svg" alt="" class="stream-img"></a>
 
-          {{ if eq .Status 1}}
-          <div class="card-header text-muted text-green border-bottom-0">
-            ONLINE
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="text-wrapper">
+                <h5>{{.Name}}</h5>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="btn-group stream">
+                <a  class="btn btn-info btn-flat btn-xs" href="/play_mse/{{$key}}"><i class="fas fa-play"></i> MSE</a>
+                <a  class="btn btn-info btn-flat btn-xs" href="/play_hls/{{$key}}"><i class="fas fa-play"></i> HLS</a>
+                <a  class="btn btn-info btn-flat btn-xs" href="/play_webrtc/{{$key}}"><i class="fas fa-play"></i> WebRTC</a>
+                <a  class="btn btn-secondary btn-flat btn-xs" href="/edit_stream/{{$key}}" ><i class="fas fa-edit"></i> Edit</a>
+                <a  class="btn btn-danger btn-flat btn-xs" onclick="deleteStream('{{ $key }}')" href="#"><i class="fas fa-times"></i> Delete</a>
+              </div>
+            </div>
           </div>
-          {{else}}
-            <div class="card-header text-muted text-red border-bottom-0">
-              OFFLINE
-            </div>
-            {{end}}
-            <div class="card-body pt-0">
-              <div class="row">
-                <div class="col-5">
-                  <h2 class="lead"><b>{{ .Name }}</b></h2>
-                  <ul class="ml-4 mb-0 fa-ul text-muted">
-                    <li class="small"><span class="fa-li"><i class="fas fa-photo-video"></i></span> : h.268</li>
-                    <li class="small"><span class="fa-li"><i class="fas fa-expand-arrows-alt"></i></span> : <span>1920x1080</span></li>
-                    <li class="small"><span class="fa-li"><i class="fas fa-users"></i></span> : 1</li>
-                    <li class="small"><span class="fa-li"><i class="fas fa-chart-line"></i></span> : 1500 KB/s</li>
-                  </ul>
-                </div>
-                <div class="col-7 text-center">
-                  <img src="../static/img/noimage.svg" alt="" class="img-fluid stream-img">
-                </div>
-              </div>
-            </div>
-            <div class="card-footer">
-              <div class="text-center">
-                <a href="#" onclick="startPlay('rtc', '{{ $key }}') " class="btn  btn-outline-primary btn-xs">
-                  <i class="fas fa-play"> WebRTC</i>
-                </a>
-                <a href="#" onclick="startPlay('mse', '{{ $key }}') " class="btn  btn-outline-primary btn-xs">
-                  <i class="fas fa-play"> FMP4</i>
-                </a>
-                <a href="#" onclick="startPlay('hls', '{{ $key }}') " class="btn  btn-outline-primary btn-xs">
-                  <i class="fas fa-play"> HLS</i>
-                </a>
-                <a href="#" class="btn  btn-outline-success btn-xs">
-                  <i class="fas fa-edit"></i> Edit
-                </a>
-                <a href="#" onclick="deleteStream('{{ $key }}')" class="btn  btn-outline-danger btn-xs">
-                  <i class="fas fa-times"></i> Delete
-                </a>
-              </div>
-            </div>
+
+
         </div>
+
       </div>
-
+      </div>
       {{ end }}
-
-    </div> -->
-
-
+    </div>
   </div><!-- /.container-fluid -->
+
 </div>
 <!-- /.content -->
-<script>
-var streams={{.streams}};
-console.log(streams);
-</script>
+
+
 {{template "foot.tmpl" .}}

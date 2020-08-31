@@ -35,7 +35,13 @@ func HTTPAPIServer() {
 		Html template
 	*/
 	public.GET("/", HTTPAPIServerIndex)
+	public.GET("/add_stream", HTTPAPIAddStream)
+	public.GET("/edit_stream/:uuid", HTTPAPIEditStream)
+	public.GET("/play_hls/:uuid", HTTPAPIPlayHls)
+	public.GET("/play_mse/:uuid", HTTPAPIPlayMse)
+	public.GET("/play_webrtc/:uuid", HTTPAPIPlayWebrtc)
 	public.GET("/documentation", HTTPAPIServerDocumentation)
+
 	/*
 		Stream Control elements
 	*/
@@ -80,7 +86,7 @@ func HTTPAPIServerIndex(c *gin.Context) {
 
 }
 
-//HTTPAPIServerDocumentation
+//HTTPAPIServerDocumentation play_hls
 func HTTPAPIServerDocumentation(c *gin.Context) {
 	c.HTML(http.StatusOK, "documentation.tmpl", gin.H{
 		"port":    Storage.ServerHTTPPort(),
@@ -89,6 +95,50 @@ func HTTPAPIServerDocumentation(c *gin.Context) {
 		"page":    "documentation",
 	})
 
+}
+func HTTPAPIPlayHls(c *gin.Context) {
+	c.HTML(http.StatusOK, "play_hls.tmpl", gin.H{
+		"port":    Storage.ServerHTTPPort(),
+		"streams": Storage.Streams,
+		"version": time.Now().String(),
+		"page":    "play_hls",
+		"uuid":    c.Param("uuid"),
+	})
+}
+func HTTPAPIPlayMse(c *gin.Context) {
+	c.HTML(http.StatusOK, "play_mse.tmpl", gin.H{
+		"port":    Storage.ServerHTTPPort(),
+		"streams": Storage.Streams,
+		"version": time.Now().String(),
+		"page":    "play_mse",
+		"uuid":    c.Param("uuid"),
+	})
+}
+func HTTPAPIPlayWebrtc(c *gin.Context) {
+	c.HTML(http.StatusOK, "play_webrtc.tmpl", gin.H{
+		"port":    Storage.ServerHTTPPort(),
+		"streams": Storage.Streams,
+		"version": time.Now().String(),
+		"page":    "play_webrtc",
+		"uuid":    c.Param("uuid"),
+	})
+}
+func HTTPAPIAddStream(c *gin.Context) {
+	c.HTML(http.StatusOK, "add_stream.tmpl", gin.H{
+		"port":    Storage.ServerHTTPPort(),
+		"streams": Storage.Streams,
+		"version": time.Now().String(),
+		"page":    "add_stream",
+	})
+}
+func HTTPAPIEditStream(c *gin.Context) {
+	c.HTML(http.StatusOK, "edit_stream.tmpl", gin.H{
+		"port":    Storage.ServerHTTPPort(),
+		"streams": Storage.Streams,
+		"version": time.Now().String(),
+		"page":    "edit_stream",
+		"uuid":    c.Param("uuid"),
+	})
 }
 
 //CrossOrigin Access-Control-Allow-Origin any methods

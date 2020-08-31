@@ -1,0 +1,96 @@
+{{template "head.tmpl" .}}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0 text-dark">Add stream</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item active">Add stream</li>
+        </ol>
+      </div>
+    </div>
+  </div><!-- /.container-fluid -->
+</div>
+
+  <section class="content">
+    <div class="container">
+      <form id="addStreamForm">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card card-outline card-primary">
+            <div class="card-header">
+              <h3 class="card-title">General parametrs</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="stream-name">Stream name</label>
+                <input type="text"  name="stream-name" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="stream-url">Stream url</label>
+                <input type="text"  name="stream-url" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="inputStatus">Stream type</label>
+                <select class="form-control custom-select" name="stream-ondemand">
+                  <option selected disabled>Select one</option>
+                  <option value="1">On demand only</option>
+                  <option value="0">Persistent connection</option>
+                </select>
+              </div>
+
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+
+      </div>
+      <div class="row mb-3">
+        <div class="col-12">
+          <a href="#" class="btn btn-secondary">Cancel</a>
+          <input type="submit" value="Add new stream" class="btn btn-success float-right">
+        </div>
+      </div>
+    </form>
+    </div>
+
+  </section>
+
+{{template "foot.tmpl" .}}
+
+<script>
+$('#addStreamForm').on('submit',function(e){
+  e.preventDefault();
+  var params = {
+    uuid:randomUuid(),
+    name:$(this).find('[name="stream-name"]').val(),
+    url:$(this).find('[name="stream-url"]').val(),
+    ondemand:$(this).find('[name="stream-ondemand"]').val(),
+  }
+  if (!validURL(params.url)) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'wrong url',
+      confirmButtonText: 'Ok',
+    })
+    return;
+  }
+  if (params.ondemand==null) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Please select Stream type',
+      confirmButtonText: 'Ok',
+    })
+    return;
+  }
+  goRequest('add', params.uuid, params);
+  //console.log(params);
+});
+
+</script>

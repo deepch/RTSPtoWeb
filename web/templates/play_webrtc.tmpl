@@ -1,0 +1,81 @@
+{{template "head.tmpl" .}}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0 text-dark">Play webrtc video</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item active">Play webrtc video</li>
+        </ol>
+      </div>
+    </div>
+  </div><!-- /.container-fluid -->
+</div>
+<div class="content">
+  {{template "player.tmpl" .}}
+  
+  {{template "foot.tmpl" .}}
+  </div>
+<script>
+  let webrtc,webrtcSendChannel;
+
+  $(document).ready(()=>{
+    startPlay();
+  });
+  function startPlay(){
+      webrtc=new RTCPeerConnection({
+        iceServers: [{
+          urls: ["stun:stun.l.google.com:19302"]
+        }]
+      });
+      webrtc.onnegotiationneeded = handleNegotiationNeeded;
+      webrtc.ontrack = function(event) {
+        console.log(event.streams.length + ' track is delivered');
+        $("#videoPlayer")[0].srcObject = event.streams[0];
+        $("#videoPlayer")[0].play();
+      }
+      webrtc.addTransceiver('video', {
+        'direction': 'sendrecv'
+      });
+      webrtcSendChannel = webrtc.createDataChannel('foo');
+      webrtcSendChannel.onclose = () => console.log('sendChannel has closed');
+      webrtcSendChannel.onopen = () => {
+        console.log('sendChannel has opened');
+        webrtcSendChannel.send('ping');
+        webrtcSendChannelInterval =  setInterval(() => {
+          webrtcSendChannel.send('ping');
+        }, 1000)
+      }
+
+      webrtcSendChannel.onmessage = e => console.log(e.data);
+
+  }
+async function handleNegotiationNeeded(){
+  let uuid=$('#uuid').val();
+  let url ="/stream/"+uuid+"/webrtc?uuid=" + uuid;
+  let offer = await webrtc.createOffer();
+
+  await webrtc.setLocalDescription(offer);
+  $.post(url, {
+    data: btoa(webrtc.localDescription.sdp)
+  }, function(data) {
+    try {
+      webrtc.setRemoteDescription(new RTCSessionDescription({
+        type: 'answer',
+        sdp: atob(data)
+      }))
+    } catch (e) {
+      console.warn(e);
+    }
+
+  });
+}
+
+  $("#videoPlayer")[0].addEventListener('loadeddata', () => {
+    $("#videoPlayer")[0].play();
+    makePic();
+  });
+</script>

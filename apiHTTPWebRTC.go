@@ -60,7 +60,6 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 				}
 				err = muxerWebRTC.WritePacket(*pck)
 				if err != nil {
-					c.IndentedJSON(400, Message{Status: 0, Payload: err.Error()})
 					loggingPrintln(c.Param("uuid"), Message{Status: 0, Payload: err.Error()})
 					return
 				}

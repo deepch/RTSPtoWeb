@@ -1,0 +1,53 @@
+<div class="container-fluid">
+  <div class="row">
+    <!-- player -->
+    <div class="col-12 col-md-7 col-lg-8">
+      <div class="card">
+        <div class="card-body p-0">
+          <video id="videoPlayer" autoplay controls muted></video>
+          <canvas id="canvas" class="d-none"></canvas>
+        </div>
+        <input type="hidden" id="uuid" value="{{ .uuid }}" />
+      </div>
+    </div>
+
+    <div class="col-12 col-md-5 col-lg-4">
+        {{ range $key, $value := .streams }}
+          {{ if eq .Status 1}}
+            <div class="card card-outline card-success" id="{{ $key }}">
+          {{ else }}
+            <div class="card card-outline card-danger"  id="{{ $key }}">
+          {{end}}
+          <div class="card-body p-0">
+            <div class="row">
+              <div class="col-7 pr-0">
+                <div class="img-wrapper">
+                  <img src="../static/img/noimage.svg" alt="" class="stream-img">
+
+                </div>
+              </div>
+              <div class="col-5 pl-0">
+                <div class="text-wrapper">
+                  <h5>{{.Name}}</h5>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="btn-group stream">
+                  <a  class="btn btn-info btn-flat btn-xs" href="/play_mse/{{$key}}"><i class="fas fa-play"></i> MSE</a>
+                  <a  class="btn btn-info btn-flat btn-xs" href="/play_hls/{{$key}}"><i class="fas fa-play"></i> HLS</a>
+                  <a  class="btn btn-info btn-flat btn-xs" href="/play_webrtc/{{$key}}"><i class="fas fa-play"></i> WebRTC</a>
+                  <a  class="btn btn-secondary btn-flat btn-xs" href="/edit_stream/{{$key}}" ><i class="fas fa-edit"></i> Edit</a>
+                  <a  class="btn btn-danger btn-flat btn-xs" onclick="deleteStream('{{ $key }}')" href="#"><i class="fas fa-times"></i> Delete</a>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+
+        </div>
+        {{ end }}
+    </div>
+  </div>
+</div>
+</div>

@@ -1,0 +1,96 @@
+{{template "head.tmpl" .}}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0 text-dark">Edit stream</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item active">Edit stream</li>
+        </ol>
+      </div>
+    </div>
+  </div><!-- /.container-fluid -->
+</div>
+<input type="hidden" value="{{.uuid}}" id="uuid" />
+{{ $stream:= (index .streams .uuid)}}
+
+<!-- {{ with (index .streams .uuid) }}{{ .OnDemand }}{{ end }} -->
+  <section class="content">
+    <div class="container">
+      <form id="editStreamForm">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card card-outline card-primary">
+            <div class="card-header">
+              <h3 class="card-title">General parametrs</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="stream-name">Stream name</label>
+                <input type="text"  name="stream-name" class="form-control" value="{{ $stream.Name }}">
+              </div>
+              <div class="form-group">
+                <label for="stream-url">Stream url</label>
+                <input type="text"  name="stream-url" class="form-control" value="{{ $stream.URL }}">
+              </div>
+              <div class="form-group">
+                <label for="inputStatus">Stream type</label>
+                <select class="form-control custom-select" name="stream-ondemand">
+                  <option disabled>Select one</option>
+                  <option value="1"
+                  {{ if eq $stream.OnDemand true}}
+                    selected
+                  {{ end }}>On demand only</option>
+                  <option value="0" {{ if eq $stream.OnDemand false}}
+                    selected
+                  {{ end }}>Persistent connection</option>
+                </select>
+              </div>
+
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+
+      </div>
+      <div class="row mb-3">
+        <div class="col-12">
+          <a href="#" class="btn btn-secondary">Cancel</a>
+          <input type="submit" value="Save stream" class="btn btn-success float-right">
+        </div>
+      </div>
+    </form>
+    </div>
+
+  </section>
+
+{{template "foot.tmpl" .}}
+
+<script>
+$('#editStreamForm').on('submit',function(e){
+  e.preventDefault();
+  var params = {
+    uuid:$('#uuid').val(),
+    name:$(this).find('[name="stream-name"]').val(),
+    url:$(this).find('[name="stream-url"]').val(),
+    ondemand:$(this).find('[name="stream-ondemand"]').val(),
+  }
+  if (!validURL(params.url)) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'wrong url',
+      confirmButtonText: 'Ok',
+    })
+    return;
+  }
+
+  goRequest('edit', params.uuid, params);
+  //console.log(params);
+});
+
+</script>

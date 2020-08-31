@@ -34,14 +34,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
       </ul>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link" href="#" onclick="showAddStream()" role="button"><i class="fas fa-plus-square"></i> Add stream</a>
+          <a class="nav-link" href="/add_stream"  role="button"><i class="fas fa-plus-square"></i> Add stream</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#" role="button"><i class="fas fa-sign-out-alt"></i> Exit</a>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button"><i class="fas fa-cogs"></i></a>
-        </li>
+        </li> -->
         <!-- <li class="nav-item">
           <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button"><i class="fas fa-th-large"></i></a>
         </li> -->
@@ -71,8 +71,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
               </a>
             </li>
             <li class="nav-header">NAVIGATION</li>
-            <li class="nav-item has-treeview">
-              <a href="#" class="nav-link">
+            
+            <li class="nav-item has-treeview {{ if eq .page "add_stream"}}
+              menu-open
+            {{end}}
+            ">
+              <a href="#" class="nav-link {{ if eq .page "add_stream"}}
+                active
+              {{end}}
+              ">
                 <i class="nav-icon fas fa-clipboard-list"></i>
                 <p>
                   Streams
@@ -81,7 +88,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
               </a>
               <ul class="nav nav-treeview">
                 <li class="nav-item">
-                  <a href="#" onclick="showAddStream()" class="nav-link">
+                  <a href="/add_stream" class="nav-link">
                     <i class="fas fa-plus-square nav-icon"></i>
                     <p>Add stream</p>
                   </a>
