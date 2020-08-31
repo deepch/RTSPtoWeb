@@ -110,17 +110,17 @@
     </div>
     <div class="row mt-3 ">
       {{ range $key, $value := .streams }}
-      <div class="col-12 col-sm-6 col-md-3">
+      <div class="col-12 col-sm-6 col-md-3" id="{{ $key }}">
         {{ if eq .Status 1}}
-          <div class="card card-outline card-success" id="{{ $key }}">
+          <div class="card card-outline card-success">
         {{ else }}
-          <div class="card card-outline card-danger"  id="{{ $key }}">
+          <div class="card card-outline card-danger">
         {{end}}
         <div class="card-body p-0">
           <div class="row">
             <div class="col-12">
               <div class="img-wrapper">
-                <a href="/play_mse/{{$key}}"><img src="../static/img/noimage.svg" alt="" class="stream-img"></a>
+                <a href="/pages/player/mse/{{$key}}"><img src="/../static/img/noimage.svg" alt="" class="stream-img"></a>
 
               </div>
             </div>
@@ -131,10 +131,10 @@
             </div>
             <div class="col-12">
               <div class="btn-group stream">
-                <a  class="btn btn-info btn-flat btn-xs" href="/play_mse/{{$key}}"><i class="fas fa-play"></i> MSE</a>
-                <a  class="btn btn-info btn-flat btn-xs" href="/play_hls/{{$key}}"><i class="fas fa-play"></i> HLS</a>
-                <a  class="btn btn-info btn-flat btn-xs" href="/play_webrtc/{{$key}}"><i class="fas fa-play"></i> WebRTC</a>
-                <a  class="btn btn-secondary btn-flat btn-xs" href="/edit_stream/{{$key}}" ><i class="fas fa-edit"></i> Edit</a>
+                <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/mse/{{$key}}"><i class="fas fa-play"></i> MSE</a>
+                <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/hls/{{$key}}"><i class="fas fa-play"></i> HLS</a>
+                <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/webrtc/{{$key}}"><i class="fas fa-play"></i> WebRTC</a>
+                <a  class="btn btn-secondary btn-flat btn-xs" href="/pages/stream/edit/{{$key}}" ><i class="fas fa-edit"></i> Edit</a>
                 <a  class="btn btn-danger btn-flat btn-xs" onclick="deleteStream('{{ $key }}')" href="#"><i class="fas fa-times"></i> Delete</a>
               </div>
             </div>

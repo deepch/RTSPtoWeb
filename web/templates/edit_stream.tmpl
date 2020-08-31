@@ -17,55 +17,59 @@
 <input type="hidden" value="{{.uuid}}" id="uuid" />
 {{ $stream:= (index .streams .uuid)}}
 
-<!-- {{ with (index .streams .uuid) }}{{ .OnDemand }}{{ end }} -->
   <section class="content">
-    <div class="container">
-      <form id="editStreamForm">
+    <div class="container-fluid">
       <div class="row">
         <div class="col-md-12">
-          <div class="card card-outline card-primary">
+          <div class="card card-primary">
             <div class="card-header">
-              <h3 class="card-title">General parametrs</h3>
+              <h3 class="card-title">Parameters<small> main</small></h3>
             </div>
-            <div class="card-body">
-              <div class="form-group">
-                <label for="stream-name">Stream name</label>
-                <input type="text"  name="stream-name" class="form-control" value="{{ $stream.Name }}">
+            <form role="form" id="editStreamForm">
+              <div class="card-body">
+                <div class="form-group">
+                  <label for="exampleInputEmail1">Stream name</label>
+                  <input type="text" class="form-control" name="stream-name" placeholder="Enter stream name" value="{{ $stream.Name }}">
+                  <small  class="form-text text-muted">You can choose any name for the stream, for example "My room" or  "Happy sausage"</small>
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1">Stream url</label>
+                  <input type="text" name="stream-url" class="form-control"  placeholder="Enter stream url" value="{{ $stream.URL }}">
+                  <small  class="form-text text-muted">Enter rtsp address as instructed by your camera. Look like <code>rtsp://&lt;ip&gt;:&lt;port&gt;/path </code></small>
+                </div>
+                <div class="form-group">
+                  <label for="inputStatus">Stream type</label>
+                  <select class="form-control custom-select" name="stream-ondemand">
+                    <option selected disabled><small>Select One</small></option>
+                    <option value="1"
+                    {{ if eq $stream.OnDemand true}}
+                      selected
+                    {{ end }}>On demand only</option>
+                    <option value="0" {{ if eq $stream.OnDemand false}}
+                      selected
+                    {{ end }}>Persistent connection</option>
+                  </select>
+                  <small  class="form-text text-muted">On persistent connection, the server get data from the camera continuously. On demand, the server get data from the camera only when you click play button </small>
+                </div>
+                <div class="form-group mb-0">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" name="debug" class="custom-control-input"
+                    {{ if eq $stream.Debug true}}
+                      checked
+                    {{ end }}>
+                    <label class="custom-control-label">Debug</label>
+                  </div>
+                  <small  class="form-text text-muted">Select this options if you want get more data about the stream </small>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="stream-url">Stream url</label>
-                <input type="text"  name="stream-url" class="form-control" value="{{ $stream.URL }}">
+              <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Save stream</button>
               </div>
-              <div class="form-group">
-                <label for="inputStatus">Stream type</label>
-                <select class="form-control custom-select" name="stream-ondemand">
-                  <option disabled>Select one</option>
-                  <option value="1"
-                  {{ if eq $stream.OnDemand true}}
-                    selected
-                  {{ end }}>On demand only</option>
-                  <option value="0" {{ if eq $stream.OnDemand false}}
-                    selected
-                  {{ end }}>Persistent connection</option>
-                </select>
-              </div>
-
-            </div>
-            <!-- /.card-body -->
+            </form>
           </div>
-          <!-- /.card -->
+          </div>
         </div>
-
-      </div>
-      <div class="row mb-3">
-        <div class="col-12">
-          <a href="#" class="btn btn-secondary">Cancel</a>
-          <input type="submit" value="Save stream" class="btn btn-success float-right">
-        </div>
-      </div>
-    </form>
     </div>
-
   </section>
 
 {{template "foot.tmpl" .}}

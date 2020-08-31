@@ -11,10 +11,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <meta http-equiv="x-ua-compatible" content="ie=edge">
 
   <title>RTSPtoWEB</title>
-  <link rel="stylesheet" href="../static/plugins/fontawesome-free/css/all.min.css">
-  <link rel="stylesheet" href="../static/css/adminlte.min.css">
-  <link rel="stylesheet" href="../static/plugins/sweetalert2/sweetalert2.min.css">
-  <link rel="stylesheet" href="../static/css/index.css">
+  <link rel="stylesheet" href="/../static/plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="/../static/css/adminlte.min.css">
+  <link rel="stylesheet" href="/../static/plugins/sweetalert2/sweetalert2.min.css">
+  <link rel="stylesheet" href="/../static/css/index.css">
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
 
@@ -34,10 +34,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
       </ul>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link" href="/add_stream"  role="button"><i class="fas fa-plus-square"></i> Add stream</a>
+          <a class="nav-link" href="/pages/stream/add"  role="button"><i class="fas fa-plus-square"></i> Add stream</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#" role="button"><i class="fas fa-sign-out-alt"></i> Exit</a>
+          <a class="nav-link" href="/pages/login" role="button"><i class="fas fa-sign-out-alt"></i> Sign out</a>
         </li>
         <!-- <li class="nav-item">
           <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button"><i class="fas fa-cogs"></i></a>
@@ -51,7 +51,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
-      <a href="/" class="brand-link text-center">
+      <a href="/" class="brand-link">
+        <img src="/static/img/pic.svg" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
         <span class="brand-text font-weight-light">RTSPtoWEB</span>
       </a>
 
@@ -71,12 +72,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
               </a>
             </li>
             <li class="nav-header">NAVIGATION</li>
-            
-            <li class="nav-item has-treeview {{ if eq .page "add_stream"}}
+
+            <li class="nav-item has-treeview {{ if or (eq .page "add_stream") (eq .page "stream_list") }}
               menu-open
             {{end}}
             ">
-              <a href="#" class="nav-link {{ if eq .page "add_stream"}}
+              <a href="#" class="nav-link {{ if or (eq .page "add_stream") (eq .page "stream_list") }}
                 active
               {{end}}
               ">
@@ -84,38 +85,32 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <p>
                   Streams
                   <i class="right fas fa-angle-left"></i>
+                  <span class="badge badge-info right">{{ len .streams}}</span>
                 </p>
+
               </a>
               <ul class="nav nav-treeview">
+                <li class="nav-item ">
+                  <a href="/pages/stream/list" class="nav-link {{ if  (eq .page "stream_list") }}
+                    active
+                  {{end}}">
+                    <i class="fas fa-list-alt nav-icon"></i>
+                    <p>Streams list</p>
+                  </a>
+                </li>
                 <li class="nav-item">
-                  <a href="/add_stream" class="nav-link">
+                  <a href="/pages/stream/add" class="nav-link {{ if  (eq .page "add_stream") }}
+                    active
+                  {{end}}">
                     <i class="fas fa-plus-square nav-icon"></i>
                     <p>Add stream</p>
                   </a>
                 </li>
-                <!-- <li class="nav-item">
-                  <a href="./index.html" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Dashboard v1</p>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="./index2.html" class="nav-link active">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Dashboard v2</p>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="./index3.html" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Dashboard v3</p>
-                  </a>
-                </li> -->
               </ul>
             </li>
             <li class="nav-header">MISCELLANEOUS</li>
             <li class="nav-item">
-              <a href="/documentation" class="nav-link
+              <a href="/pages/documentation" class="nav-link
               {{ if eq .page "documentation"}}
                 active
               {{end}}">
@@ -124,9 +119,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
               </a>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="/pages/login" class="nav-link">
                 <i class="nav-icon fas fa-sign-out-alt"></i>
-                <p>Exit</p>
+                <p>Sign out</p>
               </a>
             </li>
           </ul>

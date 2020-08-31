@@ -35,12 +35,14 @@ func HTTPAPIServer() {
 		Html template
 	*/
 	public.GET("/", HTTPAPIServerIndex)
-	public.GET("/add_stream", HTTPAPIAddStream)
-	public.GET("/edit_stream/:uuid", HTTPAPIEditStream)
-	public.GET("/play_hls/:uuid", HTTPAPIPlayHls)
-	public.GET("/play_mse/:uuid", HTTPAPIPlayMse)
-	public.GET("/play_webrtc/:uuid", HTTPAPIPlayWebrtc)
-	public.GET("/documentation", HTTPAPIServerDocumentation)
+	public.GET("/pages/stream/list", HTTPAPIStreamList)
+	public.GET("/pages/stream/add", HTTPAPIAddStream)
+	public.GET("/pages/stream/edit/:uuid", HTTPAPIEditStream)
+	public.GET("/pages/player/hls/:uuid", HTTPAPIPlayHls)
+	public.GET("/pages/player/mse/:uuid", HTTPAPIPlayMse)
+	public.GET("/pages/player/webrtc/:uuid", HTTPAPIPlayWebrtc)
+	public.GET("/pages/documentation", HTTPAPIServerDocumentation)
+	public.GET("/pages/login", HTTPAPIPageLogin)
 
 	/*
 		Stream Control elements
@@ -86,7 +88,6 @@ func HTTPAPIServerIndex(c *gin.Context) {
 
 }
 
-//HTTPAPIServerDocumentation play_hls
 func HTTPAPIServerDocumentation(c *gin.Context) {
 	c.HTML(http.StatusOK, "documentation.tmpl", gin.H{
 		"port":    Storage.ServerHTTPPort(),
@@ -94,8 +95,25 @@ func HTTPAPIServerDocumentation(c *gin.Context) {
 		"version": time.Now().String(),
 		"page":    "documentation",
 	})
-
 }
+
+func HTTPAPIStreamList(c *gin.Context) {
+	c.HTML(http.StatusOK, "stream_list.tmpl", gin.H{
+		"port":    Storage.ServerHTTPPort(),
+		"streams": Storage.Streams,
+		"version": time.Now().String(),
+		"page":    "stream_list",
+	})
+}
+func HTTPAPIPageLogin(c *gin.Context) {
+	c.HTML(http.StatusOK, "login.tmpl", gin.H{
+		"port":    Storage.ServerHTTPPort(),
+		"streams": Storage.Streams,
+		"version": time.Now().String(),
+		"page":    "login",
+	})
+}
+
 func HTTPAPIPlayHls(c *gin.Context) {
 	c.HTML(http.StatusOK, "play_hls.tmpl", gin.H{
 		"port":    Storage.ServerHTTPPort(),
