@@ -8,33 +8,12 @@
     "http_port": ":8083"
   },
   "streams": {
-    "346ee479-cdfa-45f8-b719-85253b549d72": {
-      "name": "Проверка",
-      "url": "rtsp://admin:123456@10.128.18.211/mpeg4",
+    "demo1": {
+      "name": "test video",
+      "url": "rtsp://admin:Asd234856@fs1.vidux.hu/Streaming/Channels/1",
       "on_demand": false,
-      "debug": false,
+      "debug": true,
       "status": 1
-    },
-    "demo2": {
-      "name": "Проверка 3",
-      "url": "rtsp://admin:123456@10.128.18.211/mpeg4",
-      "on_demand": false,
-      "debug": false,
-      "status": 1
-    },
-    "demo6": {
-      "name": "test name 1",
-      "url": "rtsp://admin:123456@127.0.0.1:550/mpeg4",
-      "on_demand": true,
-      "debug": false,
-      "status": 0
-    },
-    "demo7": {
-      "name": "test name 1",
-      "url": "rtsp://admin:123456@127.0.0.1:550/mpeg4",
-      "on_demand": true,
-      "debug": false,
-      "status": 0
     }
   }
 }
