@@ -6,6 +6,20 @@ import (
 	"github.com/deepch/vdk/av"
 )
 
+//StreamMake check stream exist
+func (obj *StorageST) StreamMake(val StreamST) StreamST {
+	//make client's
+	val.clients = make(map[string]ClientST)
+	//make last ack
+	val.ack = time.Now().Add(-255 * time.Hour)
+	//make hls buffer
+	val.hlsSegmentBuffer = make(map[int]Segment)
+	//make signals buffer chain
+	val.signals = make(chan int, 100)
+
+	return val
+}
+
 //StreamExist check stream exist
 func (obj *StorageST) StreamExist(key string) bool {
 	obj.mutex.Lock()
@@ -83,10 +97,7 @@ func (obj *StorageST) StreamAdd(uuid string, val StreamST) error {
 	if _, ok := obj.Streams[uuid]; ok {
 		return ErrorStreamAlreadyExists
 	}
-	val.clients = make(map[string]ClientST)
-	val.ack = time.Now().Add(-255 * time.Hour)
-	val.hlsSegmentBuffer = make(map[int]Segment)
-	val.signals = make(chan int, 100)
+	val = obj.StreamMake(val)
 	if !val.OnDemand {
 		val.runLock = true
 		go StreamServerRunStreamDo(uuid)
@@ -104,8 +115,12 @@ func (obj *StorageST) StreamEdit(uuid string, val StreamST) error {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[uuid]; ok {
+		val = obj.StreamMake(val)
 		if tmp.runLock {
-			tmp.signals <- SignalStreamStop
+			tmp.signals <- SignalStreamRestart
+		} else if !val.OnDemand {
+			val.runLock = true
+			go StreamServerRunStreamDo(uuid)
 		}
 		obj.Streams[uuid] = val
 		err := obj.SaveConfig()

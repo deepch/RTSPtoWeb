@@ -13,6 +13,10 @@ func StreamServerRunStreamDo(name string) {
 	for {
 		loggingPrintln("Run Stream", name)
 		opt, err := Storage.StreamControl(name)
+		if opt.OnDemand && !Storage.ClientHas(name) {
+			loggingPrintln("Stream Exit Not Client")
+			return
+		}
 		if err != nil {
 			loggingPrintln("Stream Error", err, "Restart Stream")
 		}
@@ -23,10 +27,6 @@ func StreamServerRunStreamDo(name string) {
 		}
 		if err != nil {
 			loggingPrintln("Stream Error", err, "Restart Stream")
-		}
-		if opt.OnDemand && !Storage.ClientHas(name) {
-			loggingPrintln("Stream Exit Not Client")
-			return
 		}
 		time.Sleep(2 * time.Second)
 

@@ -10,9 +10,9 @@
   "streams": {
     "demo1": {
       "name": "test video",
-      "url": "rtsp://admin:Asd234856@fs1.vidux.hu/Streaming/Channels/1",
+      "url": "rtsp://admin:1234567@171.25.235.18/mpeg4",
       "on_demand": false,
-      "debug": true,
+      "debug": false,
       "status": 1
     }
   }

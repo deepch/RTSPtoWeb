@@ -19,7 +19,7 @@
 
   {{template "foot.tmpl" .}}
   </div>
-  <script src="../static/plugins/hlsjs/hls.min.js"></script>
+  <script src="/../static/plugins/hlsjs/hls.min.js"></script>
 <script>
 
   $(document).ready(()=>{
@@ -32,7 +32,7 @@
         $("#videoPlayer")[0].src = url;
         $("#videoPlayer")[0].load();
     } else if (Hls.isSupported()) {
-        let hls=new Hls();
+        let hls=new Hls({manifestLoadingTimeOut:60000, debug: true});
         hls.loadSource(url);
         hls.attachMedia($("#videoPlayer")[0]);
     } else {

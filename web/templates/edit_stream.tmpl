@@ -81,7 +81,7 @@ $('#editStreamForm').on('submit',function(e){
     uuid:$('#uuid').val(),
     name:$(this).find('[name="stream-name"]').val(),
     url:$(this).find('[name="stream-url"]').val(),
-    ondemand:$(this).find('[name="stream-ondemand"]').val(),
+    on_demand:Boolean(parseInt($(this).find('[name="stream-ondemand"]').val())),
   }
   if (!validURL(params.url)) {
     Swal.fire({
