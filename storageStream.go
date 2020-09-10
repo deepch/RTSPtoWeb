@@ -116,12 +116,18 @@ func (obj *StorageST) StreamEdit(uuid string, val StreamST) error {
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[uuid]; ok {
 		val = obj.StreamMake(val)
-		if tmp.runLock {
+		//copy global stream status need safe it
+		val.runLock = tmp.runLock
+		//if stream running send restart stream
+		if val.runLock {
 			tmp.signals <- SignalStreamRestart
-		} else if !val.OnDemand {
+		}
+		//if stream no running and no OnDemand
+		if !val.runLock && !val.OnDemand {
 			val.runLock = true
 			go StreamServerRunStreamDo(uuid)
 		}
+		//replace map
 		obj.Streams[uuid] = val
 		err := obj.SaveConfig()
 		if err != nil {
