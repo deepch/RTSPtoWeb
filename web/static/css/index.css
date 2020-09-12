@@ -61,7 +61,7 @@
 .grid-wrapper{
   height: 100%;
   max-height: 100vh;
-  margin: -2px;
+  margin: -1px;
   background: #000;
 }
 .grid-wrapper .player{
