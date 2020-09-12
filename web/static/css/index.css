@@ -17,7 +17,7 @@
 }
 .img-wrapper{
   width: 100%;
-  height: auto;
+  height: 180px;
   background: black;
   cursor: pointer;
 }
@@ -27,4 +27,79 @@
 }
 .text-wrapper{
   padding: 10px;
+}
+
+@media (min-width: 576px){
+.card-columns {
+    -webkit-column-count: 4;
+    -moz-column-count: 4;
+    column-count: 4;
+    -webkit-column-gap: 1.25rem;
+    -moz-column-gap: 1.25rem;
+    column-gap: 1.25rem;
+    orphans: 1;
+    widows: 1;
+}
+}
+@media (min-width: 576px){
+  .card-column {
+      column-count: 2;
+    }
+}
+@media (min-width: 768px){
+  .card-column {
+      column-count: 4;
+    }
+}
+@media (min-width: 1920px){
+  .card-column {
+      column-count: 6;
+    }
+}
+
+
+.grid-wrapper{
+  height: 100%;
+  max-height: 100vh;
+  margin: -2px;
+  background: #000;
+}
+.grid-wrapper .player{
+  max-height: 50%;
+padding: 2px;
+}
+.grid-wrapper .player video{
+  height: 100%;
+  width: 100%;
+  background: #343a40;
+}
+.grid-wrapper .player .control{
+  width: 100%;
+    position: absolute;
+    bottom: 0;
+    padding: 10px;
+    text-align: center;
+}
+.grid-wrapper .player .control .btn{
+  margin: 0 0 10px 10px;
+}
+
+.card .stream-name{
+  position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+}
+.card .stream-name .card-title{
+  color: #FFF;
+    width: 100%;
+    filter: drop-shadow(1px 0px 1px black);
+    font-size: 30px;
+}
+.one-line-header{
+  white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }

@@ -41,6 +41,7 @@ func HTTPAPIServer() {
 	public.GET("/pages/player/hls/:uuid", HTTPAPIPlayHls)
 	public.GET("/pages/player/mse/:uuid", HTTPAPIPlayMse)
 	public.GET("/pages/player/webrtc/:uuid", HTTPAPIPlayWebrtc)
+	public.GET("/pages/multiview", HTTPAPIMultiview)
 	public.GET("/pages/documentation", HTTPAPIServerDocumentation)
 	public.GET("/pages/login", HTTPAPIPageLogin)
 
@@ -158,7 +159,14 @@ func HTTPAPIEditStream(c *gin.Context) {
 		"uuid":    c.Param("uuid"),
 	})
 }
-
+func HTTPAPIMultiview(c *gin.Context) {
+	c.HTML(http.StatusOK, "multiview.tmpl", gin.H{
+		"port":    Storage.ServerHTTPPort(),
+		"streams": Storage.Streams,
+		"version": time.Now().String(),
+		"page":    "multiview",
+	})
+}
 //CrossOrigin Access-Control-Allow-Origin any methods
 func CrossOrigin() gin.HandlerFunc {
 	return func(c *gin.Context) {

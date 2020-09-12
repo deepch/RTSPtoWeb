@@ -108,6 +108,7 @@
 
       </div>
     </div>
+
     <div class="row mt-3 ">
       {{ range $key, $value := .streams }}
       <div class="col-12 col-sm-6 col-md-3" id="{{ $key }}">
@@ -116,19 +117,13 @@
         {{ else }}
           <div class="card card-outline card-danger">
         {{end}}
-        <div class="card-body p-0">
-          <div class="row">
-            <div class="col-12">
-              <div class="img-wrapper">
-                <a href="/pages/player/mse/{{$key}}"><img src="/../static/img/noimage.svg" alt="" class="stream-img"></a>
+        <div class="card-header">
+          <h3 class="card-title one-line-header">{{.Name}}</h3>
 
-              </div>
-            </div>
-            <div class="col-12">
-              <div class="text-wrapper">
-                <h5>{{.Name}}</h5>
-              </div>
-            </div>
+        </div>
+        <div class="card-body p-0">
+            <img class="card-img-top stream-img" src="/../static/img/noimage.svg" style="height:200px;">
+          <div class="row">
             <div class="col-12">
               <div class="btn-group stream">
                 <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/mse/{{$key}}"><i class="fas fa-play"></i> MSE</a>
