@@ -16,7 +16,7 @@
 </div>
 <div class="content">
   {{template "player.tmpl" .}}
-  
+
   {{template "foot.tmpl" .}}
   </div>
 <script>
@@ -93,5 +93,8 @@
     if(!browser.safari){
       makePic();
     }
+  });
+  $("#videoPlayer")[0].addEventListener('error', () => {
+    console.log('video_error')
   });
 </script>

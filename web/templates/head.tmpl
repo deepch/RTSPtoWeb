@@ -73,11 +73,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
             </li>
             <li class="nav-header">NAVIGATION</li>
 
-            <li class="nav-item has-treeview {{ if or (eq .page "add_stream") (eq .page "stream_list") }}
+            <li class="nav-item has-treeview {{ if or (eq .page "add_stream") (eq .page "stream_list")  (eq .page "multiview") }}
               menu-open
             {{end}}
             ">
-              <a href="#" class="nav-link {{ if or (eq .page "add_stream") (eq .page "stream_list") }}
+              <a href="#" class="nav-link {{ if or (eq .page "add_stream") (eq .page "stream_list") (eq .page "multiview") }}
                 active
               {{end}}
               ">
@@ -96,6 +96,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
                   {{end}}">
                     <i class="fas fa-list-alt nav-icon"></i>
                     <p>Streams list</p>
+                  </a>
+                </li>
+                <li class="nav-item ">
+                  <a href="/pages/multiview" class="nav-link {{ if  (eq .page "multiview") }}
+                    active
+                  {{end}}">
+                    <i class="fas fa-th-large nav-icon"></i>
+                    <p>Multiview</p>
                   </a>
                 </li>
                 <li class="nav-item">

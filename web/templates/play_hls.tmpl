@@ -44,9 +44,31 @@
     }
 
   }
+  let canplaythroughTime=null;//time when  buffer have enaugh to play
+
+  $("#videoPlayer")[0].addEventListener('progress', () => {
+  if (typeof document.hidden !== "undefined" && document.hidden && canplaythroughTime!=null) {
+      //no sound, browser paused video without sound in background
+      $("#videoPlayer")[0].currentTime = $("#videoPlayer")[0].buffered.end(($("#videoPlayer")[0].buffered.length - 1)) - canplaythroughTime;
+  }
+  });
+
+  $("#videoPlayer")[0].addEventListener('canplaythrough', () => {
+    if(canplaythroughTime==null){
+      canplaythroughTime=$("#videoPlayer")[0].buffered.end(($("#videoPlayer")[0].buffered.length - 1));
+    }
+  });
 
   $("#videoPlayer")[0].addEventListener('loadeddata', () => {
     $("#videoPlayer")[0].play();
     makePic();
   });
+
+  // $("#videoPlayer")[0].addEventListener('error', () => {
+  //   console.log('video_error')
+  // });
+  $("#videoPlayer")[0].onerror = function() {
+    console.log("Error " + $("#videoPlayer")[0].error.code + "; details: " + $("#videoPlayer")[0].error.message);
+  }
+
 </script>
