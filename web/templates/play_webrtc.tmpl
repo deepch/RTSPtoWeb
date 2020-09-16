@@ -55,7 +55,8 @@
   }
 async function handleNegotiationNeeded(){
   let uuid=$('#uuid').val();
-  let url ="/stream/"+uuid+"/webrtc?uuid=" + uuid;
+  let channel=$('#channel').val();
+  let url ="/stream/"+uuid+"/channel/"+channel+"/webrtc?uuid=" + uuid+'&channel='+channel;
   let offer = await webrtc.createOffer();
 
   await webrtc.setLocalDescription(offer);

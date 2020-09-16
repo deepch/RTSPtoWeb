@@ -21,12 +21,13 @@
   <section class="content">
     <div class="container-fluid">
       <div class="row">
-        <div class="col-md-12">
+
+        <div class="col-6">
           <div class="card card-primary">
             <div class="card-header">
-              <h3 class="card-title">Parameters<small> main</small></h3>
+              <h3 class="card-title">Main stream<small> parameters</small></h3>
             </div>
-            <form role="form" id="addStreamForm">
+
               <div class="card-body">
                 <div class="form-group">
                   <label for="exampleInputEmail1">Stream name</label>
@@ -47,20 +48,64 @@
                   </select>
                   <small  class="form-text text-muted">On persistent connection, the server get data from the camera continuously. On demand, the server get data from the camera only when you click play button </small>
                 </div>
-                <div class="form-group mb-0">
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" name="debug" class="custom-control-input">
-                    <label class="custom-control-label">Debug</label>
+                <div class="form-group">
+                  <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" name="debug" id="debug-switch">
+                    <label class="custom-control-label" for="debug-switch">Enable debug</label>
                   </div>
                   <small  class="form-text text-muted">Select this options if you want get more data about the stream </small>
                 </div>
+                <!-- <div class="form-check">
+                    <input type="checkbox" class="form-check-input" name="debug" >
+                    <label class="form-check-label">Debug</label>
+                </div> -->
+
               </div>
-              <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Add stream</button>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card card-info">
+              <div class="card-header">
+                <h3 class="card-title">Substream<small> parameters</small></h3>
               </div>
-            </form>
-          </div>
-          </div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <div class="custom-control custom-switch custom-switch-on-success">
+                      <input type="checkbox" class="custom-control-input" id="enable-sub">
+                      <label class="custom-control-label" for="enable-sub">Enable substream settings</label>
+                    </div>
+                    <small  class="form-text text-muted">Select this options if you want add substream</small>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="exampleInputPassword1">Substream url</label>
+                    <input type="text" name="substream-url" class="form-control"  placeholder="Enter stream url" disabled>
+                    <small  class="form-text text-muted">Enter rtsp address as instructed by your camera. Look like rtsp://&lt;ip&gt;:&lt;port&gt;/path </small>
+                  </div>
+                  <div class="form-group">
+                    <label for="inputStatus">Substream type</label>
+                    <select class="form-control custom-select" name="substream-ondemand" disabled>
+                      <option selected disabled><small>Select One</small></option>
+                      <option value="1">On demand only</option>
+                      <option value="0">Persistent connection</option>
+                    </select>
+                    <small  class="form-text text-muted">On persistent connection, the server get data from the camera continuously. On demand, the server get data from the camera only when you click play button </small>
+                  </div>
+                  <div class="form-group">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" name="substream-debug" id="substream-debug-switch" disabled>
+                      <label class="custom-control-label" for="substream-debug-switch">Enable debug</label>
+                    </div>
+                    <small  class="form-text text-muted">Select this options if you want get more data about the stream </small>
+                  </div>
+                </div>
+            </div>
+            </div>
+
+            <div class="col-12">
+              <button type="button" onclick="addStreamSubmit()" class="btn btn-primary">Add stream</button>
+            </div>
+
         </div>
     </div>
   </section>
@@ -68,39 +113,45 @@
 {{template "foot.tmpl" .}}
 
 <script>
-$('#addStreamForm').on('submit',function(e){
-  e.preventDefault();
+function addStreamSubmit(){
   var params = {
     uuid:randomUuid(),
-    name:$(this).find('[name="stream-name"]').val(),
-    url:$(this).find('[name="stream-url"]').val(),
-    on_demand:Boolean(parseInt($(this).find('[name="stream-ondemand"]').val())),
-    debug:false,
+    name:$('input[name="stream-name"]').val(),
+    channels:{
+      "0":{
+        url:$('input[name="stream-url"]').val(),
+        on_demand:Boolean(parseInt($('select[name="stream-ondemand"]').val())),
+        debug:Boolean($('input[name="debug"]').prop('checked')),
+      }
+    }
   }
-  if($(this).find('[name="debug"]').prop('checked')){
-    params.debug=true;
+  if($('#enable-sub').prop('checked')){
+    params.channels[1]={
+      url:$('input[name="substream-url"]').val(),
+      on_demand:Boolean(parseInt($('select[name="substream-ondemand"]').val())),
+      debug:Boolean($('input[name="substream-debug"]').prop('checked')),
+    }
+    if (params.channels[1].on_demand==null) {
+      params.channels[1].on_demand=true;
+    }
   }
 
-  if (!validURL(params.url)) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: 'wrong url',
-      confirmButtonText: 'Ok',
-    })
-    return;
+  if (params.channels[0].on_demand==null) {
+    params.channels[0].on_demand=true;
   }
-  if (params.on_demand==null) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: 'Please select Stream type',
-      confirmButtonText: 'Ok',
-    })
-    return;
-  }
+
   goRequest('add', params.uuid, params);
-  //console.log(params);
-});
+}
 
+$('#enable-sub').on('change',function(){
+  if($(this).prop('checked')){
+    $('input[name="substream-url"]').attr('disabled',false);
+    $('select[name="substream-ondemand"]').attr('disabled',false);
+    $('input[name="substream-debug"]').attr('disabled',false);
+  }else{
+    $('input[name="substream-url"]').attr('disabled',true);
+    $('select[name="substream-ondemand"]').attr('disabled',true);
+    $('input[name="substream-debug"]').attr('disabled',true);
+  }
+});
 </script>

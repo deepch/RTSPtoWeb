@@ -112,23 +112,22 @@
     <div class="row mt-3 ">
       {{ range $key, $value := .streams }}
       <div class="col-12 col-sm-6 col-md-3" id="{{ $key }}">
-        {{ if eq .Status 1}}
-          <div class="card card-outline card-success">
-        {{ else }}
-          <div class="card card-outline card-danger">
-        {{end}}
+
+        <div class="card card-outline card-success">
         <div class="card-header">
           <h3 class="card-title one-line-header">{{.Name}}</h3>
-
+          <div class="card-tools">
+              <span data-toggle="tooltip" title="avaliable channels" class="badge badge-success">{{len .Channels }}</span>
+          </div>
         </div>
         <div class="card-body p-0">
             <img class="card-img-top stream-img" src="/../static/img/noimage.svg" style="height:200px;">
           <div class="row">
             <div class="col-12">
               <div class="btn-group stream">
-                <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/mse/{{$key}}"><i class="fas fa-play"></i> MSE</a>
-                <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/hls/{{$key}}"><i class="fas fa-play"></i> HLS</a>
-                <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/webrtc/{{$key}}"><i class="fas fa-play"></i> WebRTC</a>
+                <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/mse/{{$key}}/0"><i class="fas fa-play"></i> MSE</a>
+                <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/hls/{{$key}}/0"><i class="fas fa-play"></i> HLS</a>
+                <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/webrtc/{{$key}}/0"><i class="fas fa-play"></i> WebRTC</a>
                 <a  class="btn btn-secondary btn-flat btn-xs" href="/pages/stream/edit/{{$key}}" ><i class="fas fa-edit"></i> Edit</a>
                 <a  class="btn btn-danger btn-flat btn-xs" onclick="deleteStream('{{ $key }}')" href="#"><i class="fas fa-times"></i> Delete</a>
               </div>

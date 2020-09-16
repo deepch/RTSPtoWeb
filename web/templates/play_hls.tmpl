@@ -27,7 +27,8 @@
   });
   function startPlay(){
     let uuid=$('#uuid').val();
-    let url ='/stream/' + uuid + '/hls/live/index.m3u8';
+    let channel=$('#channel').val();
+    let url ='/stream/' + uuid + '/channel/'+channel+'/hls/live/index.m3u8';
     if ($("#videoPlayer")[0].canPlayType('application/vnd.apple.mpegurl')) {
         $("#videoPlayer")[0].src = url;
         $("#videoPlayer")[0].load();
