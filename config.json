@@ -10,10 +10,20 @@
   "streams": {
     "demo1": {
       "name": "test video",
-      "url": "rtsp://admin:1234567@171.25.235.18/mpeg4",
-      "on_demand": false,
-      "debug": false,
-      "status": 1
+      "channels": {
+        "0": {
+          "url": "rtsp://admin:1234567@171.25.235.18/mpeg4",
+          "on_demand": false,
+          "debug": false,
+          "status": 1
+        },
+        "1": {
+          "url": "rtsp://admin:1234567@171.25.235.18/mpeg4",
+          "on_demand": true,
+          "debug": false,
+          "status": 1
+        }
+      }
     }
   }
 }

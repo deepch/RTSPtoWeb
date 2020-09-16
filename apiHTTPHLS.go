@@ -10,16 +10,16 @@ import (
 
 //HTTPAPIServerStreamHLSTS send client m3u8 play list
 func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
-	if !Storage.StreamExist(c.Param("uuid")) {
+	if !Storage.StreamChannelExist(c.Param("uuid"), 0) {
 		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		loggingPrintln(c.Param("uuid"), Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		return
 	}
 	c.Header("Content-Type", "application/x-mpegURL")
-	Storage.StreamRun(c.Param("uuid"))
+	Storage.StreamRun(c.Param("uuid"), 0)
 	//If stream mode on_demand need wait ready segment's
 	for i := 0; i < 40; i++ {
-		index, seq, err := Storage.StreamHLSm3u8(c.Param("uuid"))
+		index, seq, err := Storage.StreamHLSm3u8(c.Param("uuid"), 0)
 		if err != nil {
 			c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 			loggingPrintln(c.Param("uuid"), Message{Status: 0, Payload: err.Error()})
@@ -40,12 +40,12 @@ func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
 
 //HTTPAPIServerStreamHLSTS send client ts segment
 func HTTPAPIServerStreamHLSTS(c *gin.Context) {
-	if !Storage.StreamExist(c.Param("uuid")) {
+	if !Storage.StreamChannelExist(c.Param("uuid"), 0) {
 		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		loggingPrintln(c.Param("uuid"), Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		return
 	}
-	codecs, err := Storage.StreamCodecs(c.Param("uuid"))
+	codecs, err := Storage.StreamCodecs(c.Param("uuid"), 0)
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		loggingPrintln(c.Param("uuid"), Message{Status: 0, Payload: err.Error()})
@@ -60,7 +60,7 @@ func HTTPAPIServerStreamHLSTS(c *gin.Context) {
 		loggingPrintln(c.Param("uuid"), Message{Status: 0, Payload: err.Error()})
 		return
 	}
-	seqData, err := Storage.StreamHLSTS(c.Param("uuid"), stringToInt(c.Param("seq")))
+	seqData, err := Storage.StreamHLSTS(c.Param("uuid"), 0, stringToInt(c.Param("seq")))
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		loggingPrintln(c.Param("uuid"), Message{Status: 0, Payload: err.Error()})

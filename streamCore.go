@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"time"
 
 	"github.com/deepch/vdk/av"
@@ -8,19 +9,19 @@ import (
 )
 
 //StreamServerRunStreamDo stream run do mux
-func StreamServerRunStreamDo(name string) {
-	defer Storage.StreamUnlock(name)
+func StreamServerRunStreamDo(streamID string, channelID int) {
+	defer Storage.StreamUnlock(streamID, channelID)
 	for {
-		loggingPrintln("Run Stream", name)
-		opt, err := Storage.StreamControl(name)
-		if opt.OnDemand && !Storage.ClientHas(name) {
+		loggingPrintln("Run Stream", streamID, "Channel", channelID)
+		opt, err := Storage.StreamControl(streamID, channelID)
+		if opt.OnDemand && !Storage.ClientHas(streamID, channelID) {
 			loggingPrintln("Stream Exit Not Client")
 			return
 		}
 		if err != nil {
 			loggingPrintln("Stream Error", err, "Restart Stream")
 		}
-		exit, err := StreamServerRunStream(name, opt)
+		exit, err := StreamServerRunStream(streamID, channelID, opt)
 		if exit {
 			loggingPrintln("Stream Exit by Signal or Not Client")
 			return
@@ -34,7 +35,8 @@ func StreamServerRunStreamDo(name string) {
 }
 
 //StreamServerRunStream core stream
-func StreamServerRunStream(name string, opt *StreamST) (bool, error) {
+func StreamServerRunStream(streamID string, channelID int, opt *ChannelST) (bool, error) {
+	log.Println(streamID, "run cid", channelID)
 	keyTest := time.NewTimer(20 * time.Second)
 	checkClients := time.NewTimer(20 * time.Second)
 	var preKeyTS = time.Duration(0)
@@ -43,21 +45,21 @@ func StreamServerRunStream(name string, opt *StreamST) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	Storage.StreamStatus(name, ONLINE)
+	Storage.StreamStatus(streamID, channelID, ONLINE)
 	defer func() {
 		RTSPClient.Close()
-		Storage.StreamStatus(name, OFFLINE)
-		Storage.StreamHLSFlush(name)
+		Storage.StreamStatus(streamID, channelID, OFFLINE)
+		Storage.StreamHLSFlush(streamID, channelID)
 	}()
 	if len(RTSPClient.CodecData) > 0 {
-		Storage.StreamCodecsUpdate(name, RTSPClient.CodecData)
+		Storage.StreamCodecsUpdate(streamID, channelID, RTSPClient.CodecData)
 	}
-	loggingPrintln("Stream", name, "success connection RTSP")
+	loggingPrintln("Stream", streamID, "Channel", channelID, "Success connection RTSP")
 	for {
 		select {
 		//Check stream have clients
 		case <-checkClients.C:
-			if opt.OnDemand && !Storage.ClientHas(name) {
+			if opt.OnDemand && !Storage.ClientHas(streamID, channelID) {
 				return true, ErrorStreamNoClients
 			}
 			checkClients.Reset(20 * time.Second)
@@ -78,7 +80,7 @@ func StreamServerRunStream(name string, opt *StreamST) (bool, error) {
 		case signals := <-RTSPClient.Signals:
 			switch signals {
 			case rtspv2.SignalCodecUpdate:
-				Storage.StreamCodecsUpdate(name, RTSPClient.CodecData)
+				Storage.StreamCodecsUpdate(streamID, channelID, RTSPClient.CodecData)
 			case rtspv2.SignalStreamRTPStop:
 				return false, ErrorStreamStopRTSPSignal
 			}
@@ -88,13 +90,13 @@ func StreamServerRunStream(name string, opt *StreamST) (bool, error) {
 			if packet.IsKeyFrame {
 				keyTest.Reset(20 * time.Second)
 				if preKeyTS > 0 {
-					Storage.StreamHLSAdd(name, Seq, packet.Time-preKeyTS)
+					Storage.StreamHLSAdd(streamID, channelID, Seq, packet.Time-preKeyTS)
 					Seq = []*av.Packet{}
 				}
 				preKeyTS = packet.Time
 			}
 			Seq = append(Seq, packet)
-			Storage.Cast(name, packet)
+			Storage.Cast(streamID, channelID, packet)
 		}
 	}
 }

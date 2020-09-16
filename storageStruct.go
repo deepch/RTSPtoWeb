@@ -28,6 +28,7 @@ var (
 	ErrorStreamRestart        = errors.New("stream restart")
 	ErrorStreamStopCoreSignal = errors.New("stream stop core signal")
 	ErrorStreamStopRTSPSignal = errors.New("stream stop rtsp signal")
+	ErrorChannelNotFound      = errors.New("channel not found")
 )
 
 //StorageST main storage struct
@@ -49,7 +50,10 @@ type ServerST struct {
 
 //ServerST stream storage section
 type StreamST struct {
-	Name             string `json:"name"`
+	Name     string            `json:"name"`
+	Channels map[int]ChannelST `json:"channels"`
+}
+type ChannelST struct {
 	URL              string `json:"url"`
 	OnDemand         bool   `json:"on_demand"`
 	Debug            bool   `json:"debug"`

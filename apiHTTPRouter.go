@@ -38,9 +38,9 @@ func HTTPAPIServer() {
 	public.GET("/pages/stream/list", HTTPAPIStreamList)
 	public.GET("/pages/stream/add", HTTPAPIAddStream)
 	public.GET("/pages/stream/edit/:uuid", HTTPAPIEditStream)
-	public.GET("/pages/player/hls/:uuid", HTTPAPIPlayHls)
-	public.GET("/pages/player/mse/:uuid", HTTPAPIPlayMse)
-	public.GET("/pages/player/webrtc/:uuid", HTTPAPIPlayWebrtc)
+	public.GET("/pages/player/hls/:uuid/:channel", HTTPAPIPlayHls)
+	public.GET("/pages/player/mse/:uuid/:channel", HTTPAPIPlayMse)
+	public.GET("/pages/player/webrtc/:uuid/:channel", HTTPAPIPlayWebrtc)
 	public.GET("/pages/documentation", HTTPAPIServerDocumentation)
 	public.GET("/pages/login", HTTPAPIPageLogin)
 
@@ -57,9 +57,9 @@ func HTTPAPIServer() {
 	/*
 		Stream video elements
 	*/
-	public.GET("/stream/:uuid/hls/live/index.m3u8", HTTPAPIServerStreamHLSM3U8)
-	public.GET("/stream/:uuid/hls/live/segment/:seq/file.ts", HTTPAPIServerStreamHLSTS)
-	public.GET("/stream/:uuid/mse", func(c *gin.Context) {
+	public.GET("/stream/:uuid/channel/:channel/hls/live/index.m3u8", HTTPAPIServerStreamHLSM3U8)
+	public.GET("/stream/:uuid/channel/:channel/hls/live/segment/:seq/file.ts", HTTPAPIServerStreamHLSTS)
+	public.GET("/stream/:uuid/channel/:channel/mse", func(c *gin.Context) {
 		handler := websocket.Handler(HTTPAPIServerStreamMSE)
 		handler.ServeHTTP(c.Writer, c.Request)
 	})

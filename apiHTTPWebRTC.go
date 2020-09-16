@@ -9,13 +9,13 @@ import (
 
 //HTTPAPIServerStreamWebRTC stream video over WebRTC
 func HTTPAPIServerStreamWebRTC(c *gin.Context) {
-	if !Storage.StreamExist(c.Param("uuid")) {
+	if !Storage.StreamChannelExist(c.Param("uuid"), 0) {
 		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		loggingPrintln(c.Param("uuid"), Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		return
 	}
-	Storage.StreamRun(c.Param("uuid"))
-	codecs, err := Storage.StreamCodecs(c.Param("uuid"))
+	Storage.StreamRun(c.Param("uuid"), 0)
+	codecs, err := Storage.StreamCodecs(c.Param("uuid"), 0)
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		loggingPrintln(c.Param("uuid"), Message{Status: 0, Payload: err.Error()})
@@ -35,13 +35,13 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 		return
 	}
 	go func() {
-		cid, ch, err := Storage.ClientAdd(c.Param("uuid"))
+		cid, ch, err := Storage.ClientAdd(c.Param("uuid"), 0)
 		if err != nil {
 			c.IndentedJSON(400, Message{Status: 0, Payload: err.Error()})
 			loggingPrintln(c.Param("uuid"), Message{Status: 0, Payload: err.Error()})
 			return
 		}
-		defer Storage.ClientDelete(c.Param("uuid"), cid)
+		defer Storage.ClientDelete(c.Param("uuid"), cid, 0)
 		var videoStart bool
 		noVideo := time.NewTimer(10 * time.Second)
 		for {

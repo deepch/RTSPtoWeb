@@ -7,10 +7,10 @@ import (
 )
 
 //ClientAdd Add New Client to Translations
-func (obj *StorageST) ClientAdd(uuid string) (string, chan *av.Packet, error) {
+func (obj *StorageST) ClientAdd(streamID string, channelID int) (string, chan *av.Packet, error) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
-	tmp, ok := obj.Streams[uuid]
+	streamTmp, ok := obj.Streams[streamID]
 	if !ok {
 		return "", nil, ErrorStreamNotFound
 	}
@@ -20,31 +20,42 @@ func (obj *StorageST) ClientAdd(uuid string) (string, chan *av.Packet, error) {
 		return "", nil, err
 	}
 	ch := make(chan *av.Packet, 2000)
-	tmp.clients[cid] = ClientST{outgoingPacket: ch, signals: make(chan int, 100)}
-	tmp.ack = time.Now()
-	obj.Streams[uuid] = tmp
+
+	channelTmp, ok := streamTmp.Channels[channelID]
+	if !ok {
+		return "", nil, ErrorStreamNotFound
+	}
+
+	channelTmp.clients[cid] = ClientST{outgoingPacket: ch, signals: make(chan int, 100)}
+	channelTmp.ack = time.Now()
+	streamTmp.Channels[channelID] = channelTmp
+	obj.Streams[streamID] = streamTmp
 	return cid, ch, nil
 
 }
 
 //ClientDelete Delete Client
-func (obj *StorageST) ClientDelete(uuid string, cid string) {
+func (obj *StorageST) ClientDelete(streamID string, cid string, channelID int) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
-	if _, ok := obj.Streams[uuid]; ok {
-		delete(obj.Streams[uuid].clients, cid)
+	if _, ok := obj.Streams[streamID]; ok {
+		delete(obj.Streams[streamID].Channels[channelID].clients, cid)
 	}
 }
 
 //ClientHas check is client ext
-func (obj *StorageST) ClientHas(uuid string) bool {
+func (obj *StorageST) ClientHas(streamID string, channelID int) bool {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
-	tmp, ok := obj.Streams[uuid]
+	streamTmp, ok := obj.Streams[streamID]
 	if !ok {
 		return false
 	}
-	if time.Now().Sub(tmp.ack).Seconds() > 30 {
+	channelTmp, ok := streamTmp.Channels[channelID]
+	if !ok {
+		return false
+	}
+	if time.Now().Sub(channelTmp.ack).Seconds() > 30 {
 		return false
 	}
 	return true

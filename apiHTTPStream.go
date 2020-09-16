@@ -80,12 +80,12 @@ func HTTPAPIServerStreamInfo(c *gin.Context) {
 
 //HTTPAPIServerStreamCodec function return codec info struct
 func HTTPAPIServerStreamCodec(c *gin.Context) {
-	if !Storage.StreamExist(c.Param("uuid")) {
+	if !Storage.StreamChannelExist(c.Param("uuid"), 0) {
 		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		loggingPrintln(c.Param("uuid"), Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		return
 	}
-	codecs, err := Storage.StreamCodecs(c.Param("uuid"))
+	codecs, err := Storage.StreamCodecs(c.Param("uuid"), 0)
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		loggingPrintln(c.Param("uuid"), Message{Status: 0, Payload: err.Error()})
