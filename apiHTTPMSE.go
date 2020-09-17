@@ -12,7 +12,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		err := ws.Close()
 		loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err})
 	}()
-	if !Storage.StreamChannelExist(ws.Request().FormValue("uuid"), 0) {
+	if !Storage.StreamChannelExist(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel"))) {
 		loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		return
 	}
@@ -21,14 +21,14 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err.Error()})
 		return
 	}
-	cid, ch, err := Storage.ClientAdd(ws.Request().FormValue("uuid"), 0)
+	cid, ch, err := Storage.ClientAdd(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel")))
 	if err != nil {
 		loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err.Error()})
 		return
 	}
-	defer Storage.ClientDelete(ws.Request().FormValue("uuid"), cid, 0)
+	defer Storage.ClientDelete(ws.Request().FormValue("uuid"), cid, stringToInt(ws.Request().FormValue("channel")))
 	Storage.StreamRun(ws.Request().FormValue("uuid"), 0)
-	codecs, err := Storage.StreamCodecs(ws.Request().FormValue("uuid"), 0)
+	codecs, err := Storage.StreamCodecs(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel")))
 	if err != nil {
 		loggingPrintln(ws.Request().FormValue("uuid"), Message{Status: 0, Payload: err.Error()})
 		return

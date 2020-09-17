@@ -64,7 +64,7 @@ func HTTPAPIServer() {
 		handler := websocket.Handler(HTTPAPIServerStreamMSE)
 		handler.ServeHTTP(c.Writer, c.Request)
 	})
-	public.POST("/stream/:uuid/webrtc", HTTPAPIServerStreamWebRTC)
+	public.POST("/stream/:uuid/channel/:channel/webrtc", HTTPAPIServerStreamWebRTC)
 	/*
 		Static HTML Files Demo Mode
 	*/
@@ -171,6 +171,7 @@ func HTTPAPIMultiview(c *gin.Context) {
 		"page":    "multiview",
 	})
 }
+
 //CrossOrigin Access-Control-Allow-Origin any methods
 func CrossOrigin() gin.HandlerFunc {
 	return func(c *gin.Context) {
