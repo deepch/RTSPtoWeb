@@ -16,25 +16,25 @@
 </div>
 <input type="hidden" value="{{.uuid}}" id="uuid" />
 {{ $stream:= (index .streams .uuid)}}
-
+{{ $mainChannel := (index $stream.Channels 0) }}
   <section class="content">
     <div class="container-fluid">
-      <div class="row">
+      <div class="row" id="streams-form-wrapper">
         <div class="col-md-12">
           <div class="card card-primary">
             <div class="card-header">
               <h3 class="card-title">Parameters<small> main</small></h3>
             </div>
-            <form role="form" id="editStreamForm">
+            <form class="stream-form main-form">
               <div class="card-body">
                 <div class="form-group">
                   <label for="exampleInputEmail1">Stream name</label>
-                  <input type="text" class="form-control" name="stream-name" placeholder="Enter stream name" value="{{ $stream.Name }}">
+                  <input type="text" class="form-control" name="stream-name" placeholder="Enter stream name" value="{{$stream.Name}}" id="stream-name">
                   <small  class="form-text text-muted">You can choose any name for the stream, for example "My room" or  "Happy sausage"</small>
                 </div>
                 <div class="form-group">
                   <label for="exampleInputPassword1">Stream url</label>
-                  <input type="text" name="stream-url" class="form-control"  placeholder="Enter stream url" value="{{ $stream.URL }}">
+                  <input type="text" name="stream-url" class="form-control"  placeholder="Enter stream url" value="{{$mainChannel.URL}}">
                   <small  class="form-text text-muted">Enter rtsp address as instructed by your camera. Look like <code>rtsp://&lt;ip&gt;:&lt;port&gt;/path </code></small>
                 </div>
                 <div class="form-group">
@@ -42,59 +42,110 @@
                   <select class="form-control custom-select" name="stream-ondemand">
                     <option selected disabled><small>Select One</small></option>
                     <option value="1"
-                    {{ if eq $stream.OnDemand true}}
+                    {{ if eq $mainChannel.OnDemand true}}
                       selected
                     {{ end }}>On demand only</option>
-                    <option value="0" {{ if eq $stream.OnDemand false}}
+                    <option value="0" {{ if eq $mainChannel.OnDemand false}}
                       selected
                     {{ end }}>Persistent connection</option>
                   </select>
                   <small  class="form-text text-muted">On persistent connection, the server get data from the camera continuously. On demand, the server get data from the camera only when you click play button </small>
                 </div>
-                <div class="form-group mb-0">
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" name="debug" class="custom-control-input"
-                    {{ if eq $stream.Debug true}}
+                <div class="form-group">
+                  <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" name="debug" id="debug-switch" {{ if eq $mainChannel.Debug true}}
                       checked
                     {{ end }}>
-                    <label class="custom-control-label">Debug</label>
+                    <label class="custom-control-label" for="debug-switch">Enable debug</label>
                   </div>
                   <small  class="form-text text-muted">Select this options if you want get more data about the stream </small>
                 </div>
               </div>
-              <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Save stream</button>
-              </div>
             </form>
           </div>
           </div>
+          {{ if gt (len $stream.Channels) 1}}
+              {{ range $key, $value := $stream.Channels }}
+                {{ if ne $key 0}}
+                <div class="col-12">
+                  <div class="card card-secondary">
+                    <div class="card-header">
+                      <h3 class="card-title">Sub channel<small> parameters</small></h3>
+                      <div class="card-tools">
+                      <button type="button" class="btn btn-tool" onclick="removeChannelDiv(this)"><i class="fas fa-times"></i></button>
+                      </div>
+                    </div>
+                      <div class="card-body">
+                      <form class="stream-form">
+                        <div class="form-group">
+                          <label for="exampleInputPassword1">Substream url</label>
+                          <input type="text" name="stream-url" class="form-control"  placeholder="Enter stream url" value="{{$value.URL}}" >
+                          <small  class="form-text text-muted">Enter rtsp address as instructed by your camera. Look like <code>rtsp://&lt;ip&gt;:&lt;port&gt;/path </code> </small>
+                        </div>
+                        <div class="form-group">
+
+                          <label for="inputStatus">Substream type</label>
+                          <select class="form-control custom-select" name="stream-ondemand">
+                          <option selected disabled><small>Select One</small></option>
+                          <option value="1"
+                          {{ if eq $value.OnDemand true}}
+                            selected
+                          {{ end }}>On demand only</option>
+                          <option value="0"
+                          {{ if eq $value.OnDemand false}}
+                            selected
+                          {{ end }}>Persistent connection</option>
+                        </select>
+                          <small  class="form-text text-muted">On persistent connection, the server get data from the camera continuously. On demand, the server get data from the camera only when you click play button </small>
+                        </div>
+                        <div class="form-group">
+                          <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" name="debug" id="substream-debug-switch-{{$key}}" {{ if eq $value.Debug true}}
+                              checked
+                            {{ end }}>
+                            <label class="custom-control-label" for="substream-debug-switch-{{$key}}">Enable debug</label>
+                          </div>
+                          <small  class="form-text text-muted">Select this options if you want get more data about the stream </small>
+                        </div>
+                          </form>
+                      </div>
+                  </div>
+                  </div>
+                {{ end }}
+              {{ end }}
+          {{ end }}
         </div>
+        <div class="row  mb-3">
+            <div class="col-12">
+              <button type="button" onclick="addChannel()" class="btn btn-secondary">Add channel</button>
+              <button type="button" onclick="editStreamSubmit()" class="btn btn-primary">Save stream</button>
+            </div>
+        </div>
+
     </div>
   </section>
 
 {{template "foot.tmpl" .}}
 
 <script>
-$('#editStreamForm').on('submit',function(e){
-  e.preventDefault();
+
+function editStreamSubmit(){
   var params = {
     uuid:$('#uuid').val(),
-    name:$(this).find('[name="stream-name"]').val(),
-    url:$(this).find('[name="stream-url"]').val(),
-    on_demand:Boolean(parseInt($(this).find('[name="stream-ondemand"]').val())),
-  }
-  if (!validURL(params.url)) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: 'wrong url',
-      confirmButtonText: 'Ok',
-    })
-    return;
+    name:$('#stream-name').val(),
+    channels:{}
   }
 
+  $('.stream-form').each(function(i){
+    params.channels[i]={
+        url:$(this).find('input[name="stream-url"]').val(),
+        on_demand:Boolean(parseInt($(this).find('select[name="stream-ondemand"]').val())),
+        debug:Boolean($(this).find('input[name="debug"]').prop('checked')),
+    }
+    if(params.channels[i].on_demand==null){
+      params.channels[i].on_demand==true;
+    }
+  });
   goRequest('edit', params.uuid, params);
-  //console.log(params);
-});
-
+}
 </script>

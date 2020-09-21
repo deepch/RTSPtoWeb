@@ -29,9 +29,39 @@
             <div class="row">
               <div class="col-12">
                 <div class="btn-group stream">
-                  <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/mse/{{$key}}/0"><i class="fas fa-play"></i> MSE</a>
-                  <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/hls/{{$key}}/0"><i class="fas fa-play"></i> HLS</a>
-                  <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/webrtc/{{$key}}/0"><i class="fas fa-play"></i> WebRTC</a>
+                    {{ if gt (len .Channels) 1}}
+                    <div class="input-group-prepend">
+                      <a  class="btn btn-info btn-flat btn-xs" data-toggle="dropdown" href="#"><i class="fas fa-play"></i> MSE</a>
+                      <div class="dropdown-menu">
+                        {{ range $k, $v := .Channels }}
+                        <a class="dropdown-item" href="/pages/player/mse/{{$key}}/{{$k}}">Channel {{$k}}</a>
+                        {{end}}
+                      </div>
+                    </div>
+                    <div class="input-group-prepend">
+                      <a  class="btn btn-info btn-flat btn-xs" data-toggle="dropdown" href="#"><i class="fas fa-play"></i> HLS</a>
+                      <div class="dropdown-menu">
+                        {{ range $k, $v := .Channels }}
+                        <a class="dropdown-item" href="/pages/player/hls/{{$key}}/{{$k}}">Channel {{$k}}</a>
+                        {{end}}
+                      </div>
+                    </div>
+                    <div class="input-group-prepend">
+                      <a  class="btn btn-info btn-flat btn-xs" data-toggle="dropdown" href="#"><i class="fas fa-play"></i> WebRTC</a>
+                      <div class="dropdown-menu">
+                        {{ range $k, $v := .Channels }}
+                        <a class="dropdown-item" href="/pages/player/webrtc/{{$key}}/{{$k}}">Channel {{$k}}</a>
+                        {{end}}
+                      </div>
+                    </div>
+                    {{else}}
+                    <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/mse/{{$key}}/0"><i class="fas fa-play"></i> MSE</a>
+                    <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/hls/{{$key}}/0"><i class="fas fa-play"></i> HLS</a>
+                    <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/webrtc/{{$key}}/0"><i class="fas fa-play"></i> WebRTC</a>
+                    {{end}}
+
+
+
                   <a  class="btn btn-secondary btn-flat btn-xs" href="/pages/stream/edit/{{$key}}" ><i class="fas fa-edit"></i> Edit</a>
                   <a  class="btn btn-danger btn-flat btn-xs" onclick="deleteStream('{{ $key }}')" href="#"><i class="fas fa-times"></i> Delete</a>
                 </div>
