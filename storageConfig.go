@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 //debug global
@@ -20,12 +22,20 @@ func NewStreamCore() *StorageST {
 	var tmp StorageST
 	data, err := ioutil.ReadFile(*argConfigPatch)
 	if err != nil {
-		loggingPrintln("Server config read error", err)
+		log.WithFields(logrus.Fields{
+			"module": "config",
+			"func":   "NewStreamCore",
+			"call":   "ReadFile",
+		}).Errorln(err.Error())
 		os.Exit(1)
 	}
 	err = json.Unmarshal(data, &tmp)
 	if err != nil {
-		loggingPrintln("Server config decode error", err)
+		log.WithFields(logrus.Fields{
+			"module": "config",
+			"func":   "NewStreamCore",
+			"call":   "Unmarshal",
+		}).Errorln(err.Error())
 		os.Exit(1)
 	}
 	debug = tmp.Server.Debug

@@ -1,10 +1,20 @@
 package main
 
-import "log"
+import (
+	"io/ioutil"
 
-//loggingPrintln logging function
-func loggingPrintln(v ...interface{}) {
-	if debug {
-		log.Println(v...)
+	"github.com/sirupsen/logrus"
+)
+
+var log = logrus.New()
+
+func init() {
+	//TODO: next add write to file
+	if !debug {
+		log.SetOutput(ioutil.Discard)
 	}
+	log.SetFormatter(&logrus.TextFormatter{
+		FullTimestamp: true,
+	})
+	log.SetLevel(Storage.ServerLogLevel())
 }

@@ -1,5 +1,7 @@
 package main
 
+import "github.com/sirupsen/logrus"
+
 //ServerHTTPDebug read debug options
 func (obj *StorageST) ServerHTTPDebug() bool {
 	obj.mutex.RLock()
@@ -7,30 +9,44 @@ func (obj *StorageST) ServerHTTPDebug() bool {
 	return obj.Server.HTTPDebug
 }
 
-//ServerHTTPDebug read demo options
+//ServerLogLevel read debug options
+func (obj *StorageST) ServerLogLevel() logrus.Level {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	return obj.Server.LogLevel
+}
+
+//ServerHTTPDemo read demo options
 func (obj *StorageST) ServerHTTPDemo() bool {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
 	return obj.Server.HTTPDemo
 }
 
-//ServerHTTPDebug read Login options
+//ServerHTTPLogin read Login options
 func (obj *StorageST) ServerHTTPLogin() string {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
 	return obj.Server.HTTPLogin
 }
 
-//ServerHTTPDebug read Password options
+//ServerHTTPPassword read Password options
 func (obj *StorageST) ServerHTTPPassword() string {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
 	return obj.Server.HTTPPassword
 }
 
-//ServerHTTPDebug read HTTP Port options
+//ServerHTTPPort read HTTP Port options
 func (obj *StorageST) ServerHTTPPort() string {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
 	return obj.Server.HTTPPort
+}
+
+//ServerRTSPPort read HTTP Port options
+func (obj *StorageST) ServerRTSPPort() string {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	return obj.Server.RTSPPort
 }

@@ -7,7 +7,6 @@ RTSP Stream to WebBrowser MSE or WebRTC or HLS, full native! not use ffmpeg or g
 - [Installation from binary](#Installation from binary)
 - [Installation from source](#Installation from source)
 - [Configuration](#Configuration)
-- [Command-Line Arguments](#Command-Line Arguments)
 - [API Documentation](#API documentation)
 - [Limitations](#Limitations)
 - [Performance](#Performance)
@@ -278,7 +277,7 @@ curl http://demo:demo@127.0.0.1:8083/stream/demo/delete
 ###### Query
 ```bash
 GET /stream/:uuid/hls/live/index.m3u8
-curl http://127.0.0.1:8083/stream/demo/hls/live/index.m3u8
+curl http://127.0.0.1:8083/stream/demo/channel/0/hls/live/index.m3u8
 ```
 
 ###### Response
@@ -286,7 +285,17 @@ curl http://127.0.0.1:8083/stream/demo/hls/live/index.m3u8
 index.m3u8
 ```
 ```bash
-ffplay http://127.0.0.1:8083/stream/demo/hls/live/index.m3u8
+ffplay http://127.0.0.1:8083/stream/demo/channel/0/hls/live/index.m3u8
+```
+
+#### Stream rtsp play
+###### Query
+
+```bash
+ffplay -rtsp_transport tcp  rtsp://127.0.0.1/demo1/1
+```
+```bash
+ffplay -rtsp_transport tcp  rtsp://127.0.0.1/demo1/0
 ```
 
 ## Limitations

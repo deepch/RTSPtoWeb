@@ -7,9 +7,17 @@ import (
 	"time"
 
 	"github.com/deepch/vdk/av"
+	"github.com/sirupsen/logrus"
 )
 
 var Storage = NewStreamCore()
+
+//Default stream  type
+const (
+	MSE = iota
+	WEBRTC
+	RTSP
+)
 
 //Default stream status type
 const (
@@ -40,12 +48,14 @@ type StorageST struct {
 
 //ServerST server storage section
 type ServerST struct {
-	Debug        bool   `json:"debug"`
-	HTTPDemo     bool   `json:"http_demo"`
-	HTTPDebug    bool   `json:"http_debug"`
-	HTTPLogin    string `json:"http_login"`
-	HTTPPassword string `json:"http_password"`
-	HTTPPort     string `json:"http_port"`
+	Debug        bool         `json:"debug"`
+	LogLevel     logrus.Level `json:"log_level"`
+	HTTPDemo     bool         `json:"http_demo"`
+	HTTPDebug    bool         `json:"http_debug"`
+	HTTPLogin    string       `json:"http_login"`
+	HTTPPassword string       `json:"http_password"`
+	HTTPPort     string       `json:"http_port"`
+	RTSPPort     string       `json:"rtsp_port"`
 }
 
 //ServerST stream storage section
@@ -60,6 +70,7 @@ type ChannelST struct {
 	runLock          bool
 	Status           int `json:"status"`
 	codecs           []av.CodecData
+	sdp              []byte
 	signals          chan int
 	hlsSegmentBuffer map[int]Segment
 	hlsSegmentNumber int
@@ -69,10 +80,11 @@ type ChannelST struct {
 
 //ClientST client storage section
 type ClientST struct {
-	mode           int
-	signals        chan int
-	outgoingPacket chan *av.Packet
-	socket         net.Conn
+	mode              int
+	signals           chan int
+	outgoingAVPacket  chan *av.Packet
+	outgoingRTPPacket chan *[]byte
+	socket            net.Conn
 }
 
 //Segment HLS cache section

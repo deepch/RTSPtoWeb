@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/net/websocket"
 )
 
@@ -18,6 +19,11 @@ type Message struct {
 //HTTPAPIServer start http server routes
 func HTTPAPIServer() {
 	//Set HTTP API mode
+	log.WithFields(logrus.Fields{
+		"module": "http_server",
+		"func":   "RTSPServer",
+		"call":   "Start",
+	}).Infoln("Server HTTP start")
 	var public *gin.Engine
 	if !Storage.ServerHTTPDebug() {
 		gin.SetMode(gin.ReleaseMode)
@@ -73,7 +79,11 @@ func HTTPAPIServer() {
 	}
 	err := public.Run(Storage.ServerHTTPPort())
 	if err != nil {
-		loggingPrintln(Message{Status: 0, Payload: err.Error()})
+		log.WithFields(logrus.Fields{
+			"module": "http_router",
+			"func":   "HTTPAPIServer",
+			"call":   "ServerHTTPPort",
+		}).Fatalln(err.Error())
 		os.Exit(1)
 	}
 }

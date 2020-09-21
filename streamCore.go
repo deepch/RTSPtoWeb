@@ -1,33 +1,64 @@
 package main
 
 import (
-	"log"
 	"time"
 
 	"github.com/deepch/vdk/av"
 	"github.com/deepch/vdk/format/rtspv2"
+	"github.com/sirupsen/logrus"
 )
 
 //StreamServerRunStreamDo stream run do mux
 func StreamServerRunStreamDo(streamID string, channelID int) {
 	defer Storage.StreamUnlock(streamID, channelID)
 	for {
-		loggingPrintln("Run Stream", streamID, "Channel", channelID)
+		log.WithFields(logrus.Fields{
+			"module":  "core",
+			"stream":  streamID,
+			"channel": channelID,
+			"func":    "StreamServerRunStreamDo",
+			"call":    "Run",
+		}).Infoln("Run stream")
+
 		opt, err := Storage.StreamControl(streamID, channelID)
 		if opt.OnDemand && !Storage.ClientHas(streamID, channelID) {
-			loggingPrintln("Stream Exit Not Client")
+			log.WithFields(logrus.Fields{
+				"module":  "core",
+				"stream":  streamID,
+				"channel": channelID,
+				"func":    "StreamServerRunStreamDo",
+				"call":    "ClientHas",
+			}).Infoln("Stop stream no client")
 			return
 		}
 		if err != nil {
-			loggingPrintln("Stream Error", err, "Restart Stream")
+			log.WithFields(logrus.Fields{
+				"module":  "core",
+				"stream":  streamID,
+				"channel": channelID,
+				"func":    "StreamServerRunStreamDo",
+				"call":    "Restart",
+			}).Infoln("Restart stream", err)
 		}
 		exit, err := StreamServerRunStream(streamID, channelID, opt)
 		if exit {
-			loggingPrintln("Stream Exit by Signal or Not Client")
+			log.WithFields(logrus.Fields{
+				"module":  "core",
+				"stream":  streamID,
+				"channel": channelID,
+				"func":    "StreamServerRunStreamDo",
+				"call":    "StreamServerRunStream",
+			}).Infoln("Stream exit by signal or not client")
 			return
 		}
 		if err != nil {
-			loggingPrintln("Stream Error", err, "Restart Stream")
+			log.WithFields(logrus.Fields{
+				"module":  "core",
+				"stream":  streamID,
+				"channel": channelID,
+				"func":    "StreamServerRunStreamDo",
+				"call":    "Restart",
+			}).Errorln("Stream error restart stream", err)
 		}
 		time.Sleep(2 * time.Second)
 
@@ -36,7 +67,6 @@ func StreamServerRunStreamDo(streamID string, channelID int) {
 
 //StreamServerRunStream core stream
 func StreamServerRunStream(streamID string, channelID int, opt *ChannelST) (bool, error) {
-	log.Println(streamID, "run cid", channelID)
 	keyTest := time.NewTimer(20 * time.Second)
 	checkClients := time.NewTimer(20 * time.Second)
 	var preKeyTS = time.Duration(0)
@@ -52,9 +82,15 @@ func StreamServerRunStream(streamID string, channelID int, opt *ChannelST) (bool
 		Storage.StreamHLSFlush(streamID, channelID)
 	}()
 	if len(RTSPClient.CodecData) > 0 {
-		Storage.StreamCodecsUpdate(streamID, channelID, RTSPClient.CodecData)
+		Storage.StreamCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
 	}
-	loggingPrintln("Stream", streamID, "Channel", channelID, "Success connection RTSP")
+	log.WithFields(logrus.Fields{
+		"module":  "core",
+		"stream":  streamID,
+		"channel": channelID,
+		"func":    "StreamServerRunStream",
+		"call":    "Start",
+	}).Infoln("Success connection RTSP")
 	for {
 		select {
 		//Check stream have clients
@@ -80,23 +116,24 @@ func StreamServerRunStream(streamID string, channelID int, opt *ChannelST) (bool
 		case signals := <-RTSPClient.Signals:
 			switch signals {
 			case rtspv2.SignalCodecUpdate:
-				Storage.StreamCodecsUpdate(streamID, channelID, RTSPClient.CodecData)
+				Storage.StreamCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
 			case rtspv2.SignalStreamRTPStop:
 				return false, ErrorStreamStopRTSPSignal
 			}
-		case <-RTSPClient.OutgoingProxy:
-			//TODO Add Raw Proxy Next Version
-		case packet := <-RTSPClient.OutgoingPacket:
-			if packet.IsKeyFrame {
+		case packetRTP := <-RTSPClient.OutgoingProxy:
+			keyTest.Reset(20 * time.Second)
+			Storage.CastProxy(streamID, channelID, packetRTP)
+		case packetAV := <-RTSPClient.OutgoingPacket:
+			if packetAV.IsKeyFrame {
 				keyTest.Reset(20 * time.Second)
 				if preKeyTS > 0 {
-					Storage.StreamHLSAdd(streamID, channelID, Seq, packet.Time-preKeyTS)
+					Storage.StreamHLSAdd(streamID, channelID, Seq, packetAV.Time-preKeyTS)
 					Seq = []*av.Packet{}
 				}
-				preKeyTS = packet.Time
+				preKeyTS = packetAV.Time
 			}
-			Seq = append(Seq, packet)
-			Storage.Cast(streamID, channelID, packet)
+			Seq = append(Seq, packetAV)
+			Storage.Cast(streamID, channelID, packetAV)
 		}
 	}
 }

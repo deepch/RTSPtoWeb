@@ -1,10 +1,10 @@
 package main
 
 import (
-	"log"
 	"time"
 
 	"github.com/deepch/vdk/av"
+	"github.com/sirupsen/logrus"
 )
 
 //StreamMake check stream exist
@@ -210,12 +210,13 @@ func (obj *StorageST) StreamInfo(uuid string) (*StreamST, error) {
 }
 
 //StreamCodecsUpdate update stream codec storage
-func (obj *StorageST) StreamCodecsUpdate(streamID string, channelID int, val []av.CodecData) {
+func (obj *StorageST) StreamCodecsUpdate(streamID string, channelID int, val []av.CodecData, sdp []byte) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[streamID]; ok {
 		if channelTmp, ok := tmp.Channels[channelID]; ok {
 			channelTmp.codecs = val
+			channelTmp.sdp = sdp
 			tmp.Channels[channelID] = channelTmp
 			obj.Streams[streamID] = tmp
 		}
@@ -244,6 +245,64 @@ func (obj *StorageST) StreamCodecs(streamID string, channelID int) ([]av.CodecDa
 	return nil, ErrorStreamNotFound
 }
 
+//StreamCodecs get stream codec storage or wait
+func (obj *StorageST) StreamSDP(streamID string, channelID int) ([]byte, error) {
+	for i := 0; i < 100; i++ {
+		obj.mutex.RLock()
+		tmp, ok := obj.Streams[streamID]
+		obj.mutex.RUnlock()
+		if !ok {
+			return nil, ErrorStreamNotFound
+		}
+		channelTmp, ok := tmp.Channels[channelID]
+		if !ok {
+			return nil, ErrorChannelNotFound
+		}
+
+		if len(channelTmp.sdp) > 0 {
+			return channelTmp.sdp, nil
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	return nil, ErrorStreamNotFound
+}
+
+//Cast broadcast stream
+func (obj *StorageST) CastProxy(key string, channelID int, val *[]byte) {
+	obj.mutex.Lock()
+	defer obj.mutex.Unlock()
+	if tmp, ok := obj.Streams[key]; ok {
+		if channelTmp, ok := tmp.Channels[channelID]; ok {
+			if len(channelTmp.clients) > 0 {
+				for _, i2 := range channelTmp.clients {
+					if i2.mode != RTSP {
+						continue
+					}
+					if len(i2.outgoingRTPPacket) < 1000 {
+						i2.outgoingRTPPacket <- val
+					} else if len(i2.signals) < 10 {
+						//send stop signals to client
+						i2.signals <- SignalStreamStop
+						err := i2.socket.Close()
+						if err != nil {
+							log.WithFields(logrus.Fields{
+								"module":  "storage",
+								"stream":  key,
+								"channel": key,
+								"func":    "CastProxy",
+								"call":    "Close",
+							}).Errorln(err.Error())
+						}
+					}
+				}
+				channelTmp.ack = time.Now()
+				tmp.Channels[channelID] = channelTmp
+				obj.Streams[key] = tmp
+			}
+		}
+	}
+}
+
 //Cast broadcast stream
 func (obj *StorageST) Cast(key string, channelID int, val *av.Packet) {
 	obj.mutex.Lock()
@@ -251,15 +310,24 @@ func (obj *StorageST) Cast(key string, channelID int, val *av.Packet) {
 	if tmp, ok := obj.Streams[key]; ok {
 		if channelTmp, ok := tmp.Channels[channelID]; ok {
 			if len(channelTmp.clients) > 0 {
-				for ic, i2 := range channelTmp.clients {
-					if len(i2.outgoingPacket) < 1000 {
-						i2.outgoingPacket <- val
+				for _, i2 := range channelTmp.clients {
+					if i2.mode == RTSP {
+						continue
+					}
+					if len(i2.outgoingAVPacket) < 1000 {
+						i2.outgoingAVPacket <- val
 					} else if len(i2.signals) < 10 {
 						//send stop signals to client
 						i2.signals <- SignalStreamStop
 						err := i2.socket.Close()
 						if err != nil {
-							loggingPrintln(ic, "close client error", err)
+							log.WithFields(logrus.Fields{
+								"module":  "storage",
+								"stream":  key,
+								"channel": key,
+								"func":    "CastProxy",
+								"call":    "Close",
+							}).Errorln(err.Error())
 						}
 					}
 				}

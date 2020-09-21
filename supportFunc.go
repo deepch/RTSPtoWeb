@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 //Default streams signals
@@ -30,4 +31,19 @@ func stringToInt(val string) int {
 		return 0
 	}
 	return i
+}
+
+//stringInBetween fin char to char sub string
+func stringInBetween(str string, start string, end string) (result string) {
+	s := strings.Index(str, start)
+	if s == -1 {
+		return
+	}
+	str = str[s+len(start):]
+	e := strings.Index(str, end)
+	if e == -1 {
+		return
+	}
+	str = str[:e]
+	return str
 }

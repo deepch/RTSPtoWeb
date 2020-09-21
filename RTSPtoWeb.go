@@ -4,21 +4,36 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	loggingPrintln("Server start")
+	log.WithFields(logrus.Fields{
+		"module": "main",
+		"func":   "main",
+	}).Info("Server CORE start")
 	go HTTPAPIServer()
+	go RTSPServer()
 	go Storage.StreamRunAll()
 	signalChanel := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
 	signal.Notify(signalChanel, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		sig := <-signalChanel
-		loggingPrintln("Server receive signal", sig)
+		log.WithFields(logrus.Fields{
+			"module": "main",
+			"func":   "main",
+		}).Info("Server receive signal", sig)
 		done <- true
 	}()
-	loggingPrintln("Server start success a wait signals")
+	log.WithFields(logrus.Fields{
+		"module": "main",
+		"func":   "main",
+	}).Info("Server start success a wait signals")
 	<-done
-	loggingPrintln("Server stop working by signal")
+	log.WithFields(logrus.Fields{
+		"module": "main",
+		"func":   "main",
+	}).Info("Server stop working by signal")
 }

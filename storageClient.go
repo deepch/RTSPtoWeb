@@ -7,30 +7,30 @@ import (
 )
 
 //ClientAdd Add New Client to Translations
-func (obj *StorageST) ClientAdd(streamID string, channelID int) (string, chan *av.Packet, error) {
+func (obj *StorageST) ClientAdd(streamID string, channelID int, mode int) (string, chan *av.Packet, chan *[]byte, error) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	streamTmp, ok := obj.Streams[streamID]
 	if !ok {
-		return "", nil, ErrorStreamNotFound
+		return "", nil, nil, ErrorStreamNotFound
 	}
 	//Generate UUID client
 	cid, err := generateUUID()
 	if err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
-	ch := make(chan *av.Packet, 2000)
-
+	chAV := make(chan *av.Packet, 2000)
+	chRTP := make(chan *[]byte, 2000)
 	channelTmp, ok := streamTmp.Channels[channelID]
 	if !ok {
-		return "", nil, ErrorStreamNotFound
+		return "", nil, nil, ErrorStreamNotFound
 	}
 
-	channelTmp.clients[cid] = ClientST{outgoingPacket: ch, signals: make(chan int, 100)}
+	channelTmp.clients[cid] = ClientST{mode: mode, outgoingAVPacket: chAV, outgoingRTPPacket: chRTP, signals: make(chan int, 100)}
 	channelTmp.ack = time.Now()
 	streamTmp.Channels[channelID] = channelTmp
 	obj.Streams[streamID] = streamTmp
-	return cid, ch, nil
+	return cid, chAV, chRTP, nil
 
 }
 
