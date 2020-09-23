@@ -30,7 +30,7 @@
     let uuid=$('#uuid').val();
     let channel=$('#channel').val();
     location.protocol == 'https:' ? potocol = 'wss' : potocol = 'ws';
-    let url = potocol+'://'+location.host+'/stream/' + uuid +'/channel/'+channel+'/mse?uuid='+uuid;
+    let url = potocol+'://'+location.host+'/stream/' + uuid +'/channel/'+channel+'/mse?uuid='+uuid+'&channel='+channel;
     let mse = new MediaSource();
     $("#videoPlayer")[0].src=window.URL.createObjectURL(mse);
     mse.addEventListener('sourceopen', function(){

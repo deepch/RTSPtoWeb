@@ -10,7 +10,13 @@ import (
 
 //StreamServerRunStreamDo stream run do mux
 func StreamServerRunStreamDo(streamID string, channelID int) {
-	defer Storage.StreamUnlock(streamID, channelID)
+	var status int
+	defer func() {
+		//TODO fix it no need unlock run if delete stream
+		if status != 2 {
+			Storage.StreamUnlock(streamID, channelID)
+		}
+	}()
 	for {
 		log.WithFields(logrus.Fields{
 			"module":  "core",
@@ -40,8 +46,8 @@ func StreamServerRunStreamDo(streamID string, channelID int) {
 				"call":    "Restart",
 			}).Infoln("Restart stream", err)
 		}
-		exit, err := StreamServerRunStream(streamID, channelID, opt)
-		if exit {
+		status, err = StreamServerRunStream(streamID, channelID, opt)
+		if status > 0 {
 			log.WithFields(logrus.Fields{
 				"module":  "core",
 				"stream":  streamID,
@@ -66,14 +72,14 @@ func StreamServerRunStreamDo(streamID string, channelID int) {
 }
 
 //StreamServerRunStream core stream
-func StreamServerRunStream(streamID string, channelID int, opt *ChannelST) (bool, error) {
+func StreamServerRunStream(streamID string, channelID int, opt *ChannelST) (int, error) {
 	keyTest := time.NewTimer(20 * time.Second)
 	checkClients := time.NewTimer(20 * time.Second)
 	var preKeyTS = time.Duration(0)
 	var Seq []*av.Packet
 	RTSPClient, err := rtspv2.Dial(rtspv2.RTSPClientOptions{URL: opt.URL, DisableAudio: true, DialTimeout: 3 * time.Second, ReadWriteTimeout: time.Second * 5 * time.Second, Debug: opt.Debug})
 	if err != nil {
-		return false, err
+		return 0, err
 	}
 	Storage.StreamStatus(streamID, channelID, ONLINE)
 	defer func() {
@@ -96,21 +102,21 @@ func StreamServerRunStream(streamID string, channelID int, opt *ChannelST) (bool
 		//Check stream have clients
 		case <-checkClients.C:
 			if opt.OnDemand && !Storage.ClientHas(streamID, channelID) {
-				return true, ErrorStreamNoClients
+				return 1, ErrorStreamNoClients
 			}
 			checkClients.Reset(20 * time.Second)
 		//Check stream send key
 		case <-keyTest.C:
-			return false, ErrorStreamNoVideo
+			return 0, ErrorStreamNoVideo
 		//Read core signals
 		case signals := <-opt.signals:
 			switch signals {
 			case SignalStreamStop:
-				return true, ErrorStreamStopCoreSignal
+				return 2, ErrorStreamStopCoreSignal
 			case SignalStreamRestart:
-				return false, ErrorStreamRestart
+				return 0, ErrorStreamRestart
 			case SignalStreamClient:
-				return true, ErrorStreamNoClients
+				return 1, ErrorStreamNoClients
 			}
 		//Read rtsp signals
 		case signals := <-RTSPClient.Signals:
@@ -118,7 +124,7 @@ func StreamServerRunStream(streamID string, channelID int, opt *ChannelST) (bool
 			case rtspv2.SignalCodecUpdate:
 				Storage.StreamCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
 			case rtspv2.SignalStreamRTPStop:
-				return false, ErrorStreamStopRTSPSignal
+				return 0, ErrorStreamStopRTSPSignal
 			}
 		case packetRTP := <-RTSPClient.OutgoingProxy:
 			keyTest.Reset(20 * time.Second)

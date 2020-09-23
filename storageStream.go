@@ -104,7 +104,6 @@ func (obj *StorageST) List() map[string]StreamST {
 	return tmp
 }
 
-//curl --header "Content-Type: application/json"   --request POST   --data '{"name": "test name 1","url": "rtsp://admin:123456@127.0.0.1:550/mpeg4", "on_demand": false,"debug": false}'   http://demo:demo@127.0.0.1:8083/stream/demo5/add
 //StreamAdd add stream
 func (obj *StorageST) StreamAdd(uuid string, val StreamST) error {
 	obj.mutex.Lock()
@@ -113,12 +112,13 @@ func (obj *StorageST) StreamAdd(uuid string, val StreamST) error {
 		return ErrorStreamAlreadyExists
 	}
 	for i, i2 := range val.Channels {
-		//val = obj.StreamMake(i, i2)
-		log.Println("fix it make")
+		i2 = obj.StreamMake(i2)
 		if !i2.OnDemand {
 			i2.runLock = true
 			val.Channels[i] = i2
 			go StreamServerRunStreamDo(uuid, i)
+		} else {
+			val.Channels[i] = i2
 		}
 	}
 
@@ -135,24 +135,22 @@ func (obj *StorageST) StreamEdit(uuid string, val StreamST) error {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[uuid]; ok {
-		//val = obj.StreamMake(val)
 		for i, i2 := range tmp.Channels {
-
-			log.Println("fix it make")
-			if channelTmp, ok := tmp.Channels[i]; ok {
-				//copy global stream status need safe it
-				i2.runLock = channelTmp.runLock
-				//if stream running send restart stream
-				if i2.runLock {
-					channelTmp.signals <- SignalStreamRestart
-				}
+			if i2.runLock {
+				tmp.Channels[i] = i2
+				obj.Streams[uuid] = tmp
+				i2.signals <- SignalStreamStop
 			}
-			//if stream no running and no OnDemand
-			if !i2.runLock && !i2.OnDemand {
-				i2.runLock = true
-				go StreamServerRunStreamDo(uuid, i)
+		}
+		for i3, i4 := range val.Channels {
+			i4 = obj.StreamMake(i4)
+			if !i4.OnDemand {
+				i4.runLock = true
+				val.Channels[i3] = i4
+				go StreamServerRunStreamDo(uuid, i3)
+			} else {
+				val.Channels[i3] = i4
 			}
-			//replace map
 		}
 		obj.Streams[uuid] = val
 		err := obj.SaveConfig()
