@@ -237,7 +237,7 @@ function makePic() {
   $('#canvas')[0].getContext('2d').fillRect(0, 0, w, h);
   $('#canvas')[0].getContext('2d').drawImage($("#videoPlayer")[0], 0, 0, w, h);
   var imageData = $('#canvas')[0].toDataURL();
-  var images = localStorage.getItem('images');
+  var images = localStorage.getItem('imagesNew');
   if (images != null) {
     images = JSON.parse(images);
   } else {
@@ -248,12 +248,12 @@ function makePic() {
     images[$('#uuid').val()] = {};
   }
   images[$('#uuid').val()][channel] = imageData;
-  localStorage.setItem('images', JSON.stringify(images));
+  localStorage.setItem('imagesNew', JSON.stringify(images));
   $('#' + $('#uuid').val()).find('.stream-img[channel="' + channel + '"]').attr('src', imageData);
 }
 
 function localImages() {
-  var images = localStorage.getItem('images');
+  var images = localStorage.getItem('imagesNew');
   if (images != null) {
     images = JSON.parse(images);
     $.each(images, function(k, v) {
@@ -266,7 +266,7 @@ function localImages() {
 }
 
 function clearLocalImg() {
-  localStorage.setItem('images', '{}');
+  localStorage.setItem('imagesNew', '{}');
 }
 
 function streamHtmlTemplate(uuid, name) {
