@@ -177,3 +177,6 @@
     top: 0;
     width: 100%;
 }
+.carousel-caption{
+  pointer-events: none;
+}
