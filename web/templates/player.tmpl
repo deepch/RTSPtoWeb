@@ -2,7 +2,7 @@
   <div class="row">
     <!-- player -->
     <div class="col-12 col-md-7 col-lg-8">
-      <div class="card">
+      <div class="card" style="position: sticky; top: 20px;">
         <div class="card-body p-0">
           <video id="videoPlayer" autoplay controls muted></video>
           <canvas id="canvas" class="d-none"></canvas>
@@ -12,26 +12,52 @@
       </div>
     </div>
 
-    <div class="col-12 col-md-5 col-lg-4" >
+    <div class="col-12 col-md-5 col-lg-4">
       <div class="row">
         {{ range $key, $value := .streams }}
         <div class="col-12" id="{{ $key }}">
 
           <div class="card card-outline card-success">
-          <div class="card-header">
-            <h3 class="card-title one-line-header">{{.Name}}</h3>
-            <div class="card-tools">
+            <div class="card-header">
+              <h3 class="card-title one-line-header">{{.Name}}</h3>
+              <div class="card-tools">
                 <span data-toggle="tooltip" title="avaliable channels" class="badge badge-success">{{len .Channels }}</span>
+              </div>
             </div>
-          </div>
-          <div class="card-body p-0">
-              <img class="card-img-top stream-img" src="/../static/img/noimage.svg" style="height:200px;">
-            <div class="row">
-              <div class="col-12">
-                <div class="btn-group stream">
+            <div class="card-body p-0">
+
+              <div id="carousel_{{$key}}" class="carousel slide" data-ride="carousel">
+                <ol class="carousel-indicators">
+                  {{ range $k, $v := .Channels }}
+                  <li data-target="#carousel_{{$key}}" data-slide-to="{{$k}}" class="{{ if eq $k 0}} active {{end}}"></li>
+                  {{end}}
+                </ol>
+                <div class="carousel-inner">
+                  {{ range $k, $v := .Channels }}
+                  <div class="carousel-item {{ if eq $k 0}} active {{end}}">
+                    <img class="d-block w-100 stream-img" channel="{{$k}}" src="/../static/img/noimage.svg">
+                    <div class="carousel-caption d-none d-md-block">
+                      <h5>Channel: {{$k}}</h5>
+                    </div>
+                  </div>
+                  {{end}}
+                </div>
+                <a class="carousel-control-prev" href="#carousel_{{$key}}" role="button" data-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carousel_{{$key}}" role="button" data-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Next</span>
+                </a>
+              </div>
+
+              <div class="row">
+                <div class="col-12">
+                  <div class="btn-group stream">
                     {{ if gt (len .Channels) 1}}
                     <div class="input-group-prepend">
-                      <a  class="btn btn-info btn-flat btn-xs" data-toggle="dropdown" href="#"><i class="fas fa-play"></i> MSE</a>
+                      <a class="btn btn-info btn-flat btn-xs" data-toggle="dropdown" href="#"><i class="fas fa-play"></i> MSE</a>
                       <div class="dropdown-menu">
                         {{ range $k, $v := .Channels }}
                         <a class="dropdown-item" href="/pages/player/mse/{{$key}}/{{$k}}">Channel {{$k}}</a>
@@ -39,7 +65,7 @@
                       </div>
                     </div>
                     <div class="input-group-prepend">
-                      <a  class="btn btn-info btn-flat btn-xs" data-toggle="dropdown" href="#"><i class="fas fa-play"></i> HLS</a>
+                      <a class="btn btn-info btn-flat btn-xs" data-toggle="dropdown" href="#"><i class="fas fa-play"></i> HLS</a>
                       <div class="dropdown-menu">
                         {{ range $k, $v := .Channels }}
                         <a class="dropdown-item" href="/pages/player/hls/{{$key}}/{{$k}}">Channel {{$k}}</a>
@@ -47,7 +73,7 @@
                       </div>
                     </div>
                     <div class="input-group-prepend">
-                      <a  class="btn btn-info btn-flat btn-xs" data-toggle="dropdown" href="#"><i class="fas fa-play"></i> WebRTC</a>
+                      <a class="btn btn-info btn-flat btn-xs" data-toggle="dropdown" href="#"><i class="fas fa-play"></i> WebRTC</a>
                       <div class="dropdown-menu">
                         {{ range $k, $v := .Channels }}
                         <a class="dropdown-item" href="/pages/player/webrtc/{{$key}}/{{$k}}">Channel {{$k}}</a>
@@ -55,23 +81,23 @@
                       </div>
                     </div>
                     {{else}}
-                    <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/mse/{{$key}}/0"><i class="fas fa-play"></i> MSE</a>
-                    <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/hls/{{$key}}/0"><i class="fas fa-play"></i> HLS</a>
-                    <a  class="btn btn-info btn-flat btn-xs" href="/pages/player/webrtc/{{$key}}/0"><i class="fas fa-play"></i> WebRTC</a>
-                    {{end}}
+                      <a class="btn btn-info btn-flat btn-xs" href="/pages/player/mse/{{$key}}/0"><i class="fas fa-play"></i> MSE</a>
+                      <a class="btn btn-info btn-flat btn-xs" href="/pages/player/hls/{{$key}}/0"><i class="fas fa-play"></i> HLS</a>
+                      <a class="btn btn-info btn-flat btn-xs" href="/pages/player/webrtc/{{$key}}/0"><i class="fas fa-play"></i> WebRTC</a>
+                      {{end}}
 
 
 
-                  <a  class="btn btn-secondary btn-flat btn-xs" href="/pages/stream/edit/{{$key}}" ><i class="fas fa-edit"></i> Edit</a>
-                  <a  class="btn btn-danger btn-flat btn-xs" onclick="deleteStream('{{ $key }}')" href="#"><i class="fas fa-times"></i> Delete</a>
+                      <a class="btn btn-secondary btn-flat btn-xs" href="/pages/stream/edit/{{$key}}"><i class="fas fa-edit"></i> Edit</a>
+                      <a class="btn btn-danger btn-flat btn-xs" onclick="deleteStream('{{ $key }}')" href="#"><i class="fas fa-times"></i> Delete</a>
+                  </div>
                 </div>
               </div>
+
+
             </div>
 
-
           </div>
-
-        </div>
         </div>
         {{ end }}
       </div>

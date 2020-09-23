@@ -34,7 +34,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
       </ul>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link" href="/pages/stream/add"  role="button"><i class="fas fa-plus-square"></i> Add stream</a>
+          <a class="nav-link" href="/pages/stream/add" role="button"><i class="fas fa-plus-square"></i> Add stream</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/pages/login" role="button"><i class="fas fa-sign-out-alt"></i> Sign out</a>
@@ -73,11 +73,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
             </li>
             <li class="nav-header">NAVIGATION</li>
 
-            <li class="nav-item has-treeview {{ if or (eq .page "add_stream") (eq .page "stream_list")  (eq .page "multiview") }}
+            <li class="nav-item has-treeview {{ if or (eq .page "add_stream") (eq .page "stream_list")  }}
               menu-open
             {{end}}
             ">
-              <a href="#" class="nav-link {{ if or (eq .page "add_stream") (eq .page "stream_list") (eq .page "multiview") }}
+              <a href="#" class="nav-link {{ if or (eq .page "add_stream") (eq .page "stream_list")  }}
                 active
               {{end}}
               ">
@@ -98,14 +98,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     <p>Streams list</p>
                   </a>
                 </li>
-                <li class="nav-item ">
-                  <a href="/pages/multiview" class="nav-link {{ if  (eq .page "multiview") }}
-                    active
-                  {{end}}">
-                    <i class="fas fa-th-large nav-icon"></i>
-                    <p>Multiview</p>
-                  </a>
-                </li>
+
                 <li class="nav-item">
                   <a href="/pages/stream/add" class="nav-link {{ if  (eq .page "add_stream") }}
                     active
@@ -115,6 +108,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
                   </a>
                 </li>
               </ul>
+            </li>
+            <li class="nav-item ">
+              <a href="/pages/multiview" class="nav-link {{ if  (eq .page "multiview") }}
+                active
+              {{end}}">
+                <i class="fas fa-th-large nav-icon"></i>
+                <p>Multiview</p>
+              </a>
             </li>
             <li class="nav-header">MISCELLANEOUS</li>
             <li class="nav-item">

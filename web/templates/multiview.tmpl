@@ -51,7 +51,7 @@
         </div>
         <!-- /.card-header -->
         <div class="card-body p-0">
-          <div class="grid-wrapper row" id="grid-wrapper">
+          <div class="grid-wrapper" id="grid-wrapper">
 
           </div>
           <div class="main-player-wrapper d-none">
@@ -76,12 +76,35 @@
                   <input type="hidden" id="player-index" value="0" />
                   <div class="row">
                     {{ range $key, $value := .streams }}
-                    <div class="col-12 col-sm-6" id="{{ $key }}" onclick="play('{{ $key }}')">
-                        <div class="card  card-success">
-                        <img class="card-img-top stream-img" src="/../static/img/noimage.svg" alt="Card image cap">
-                        <div class="stream-name">
-                          <h5 class="card-title text-center">{{.Name}}</h5>
+                    <div class="col-12 col-sm-6" id="{{ $key }}">
+                      <div class="card  card-success">
+                        <div id="carousel_{{$key}}" class="carousel slide" data-ride="carousel">
+                          <ol class="carousel-indicators">
+                            {{ range $k, $v := .Channels }}
+                            <li data-target="#carousel_{{$key}}" data-slide-to="{{$k}}" class="{{ if eq $k 0}} active {{end}}"></li>
+                            {{end}}
+                          </ol>
+                          <div class="carousel-inner">
+                            {{ range $k, $v := .Channels }}
+                            <div class="carousel-item {{ if eq $k 0}} active {{end}}">
+                              <a onclick="play('{{ $key }}',null,{{$k}})" href="#"><img class="d-block w-100 stream-img" channel="{{$k}}" src="/../static/img/noimage.svg"></a>
+                              <div class="carousel-caption d-none d-md-block">
+                                <h5>{{$value.Name}}</h5>
+                                <p>Channel: {{$k}}</p>
+                              </div>
+                            </div>
+                            {{end}}
+                          </div>
+                          <a class="carousel-control-prev" href="#carousel_{{$key}}" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                          </a>
+                          <a class="carousel-control-next" href="#carousel_{{$key}}" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                          </a>
                         </div>
+
                       </div>
                     </div>
                     {{ end }}
@@ -97,120 +120,142 @@
       <!-- /.card -->
     </div>
   </div>
-  </div>
-  {{template "foot.tmpl" .}}
+</div>
+{{template "foot.tmpl" .}}
 
 <script src="/../static/plugins/hlsjs/hls.min.js"></script>
 <script>
-
   const playerType = 'webrtc';
-  let fullOpen=false,smallOpen=false;
-  let players={};
-  $(document).ready(()=>{
+  let players = {};
+  $(document).ready(() => {
     gridMaker();
   });
 
-function defaultPlayer(type,el){
-  $('#defaultPlayer').val(type);
-  $(el).closest('.btn-group').find('button').html($(el).text());
-}
+  function defaultPlayer(type, el) {
+    $('#defaultPlayer').val(type);
+    $(el).closest('.btn-group').find('button').html($(el).text());
+  }
 
-  function gridMaker(col=4){
-    let colW='col-6';
+  function gridMaker(col = 4) {
+    let colW;
     switch (col) {
       case 6:
-        colW='col-4';
+        colW = 'six';
         break;
       default:
-        colW='col-6';
+        colW = '';
         break;
     }
     destroyGrid();
     for (var i = 0; i < col; i++) {
-      $('#grid-wrapper').append('<div class="'+colW+' player" data-player="none" data-uuid="0"><div class="play-info"> </div><video autoplay ></video><div class="control"><a href="#" class="btn  btn-success btn-xs" onclick="openChoise(this)"><i class="fas fa-plus"></i> Add</a><a href="#" class="btn  btn-info btn-xs" data-expand="0" onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expand</a><a href="#" class="btn  btn-danger btn-xs" data-expand="0" onclick="destoyPlayer('+i+')"><i class="fas fa-times"></i> Delete</a></div></div>');
+      $('#grid-wrapper').append(
+        `<div class=" player ` + colW + `" data-player="none" data-uuid="0">
+        <div class="play-info"></div>
+        <video autoplay muted></video>
+        <div class="control">
+          <a href="#" class="btn  btn-success btn-xs" onclick="openChoise(this)"><i class="fas fa-plus"></i> Add</a>
+          <a href="#" class="btn  btn-info btn-xs" data-expand="0" onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expand</a>
+          <a href="#" class="btn  btn-danger btn-xs" data-expand="0" onclick="destoyPlayer(` + i + `)"><i class="fas fa-times"></i> Delete</a>
+        </div>
+        </div>`);
     }
   }
-  function destroyGrid(){
-    $('.player').each(function(index){
+
+  function destroyGrid() {
+    $('.player').each(function(index) {
       destoyPlayer(index);
     });
-      $('#grid-wrapper').empty();
+    $('#grid-wrapper').empty();
   }
 
-  function openChoise(dom){
+  function openChoise(dom) {
     $('#player-index').val($(dom).closest('.player').index());
     $('#choiseChannel').modal('show');
   }
 
-  function play(uuid,index){
-    if(typeof(index)=='undefined'){
-      index=$('#player-index').val();
+  function play(uuid, index, chan) {
+    console.log(chan);
+    if (typeof(index) == 'undefined' || index == null) {
+      index = $('#player-index').val();
     }
-    let videoPlayer=$('.main-player');
-    if(index!='main'){
-      videoPlayer=$('.player').eq(index);
+    let videoPlayer = $('.main-player');
+    if (index != 'main') {
+      videoPlayer = $('.player').eq(index);
     }
     $('#choiseChannel').modal('hide');
     destoyPlayer(index);
-    videoPlayer.find('video').css('background','#000');
+    videoPlayer.find('video').css('background', '#000');
 
     let playerType = $('#defaultPlayer').val();
-    videoPlayer.attr('data-player',playerType);
-    videoPlayer.attr('data-uuid',uuid);
+    videoPlayer.attr('data-player', playerType);
+    videoPlayer.attr('data-uuid', uuid);
 
-    let channel=0;
-    if(typeof(streams[uuid].channels[1])!=undefined){
-      channel=1;
+    let channel = 0;
+    //console.log(streams[uuid].channels, typeof(streams[uuid].channels[1]))
+    if (typeof(streams[uuid].channels[1]) !== "undefined") {
+      channel = 1;
     }
-    if(index=='main'){
-      channel=0;
+    if (typeof(chan) !== "undefined") {
+      channel = chan;
     }
-    videoPlayer.find('.play-info').html('Stream: '+streams[uuid].name+' | player type:'+playerType+' |channel: '+channel);
+    if (index == 'main') {
+      channel = 0;
+    }
+
+    videoPlayer.find('.play-info').html('Stream: ' + streams[uuid].name + ' | player type:' + playerType + ' | channel: ' + channel);
+    //fix stalled video in safari
+    videoPlayer.find('video')[0].addEventListener('pause', () => {
+      if (videoPlayer.find('video')[0].currentTime > videoPlayer.find('video')[0].buffered.end((videoPlayer.find('video')[0].buffered.length - 1))) {
+        videoPlayer.find('video')[0].currentTime = videoPlayer.find('video')[0].buffered.end((videoPlayer.find('video')[0].buffered.length - 1)) - 0.1;
+        videoPlayer.find('video')[0].play();
+      }
+    });
+
     switch (playerType) {
       case 'hls':
-        let url ='/stream/' + uuid + '/channel/'+channel+'/hls/live/index.m3u8';
+        let url = '/stream/' + uuid + '/channel/' + channel + '/hls/live/index.m3u8';
         console.log(url);
         if (videoPlayer.find('video')[0].canPlayType('application/vnd.apple.mpegurl')) {
-            videoPlayer.find('video')[0].src = url;
-            videoPlayer.find('video')[0].load();
+          videoPlayer.find('video')[0].src = url;
+          videoPlayer.find('video')[0].load();
         } else if (Hls.isSupported()) {
-            players[index] = new Hls({manifestLoadingTimeOut:60000});
-            players[index].loadSource(url);
-            players[index].attachMedia(videoPlayer.find('video')[0]);
+          players[index] = new Hls({
+            manifestLoadingTimeOut: 60000
+          });
+          players[index].loadSource(url);
+          players[index].attachMedia(videoPlayer.find('video')[0]);
         } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Your browser don`t support hls '
-            });
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Your browser don`t support hls '
+          });
         }
         break;
       case 'webrtc':
-            players[index]= new WebRTCPlayer(uuid,videoPlayer,channel);
-            players[index].playWebrtc();
+        players[index] = new WebRTCPlayer(uuid, videoPlayer, channel);
+        players[index].playWebrtc();
         break;
       case 'mse':
       default:
 
-      players[index]=new msePlayer(uuid,videoPlayer,channel);
-      players[index].playMse();
+        players[index] = new msePlayer(uuid, videoPlayer, channel);
+        players[index].playMse();
         break;
     }
 
-    // console.log(players[index]);
   }
 
-  function destoyPlayer(index){
-    console.log(index);
-    let videoPlayer=$('.main-player');
-    if(index!='main'){
-      videoPlayer=$('.player').eq(index);
+  function destoyPlayer(index) {
+    let videoPlayer = $('.main-player');
+    if (index != 'main') {
+      videoPlayer = $('.player').eq(index);
     }
-    let type=videoPlayer.attr('data-player');
-    videoPlayer.find('video').css('background','#343a40');
+    let type = videoPlayer.attr('data-player');
+    videoPlayer.find('video').css('background', '#343a40');
     switch (type) {
       case 'hls':
-        if(!!players[index]){
+        if (!!players[index]) {
           players[index].destroy();
           delete players[index];
         }
@@ -228,233 +273,215 @@ function defaultPlayer(type,el){
 
         break;
     }
-    videoPlayer.attr('data-player','none');
-    videoPlayer.attr('data-uuid',0);
+    videoPlayer.attr('data-player', 'none');
+    videoPlayer.attr('data-uuid', 0);
     videoPlayer.find('.play-info').html('');
     videoPlayer.find('video')[0].src = '';
     videoPlayer.find('video')[0].load();
   }
 
-  function expand(element){
-    //console.log(fullscreenEnabled(),element);
-    if(!!element){
-        if(smallOpen){
-          smallOpen=false;
-          fullscreenOff();
-        }else{
-          smallOpen=true;
-          fullscreenOn($(element).closest('.player')[0]);
-        }
-    }else{
-      if(fullOpen){
-        fullOpen=false;
-        fullscreenOff();
-      }else{
-        fullOpen=true;
-        fullscreenOn($('#grid-wrapper').parent()[0]);
-      }
-
-    }
-  }
-function playMainStream(element){
-  let uuid=$(element).closest('.player').attr('data-uuid');
-  console.log(uuid);
-  if(!uuid){
-    return;
-  }
-  $('.main-player-wrapper').removeClass('d-none');
-  play(uuid,'main');
-}
-function closeMain(){
-  destoyPlayer('main');
-  $('.main-player-wrapper').addClass('d-none');
-}
-/*************************mse obect **************************/
-function msePlayer(uuid,videoPlayer,channel){
-  this.ws = null,
-  this.video=videoPlayer.find('video')[0],
-  this.mseSourceBuffer=null,
-  this.mse=null,
-  this.mseQueue=[],
-  this.mseStreamingStarted=false,
-  this.uuid=uuid,
-  this.channel=channel||0;
-
-  this.playMse=function(){
-    let _this=this;
-    this.mse = new MediaSource();
-    this.video.src=window.URL.createObjectURL(this.mse);
-
-    let potocol = 'ws';
-    if (location.protocol == 'https:') {
-      potocol = 'wss';
-    }
-
-    let ws_url=potocol+'://'+location.host+'/stream/' + this.uuid +'/channel/'+this.channel+'/mse?uuid='+this.uuid+'&channel='+this.channel;
-    console.log(ws_url);
-    this.mse.addEventListener('sourceopen', function(){
-      _this.ws=new WebSocket(ws_url);
-      _this.ws.binaryType = "arraybuffer";
-      _this.ws.onopen = function(event) {
-        console.log('Connect to ws');
-      }
-
-      _this.ws.onclose = function(event) {
-        console.log('disconect');
-      }
-
-      _this.ws.onmessage = function(event) {
-        let data = new Uint8Array(event.data);
-        if (data[0] == 9) {
-          decoded_arr=data.slice(1);
-          if (window.TextDecoder) {
-            mimeCodec = new TextDecoder("utf-8").decode(decoded_arr);
-          } else {
-            mimeCodec = Utf8ArrayToStr(decoded_arr);
-          }
-          console.log(mimeCodec);
-          _this.mseSourceBuffer = _this.mse.addSourceBuffer('video/mp4; codecs="' + mimeCodec + '"');
-          _this.mseSourceBuffer.mode = "segments"
-          _this.mseSourceBuffer.addEventListener("updateend", _this.pushPacket.bind(_this));
-
-        } else {
-          _this.readPacket(event.data);
-        }
-      };
-    }, false);
-
+  function expand(element) {
+    fullscreenOn($('#grid-wrapper').parent()[0]);
   }
 
-  this.readPacket=function(packet){
-    if (!this.mseStreamingStarted) {
-      this.mseSourceBuffer.appendBuffer(packet);
-      this.mseStreamingStarted = true;
+  function playMainStream(element) {
+    let uuid = $(element).closest('.player').attr('data-uuid');
+    if (uuid == 0) {
       return;
     }
-    this.mseQueue.push(packet);
-
-    if (!this.mseSourceBuffer.updating) {
-      this.pushPacket();
-    }
-  },
-
-  this.pushPacket=function(){
-    let _this=this;
-    if (!_this.mseSourceBuffer.updating) {
-      if (_this.mseQueue.length > 0) {
-        packet = _this.mseQueue.shift();
-        let view = new Uint8Array(packet);
-        _this.mseSourceBuffer.appendBuffer(packet);
-      } else {
-        _this.mseStreamingStarted = false;
-      }
-    }
-    if (_this.video.buffered.length > 0) {
-      if (typeof document.hidden !== "undefined" && document.hidden) {
-          _this.video.currentTime = _this.video.buffered.end((_this.video.buffered.length - 1)) - 0.5;
-      }
-    }
+    $('.main-player-wrapper').removeClass('d-none');
+    play(uuid, 'main');
   }
 
-  this.destroy=function(){
-    this.ws.close(1000, "stop streaming");
+  function closeMain() {
+    destoyPlayer('main');
+    $('.main-player-wrapper').addClass('d-none');
   }
-}
-/*************************end mse obect **************************/
-/*************************WEBRTC obect **************************/
-function WebRTCPlayer(uuid,videoPlayer,channel){
-  this.webrtc=null;
-  this.webrtcSendChannel=null;
-  this.webrtcSendChannelInterval=null;
-  this.uuid=uuid;
-  this.video=videoPlayer.find('video')[0];
-  this.channel=channel||0;
-  this.playWebrtc=function(){
-    var _this=this;
-    this.webrtc=new RTCPeerConnection({
-      iceServers: [{
-        urls: ["stun:stun.l.google.com:19302"]
-      }]
-    });
-    this.webrtc.onnegotiationneeded = this.handleNegotiationNeeded.bind(this);
-    this.webrtc.ontrack = function(event) {
-      console.log(event.streams.length + ' track is delivered');
-      _this.video.srcObject = event.streams[0];
-      _this.video.play();
-    }
-    this.webrtc.addTransceiver('video', {
-      'direction': 'sendrecv'
-    });
-    this.webrtcSendChannel = this.webrtc.createDataChannel('foo');
-    this.webrtcSendChannel.onclose = () => console.log('sendChannel has closed');
-    this.webrtcSendChannel.onopen = () => {
-      console.log('sendChannel has opened');
-      this.webrtcSendChannel.send('ping');
-      this.webrtcSendChannelInterval =  setInterval(() => {
-        this.webrtcSendChannel.send('ping');
-      }, 1000)
-    }
+  /*************************mse obect **************************/
+  function msePlayer(uuid, videoPlayer, channel) {
+    this.ws = null,
+      this.video = videoPlayer.find('video')[0],
+      this.mseSourceBuffer = null,
+      this.mse = null,
+      this.mseQueue = [],
+      this.mseStreamingStarted = false,
+      this.uuid = uuid,
+      this.channel = channel || 0;
 
-    this.webrtcSendChannel.onmessage = e => console.log(e.data);
-  },
-  this.handleNegotiationNeeded = async function(){
-    var _this=this;
+    this.playMse = function() {
+      let _this = this;
+      this.mse = new MediaSource();
+      this.video.src = window.URL.createObjectURL(this.mse);
 
-    offer = await _this.webrtc.createOffer();
-    await _this.webrtc.setLocalDescription(offer);
-    console.log("/stream/"+_this.uuid+"/channel/"+this.channel+"/webrtc?uuid=" + _this.uuid +"&channel="+this.channel);
-    $.post("/stream/"+_this.uuid+"/channel/"+this.channel+"/webrtc?uuid=" + _this.uuid +"&channel="+this.channel, {
-      data: btoa(_this.webrtc.localDescription.sdp)
-    }, function(data) {
-      try {
-        _this.webrtc.setRemoteDescription(new RTCSessionDescription({
-          type: 'answer',
-          sdp: atob(data)
-        }))
-      } catch (e) {
-        console.warn(e);
+      let potocol = 'ws';
+      if (location.protocol == 'https:') {
+        potocol = 'wss';
       }
 
-    });
+      let ws_url = potocol + '://' + location.host + '/stream/' + this.uuid + '/channel/' + this.channel + '/mse?uuid=' + this.uuid + '&channel=' + this.channel;
+      console.log(ws_url);
+      this.mse.addEventListener('sourceopen', function() {
+        _this.ws = new WebSocket(ws_url);
+        _this.ws.binaryType = "arraybuffer";
+        _this.ws.onopen = function(event) {
+          console.log('Connect to ws');
+        }
+
+        _this.ws.onclose = function(event) {
+          console.log('disconect');
+        }
+
+        _this.ws.onmessage = function(event) {
+          let data = new Uint8Array(event.data);
+          if (data[0] == 9) {
+            decoded_arr = data.slice(1);
+            if (window.TextDecoder) {
+              mimeCodec = new TextDecoder("utf-8").decode(decoded_arr);
+            } else {
+              mimeCodec = Utf8ArrayToStr(decoded_arr);
+            }
+            console.log(mimeCodec);
+            _this.mseSourceBuffer = _this.mse.addSourceBuffer('video/mp4; codecs="' + mimeCodec + '"');
+            _this.mseSourceBuffer.mode = "segments"
+            _this.mseSourceBuffer.addEventListener("updateend", _this.pushPacket.bind(_this));
+
+          } else {
+            _this.readPacket(event.data);
+          }
+        };
+      }, false);
+
+    }
+
+    this.readPacket = function(packet) {
+        if (!this.mseStreamingStarted) {
+          this.mseSourceBuffer.appendBuffer(packet);
+          this.mseStreamingStarted = true;
+          return;
+        }
+        this.mseQueue.push(packet);
+
+        if (!this.mseSourceBuffer.updating) {
+          this.pushPacket();
+        }
+      },
+
+      this.pushPacket = function() {
+        let _this = this;
+        if (!_this.mseSourceBuffer.updating) {
+          if (_this.mseQueue.length > 0) {
+            packet = _this.mseQueue.shift();
+            let view = new Uint8Array(packet);
+            _this.mseSourceBuffer.appendBuffer(packet);
+          } else {
+            _this.mseStreamingStarted = false;
+          }
+        }
+        if (_this.video.buffered.length > 0) {
+          if (typeof document.hidden !== "undefined" && document.hidden) {
+            _this.video.currentTime = _this.video.buffered.end((_this.video.buffered.length - 1)) - 0.5;
+          }
+        }
+      }
+
+    this.destroy = function() {
+      this.ws.close(1000, "stop streaming");
+    }
+  }
+  /*************************end mse obect **************************/
+  /*************************WEBRTC obect **************************/
+  function WebRTCPlayer(uuid, videoPlayer, channel) {
+    this.webrtc = null;
+    this.webrtcSendChannel = null;
+    this.webrtcSendChannelInterval = null;
+    this.uuid = uuid;
+    this.video = videoPlayer.find('video')[0];
+    this.channel = channel || 0;
+    this.playWebrtc = function() {
+        var _this = this;
+        this.webrtc = new RTCPeerConnection({
+          iceServers: [{
+            urls: ["stun:stun.l.google.com:19302"]
+          }]
+        });
+        this.webrtc.onnegotiationneeded = this.handleNegotiationNeeded.bind(this);
+        this.webrtc.ontrack = function(event) {
+          console.log(event.streams.length + ' track is delivered');
+          _this.video.srcObject = event.streams[0];
+          _this.video.play();
+        }
+        this.webrtc.addTransceiver('video', {
+          'direction': 'sendrecv'
+        });
+        this.webrtcSendChannel = this.webrtc.createDataChannel('foo');
+        this.webrtcSendChannel.onclose = () => console.log('sendChannel has closed');
+        this.webrtcSendChannel.onopen = () => {
+          console.log('sendChannel has opened');
+          this.webrtcSendChannel.send('ping');
+          this.webrtcSendChannelInterval = setInterval(() => {
+            this.webrtcSendChannel.send('ping');
+          }, 1000)
+        }
+
+        this.webrtcSendChannel.onmessage = e => console.log(e.data);
+      },
+      this.handleNegotiationNeeded = async function() {
+        var _this = this;
+
+        offer = await _this.webrtc.createOffer();
+        await _this.webrtc.setLocalDescription(offer);
+        console.log("/stream/" + _this.uuid + "/channel/" + this.channel + "/webrtc?uuid=" + _this.uuid + "&channel=" + this.channel);
+        $.post("/stream/" + _this.uuid + "/channel/" + this.channel + "/webrtc?uuid=" + _this.uuid + "&channel=" + this.channel, {
+          data: btoa(_this.webrtc.localDescription.sdp)
+        }, function(data) {
+          try {
+            _this.webrtc.setRemoteDescription(new RTCSessionDescription({
+              type: 'answer',
+              sdp: atob(data)
+            }))
+          } catch (e) {
+            console.warn(e);
+          }
+
+        });
+      }
+
+    this.destroy = function() {
+      clearInterval(this.webrtcSendChannelInterval);
+      this.webrtc.close();
+      this.video.srcObject = null;
+    }
   }
 
-  this.destroy=function(){
-    clearInterval(this.webrtcSendChannelInterval);
-    this.webrtc.close();
-    this.video.srcObject=null;
+  /*********************FULSCREEN******************/
+  function fullscreenEnabled() {
+    return !!(
+      document.fullscreenEnabled ||
+      document.webkitFullscreenEnabled ||
+      document.mozFullScreenEnabled ||
+      document.msFullscreenEnabled
+    );
   }
-}
 
-/*********************FULSCREEN******************/
-function fullscreenEnabled () {
-  return !!(
-    document.fullscreenEnabled ||
-    document.webkitFullscreenEnabled ||
-    document.mozFullScreenEnabled ||
-    document.msFullscreenEnabled
-  );
-}
-
-function fullscreenOn(elem) {
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen();
-  } else if (elem.mozRequestFullScreen) {
-    elem.mozRequestFullScreen();
-  } else if (elem.webkitRequestFullscreen) {
-    elem.webkitRequestFullscreen();
-  } else if (elem.msRequestFullscreen) {
-    elem.msRequestFullscreen();
+  function fullscreenOn(elem) {
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) {
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+      elem.msRequestFullscreen();
+    }
   }
-}
 
-function fullscreenOff() {
-  if(document.requestFullscreen) {
-    document.requestFullscreen();
-  } else if(document.webkitRequestFullscreen ) {
-    document.webkitRequestFullscreen();
-  } else if(document.mozRequestFullscreen) {
-    document.mozRequestFullScreen();
+  function fullscreenOff() {
+    if (document.requestFullscreen) {
+      document.requestFullscreen();
+    } else if (document.webkitRequestFullscreen) {
+      document.webkitRequestFullscreen();
+    } else if (document.mozRequestFullscreen) {
+      document.mozRequestFullScreen();
+    }
   }
-}
-
 </script>

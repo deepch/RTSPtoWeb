@@ -1,10 +1,10 @@
 $(document).ready(() => {
   localImages();
-  if(localStorage.getItem('defaultPlayer')!=null){
+  if (localStorage.getItem('defaultPlayer') != null) {
     $('input[name=defaultPlayer]').val([localStorage.getItem('defaultPlayer')]);
   }
 })
-$('input[name=defaultPlayer]').on('change',function(){
+$('input[name=defaultPlayer]').on('change', function() {
   localStorage.setItem('defaultPlayer', $(this).val());
 })
 
@@ -15,28 +15,28 @@ function showAddStream(streamName, streamUrl) {
   streamUrl = streamUrl || '';
   Swal.fire({
     title: 'Add stream',
-    html: '<form class="text-left"> '
-    +'<div class="form-group">'
-    +'<label>Name</label>'
-    +'<input type="text" class="form-control" id="stream-name">'
-    +'<small class="form-text text-muted"></small>'
-    +'</div>'
-    +'<div class="form-group">'
-    +'  <label>URL</label>'
-    +'  <input type="text" class="form-control" id="stream-url">'
-    +'  </div>'
-+'<div class="form-group form-check">'
-    +'<input type="checkbox" class="form-check-input" id="stream-ondemand">'
-    +'<label class="form-check-label">ondemand</label>'
-  +'</div>'
-+'</form>',
+    html: '<form class="text-left"> ' +
+      '<div class="form-group">' +
+      '<label>Name</label>' +
+      '<input type="text" class="form-control" id="stream-name">' +
+      '<small class="form-text text-muted"></small>' +
+      '</div>' +
+      '<div class="form-group">' +
+      '  <label>URL</label>' +
+      '  <input type="text" class="form-control" id="stream-url">' +
+      '  </div>' +
+      '<div class="form-group form-check">' +
+      '<input type="checkbox" class="form-check-input" id="stream-ondemand">' +
+      '<label class="form-check-label">ondemand</label>' +
+      '</div>' +
+      '</form>',
     focusConfirm: true,
     showCancelButton: true,
     preConfirm: () => {
       var uuid = randomUuid(),
         name = $('#stream-name').val(),
         url = $('#stream-url').val(),
-        ondemand=$('#stream-ondemand').val();
+        ondemand = $('#stream-ondemand').val();
       if (!validURL(url)) {
         Swal.fire({
           icon: 'error',
@@ -51,7 +51,7 @@ function showAddStream(streamName, streamUrl) {
         goRequest('add', uuid, {
           name: name,
           url: url,
-          ondemand:ondemand
+          ondemand: ondemand
         });
 
 
@@ -62,14 +62,14 @@ function showAddStream(streamName, streamUrl) {
 }
 
 function showEditStream(uuid) {
- console.log(streams[uuid]);
+  console.log(streams[uuid]);
 }
 
 function deleteStream(uuid) {
   activeStream = uuid;
   Swal.fire({
     title: 'Are you sure?',
-    text: "Do you want delete stream "+streams[uuid].name+" ?",
+    text: "Do you want delete stream " + streams[uuid].name + " ?",
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
@@ -83,7 +83,7 @@ function deleteStream(uuid) {
   })
 }
 
-function renewStreamlist(){
+function renewStreamlist() {
   goRequest('streams');
 }
 
@@ -130,7 +130,7 @@ function goRequest(method, uuid, data) {
   var ajaxParam = {
     url: path,
     type: type,
-    dataType:'json',
+    dataType: 'json',
     beforeSend: function(xhr) {
       xhr.setRequestHeader("Authorization", "Basic " + btoa("demo:demo"));
     },
@@ -151,7 +151,7 @@ function goRequestHandle(method, response, uuid) {
   switch (method) {
     case 'add':
 
-      if(response.status==1){
+      if (response.status == 1) {
         renewStreamlist();
         Swal.fire(
           'Added!',
@@ -159,7 +159,7 @@ function goRequestHandle(method, response, uuid) {
           'success'
         );
 
-      }else{
+      } else {
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
@@ -169,24 +169,24 @@ function goRequestHandle(method, response, uuid) {
 
       break;
     case 'edit':
-    if(response.status==1){
-      renewStreamlist();
-      Swal.fire(
-        'Success!',
-        'Your stream has been modified.',
-        'success'
-      );
-    }else{
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Same mistake issset',
-      })
-    }
+      if (response.status == 1) {
+        renewStreamlist();
+        Swal.fire(
+          'Success!',
+          'Your stream has been modified.',
+          'success'
+        );
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Same mistake issset',
+        })
+      }
       break;
     case 'delete':
 
-      if(response.status==1){
+      if (response.status == 1) {
         $('#' + uuid).remove();
         delete(streams[uuid]);
         $('#stream-counter').html(Object.keys(streams).length);
@@ -205,14 +205,14 @@ function goRequestHandle(method, response, uuid) {
 
       break;
     case 'streams':
-      if(response.status==1){
-        streams=response.payload;
+      if (response.status == 1) {
+        streams = response.payload;
         $('#stream-counter').html(Object.keys(streams).length);
-        if(Object.keys(streams).length>0){
+        if (Object.keys(streams).length > 0) {
 
-          $.each(streams,function(uuid,param){
-            if($('#'+uuid).length==0){
-              $('.streams').append(streamHtmlTemplate(uuid,param.name));
+          $.each(streams, function(uuid, param) {
+            if ($('#' + uuid).length == 0) {
+              $('.streams').append(streamHtmlTemplate(uuid, param.name));
             }
           })
         }
@@ -243,10 +243,13 @@ function makePic() {
   } else {
     images = {};
   }
-
-  images[$('#uuid').val()] = imageData;
+  var channel = $('#channel').val() || 0;
+  if (typeof(images[$('#uuid').val()]) === "undefined") {
+    images[$('#uuid').val()] = {};
+  }
+  images[$('#uuid').val()][channel] = imageData;
   localStorage.setItem('images', JSON.stringify(images));
-  $('#' + $('#uuid').val()).find('.stream-img').attr('src', imageData);
+  $('#' + $('#uuid').val()).find('.stream-img[channel="' + channel + '"]').attr('src', imageData);
 }
 
 function localImages() {
@@ -254,39 +257,43 @@ function localImages() {
   if (images != null) {
     images = JSON.parse(images);
     $.each(images, function(k, v) {
-      $('#' + k).find('.stream-img').attr('src', v);
+      $.each(v, function(channel, img) {
+        $('#' + k).find('.stream-img[channel="' + channel + '"]').attr('src', img);
+      })
+
     });
   }
 }
-function clearLocalImg(){
-  localStorage.setItem('images','{}');
+
+function clearLocalImg() {
+  localStorage.setItem('images', '{}');
 }
 
-function streamHtmlTemplate(uuid,name){
-  return '<div class="item" id="'+uuid+'">'
-    +'<div class="stream">'
-      +'<div class="thumbs" onclick="rtspPlayer.livePlayer(0, \''+uuid+'\')">'
-      +'<img src="../static/img/noimage.svg" alt="" class="stream-img">'
-      +'</div>'
-      +'<div class="text">'
-        +'<h5>'+name+'</h5>'
-        +'<p>property</p>'
-        +'<div class="input-group-prepend dropleft text-muted">'
-          +'<a class="btn" data-toggle="dropdown" >'
-            +'<i class="fas fa-ellipsis-v"></i>'
-          +'</a>'
-          +'<div class="dropdown-menu">'
-            +'<a class="dropdown-item" onclick="rtspPlayer.livePlayer(\'hls\', \''+uuid+'\')" href="#">Play HLS</a>'
-            +'<a class="dropdown-item" onclick="rtspPlayer.livePlayer(\'mse\', \''+uuid+'\')" href="#">Play MSE</a>'
-            +'<a class="dropdown-item" onclick="rtspPlayer.livePlayer(\'webrtc\', \''+uuid+'\')" href="#">Play WebRTC</a>'
-            +'<div class="dropdown-divider"></div>'
-            +'<a class="dropdown-item" onclick="showEditStream(\''+uuid+'\')" href="#">Edit</a>'
-            +'<a class="dropdown-item" onclick="deleteStream(\''+uuid+'\')" href="#">Delete</a>'
-          +'</div>'
-        +'</div>'
-      +'</div>'
-    +'</div>'
-  +'</div>';
+function streamHtmlTemplate(uuid, name) {
+  return '<div class="item" id="' + uuid + '">' +
+    '<div class="stream">' +
+    '<div class="thumbs" onclick="rtspPlayer.livePlayer(0, \'' + uuid + '\')">' +
+    '<img src="../static/img/noimage.svg" alt="" class="stream-img">' +
+    '</div>' +
+    '<div class="text">' +
+    '<h5>' + name + '</h5>' +
+    '<p>property</p>' +
+    '<div class="input-group-prepend dropleft text-muted">' +
+    '<a class="btn" data-toggle="dropdown" >' +
+    '<i class="fas fa-ellipsis-v"></i>' +
+    '</a>' +
+    '<div class="dropdown-menu">' +
+    '<a class="dropdown-item" onclick="rtspPlayer.livePlayer(\'hls\', \'' + uuid + '\')" href="#">Play HLS</a>' +
+    '<a class="dropdown-item" onclick="rtspPlayer.livePlayer(\'mse\', \'' + uuid + '\')" href="#">Play MSE</a>' +
+    '<a class="dropdown-item" onclick="rtspPlayer.livePlayer(\'webrtc\', \'' + uuid + '\')" href="#">Play WebRTC</a>' +
+    '<div class="dropdown-divider"></div>' +
+    '<a class="dropdown-item" onclick="showEditStream(\'' + uuid + '\')" href="#">Edit</a>' +
+    '<a class="dropdown-item" onclick="deleteStream(\'' + uuid + '\')" href="#">Delete</a>' +
+    '</div>' +
+    '</div>' +
+    '</div>' +
+    '</div>' +
+    '</div>';
 }
 
 function randomUuid() {
@@ -295,9 +302,9 @@ function randomUuid() {
   );
 }
 
-function validURL(url){
-    //TODO: fix it
-    return true;
+function validURL(url) {
+  //TODO: fix it
+  return true;
 }
 
 function Utf8ArrayToStr(array) {
@@ -329,109 +336,109 @@ function Utf8ArrayToStr(array) {
 }
 
 function browserDetector() {
-    var Browser;
-    var ua = self.navigator.userAgent.toLowerCase();
-    var match =
-      /(edge)\/([\w.]+)/.exec(ua) ||
-      /(opr)[\/]([\w.]+)/.exec(ua) ||
-      /(chrome)[ \/]([\w.]+)/.exec(ua) ||
-      /(iemobile)[\/]([\w.]+)/.exec(ua) ||
-      /(version)(applewebkit)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(ua) ||
-      /(webkit)[ \/]([\w.]+).*(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(
-        ua
-      ) ||
-      /(webkit)[ \/]([\w.]+)/.exec(ua) ||
-      /(opera)(?:.*version|)[ \/]([\w.]+)/.exec(ua) ||
-      /(msie) ([\w.]+)/.exec(ua) ||
-      (ua.indexOf("trident") >= 0 && /(rv)(?::| )([\w.]+)/.exec(ua)) ||
-      (ua.indexOf("compatible") < 0 && /(firefox)[ \/]([\w.]+)/.exec(ua)) || [];
-    var platform_match =
-      /(ipad)/.exec(ua) ||
-      /(ipod)/.exec(ua) ||
-      /(windows phone)/.exec(ua) ||
-      /(iphone)/.exec(ua) ||
-      /(kindle)/.exec(ua) ||
-      /(android)/.exec(ua) ||
-      /(windows)/.exec(ua) ||
-      /(mac)/.exec(ua) ||
-      /(linux)/.exec(ua) ||
-      /(cros)/.exec(ua) || [];
-    var matched = {
-      browser: match[5] || match[3] || match[1] || "",
-      version: match[2] || match[4] || "0",
-      majorVersion: match[4] || match[2] || "0",
-      platform: platform_match[0] || ""
+  var Browser;
+  var ua = self.navigator.userAgent.toLowerCase();
+  var match =
+    /(edge)\/([\w.]+)/.exec(ua) ||
+    /(opr)[\/]([\w.]+)/.exec(ua) ||
+    /(chrome)[ \/]([\w.]+)/.exec(ua) ||
+    /(iemobile)[\/]([\w.]+)/.exec(ua) ||
+    /(version)(applewebkit)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(ua) ||
+    /(webkit)[ \/]([\w.]+).*(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(
+      ua
+    ) ||
+    /(webkit)[ \/]([\w.]+)/.exec(ua) ||
+    /(opera)(?:.*version|)[ \/]([\w.]+)/.exec(ua) ||
+    /(msie) ([\w.]+)/.exec(ua) ||
+    (ua.indexOf("trident") >= 0 && /(rv)(?::| )([\w.]+)/.exec(ua)) ||
+    (ua.indexOf("compatible") < 0 && /(firefox)[ \/]([\w.]+)/.exec(ua)) || [];
+  var platform_match =
+    /(ipad)/.exec(ua) ||
+    /(ipod)/.exec(ua) ||
+    /(windows phone)/.exec(ua) ||
+    /(iphone)/.exec(ua) ||
+    /(kindle)/.exec(ua) ||
+    /(android)/.exec(ua) ||
+    /(windows)/.exec(ua) ||
+    /(mac)/.exec(ua) ||
+    /(linux)/.exec(ua) ||
+    /(cros)/.exec(ua) || [];
+  var matched = {
+    browser: match[5] || match[3] || match[1] || "",
+    version: match[2] || match[4] || "0",
+    majorVersion: match[4] || match[2] || "0",
+    platform: platform_match[0] || ""
+  };
+  var browser = {};
+
+  if (matched.browser) {
+    browser[matched.browser] = true;
+    var versionArray = matched.majorVersion.split(".");
+    browser.version = {
+      major: parseInt(matched.majorVersion, 10),
+      string: matched.version
     };
-    var browser = {};
 
-    if (matched.browser) {
-      browser[matched.browser] = true;
-      var versionArray = matched.majorVersion.split(".");
-      browser.version = {
-        major: parseInt(matched.majorVersion, 10),
-        string: matched.version
-      };
-
-      if (versionArray.length > 1) {
-        browser.version.minor = parseInt(versionArray[1], 10);
-      }
-
-      if (versionArray.length > 2) {
-        browser.version.build = parseInt(versionArray[2], 10);
-      }
+    if (versionArray.length > 1) {
+      browser.version.minor = parseInt(versionArray[1], 10);
     }
 
-    if (matched.platform) {
-      browser[matched.platform] = true;
+    if (versionArray.length > 2) {
+      browser.version.build = parseInt(versionArray[2], 10);
     }
-
-    if (browser.chrome || browser.opr || browser.safari) {
-      browser.webkit = true;
-    } // MSIE. IE11 has 'rv' identifer
-
-    if (browser.rv || browser.iemobile) {
-      if (browser.rv) {
-        delete browser.rv;
-      }
-
-      var msie = "msie";
-      matched.browser = msie;
-      browser[msie] = true;
-    } // Microsoft Edge
-
-    if (browser.edge) {
-      delete browser.edge;
-      var msedge = "msedge";
-      matched.browser = msedge;
-      browser[msedge] = true;
-    } // Opera 15+
-
-    if (browser.opr) {
-      var opera = "opera";
-      matched.browser = opera;
-      browser[opera] = true;
-    } // Stock android browsers are marked as Safari
-
-    if (browser.safari && browser.android) {
-      var android = "android";
-      matched.browser = android;
-      browser[android] = true;
-    }
-
-    browser.name = matched.browser;
-    browser.platform = matched.platform;
-
-
-    return browser;
   }
 
-  function addChannel(){
-    $('#streams-form-wrapper').append(chanellTemplate());
+  if (matched.platform) {
+    browser[matched.platform] = true;
   }
 
-  function chanellTemplate(){
-    let random = Math.ceil(Math.random()*1000);
-    let html = `
+  if (browser.chrome || browser.opr || browser.safari) {
+    browser.webkit = true;
+  } // MSIE. IE11 has 'rv' identifer
+
+  if (browser.rv || browser.iemobile) {
+    if (browser.rv) {
+      delete browser.rv;
+    }
+
+    var msie = "msie";
+    matched.browser = msie;
+    browser[msie] = true;
+  } // Microsoft Edge
+
+  if (browser.edge) {
+    delete browser.edge;
+    var msedge = "msedge";
+    matched.browser = msedge;
+    browser[msedge] = true;
+  } // Opera 15+
+
+  if (browser.opr) {
+    var opera = "opera";
+    matched.browser = opera;
+    browser[opera] = true;
+  } // Stock android browsers are marked as Safari
+
+  if (browser.safari && browser.android) {
+    var android = "android";
+    matched.browser = android;
+    browser[android] = true;
+  }
+
+  browser.name = matched.browser;
+  browser.platform = matched.platform;
+
+
+  return browser;
+}
+
+function addChannel() {
+  $('#streams-form-wrapper').append(chanellTemplate());
+}
+
+function chanellTemplate() {
+  let random = Math.ceil(Math.random() * 1000);
+  let html = `
     <div class="col-12">
       <div class="card card-secondary">
         <div class="card-header">
@@ -458,8 +465,8 @@ function browserDetector() {
             </div>
             <div class="form-group">
               <div class="custom-control custom-switch">
-                <input type="checkbox" class="custom-control-input" name="debug" id="substream-debug-switch-`+random+`" >
-                <label class="custom-control-label" for="substream-debug-switch-`+random+`">Enable debug</label>
+                <input type="checkbox" class="custom-control-input" name="debug" id="substream-debug-switch-` + random + `" >
+                <label class="custom-control-label" for="substream-debug-switch-` + random + `">Enable debug</label>
               </div>
               <small  class="form-text text-muted">Select this options if you want get more data about the stream </small>
             </div>
@@ -467,9 +474,9 @@ function browserDetector() {
           </div>
       </div>
       </div>`;
-      return html;
-  }
+  return html;
+}
 
-function removeChannelDiv(element){
+function removeChannelDiv(element) {
   $(element).closest('.col-12').remove();
 }
