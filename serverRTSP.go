@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 	"net"
 	"os"
 	"strconv"
@@ -12,6 +14,11 @@ import (
 )
 
 var (
+	Version   = "RTSP/1.0"
+	UserAgent = "Lavf58.29.100"
+	Session   = "000a959d6816"
+)
+var (
 	OPTIONS  = "OPTIONS"
 	DESCRIBE = "DESCRIBE"
 	SETUP    = "SETUP"
@@ -19,6 +26,106 @@ var (
 	TEARDOWN = "TEARDOWN"
 )
 
+// RTSP response status codes
+const (
+	StatusContinue                      = 100
+	StatusOK                            = 200
+	StatusCreated                       = 201
+	StatusLowOnStorageSpace             = 250
+	StatusMultipleChoices               = 300
+	StatusMovedPermanently              = 301
+	StatusMovedTemporarily              = 302
+	StatusSeeOther                      = 303
+	StatusNotModified                   = 304
+	StatusUseProxy                      = 305
+	StatusBadRequest                    = 400
+	StatusUnauthorized                  = 401
+	StatusPaymentRequired               = 402
+	StatusForbidden                     = 403
+	StatusNotFound                      = 404
+	StatusMethodNotAllowed              = 405
+	StatusNotAcceptable                 = 406
+	StatusProxyAuthenticationRequired   = 407
+	StatusRequestTimeout                = 408
+	StatusGone                          = 410
+	StatusLengthRequired                = 411
+	StatusPreconditionFailed            = 412
+	StatusRequestEntityTooLarge         = 413
+	StatusRequestURITooLong             = 414
+	StatusUnsupportedMediaType          = 415
+	StatusInvalidparameter              = 451
+	StatusIllegalConferenceIdentifier   = 452
+	StatusNotEnoughBandwidth            = 453
+	StatusSessionNotFound               = 454
+	StatusMethodNotValidInThisState     = 455
+	StatusHeaderFieldNotValid           = 456
+	StatusInvalidRange                  = 457
+	StatusParameterIsReadOnly           = 458
+	StatusAggregateOperationNotAllowed  = 459
+	StatusOnlyAggregateOperationAllowed = 460
+	StatusUnsupportedTransport          = 461
+	StatusDestinationUnreachable        = 462
+	StatusInternalServerError           = 500
+	StatusNotImplemented                = 501
+	StatusBadGateway                    = 502
+	StatusServiceUnavailable            = 503
+	StatusGatewayTimeout                = 504
+	StatusRTSPVersionNotSupported       = 505
+	StatusOptionNotsupport              = 551
+)
+
+func StatusText(code int) string {
+	return statusText[code]
+}
+
+var statusText = map[int]string{
+	StatusContinue:                      "Continue",
+	StatusOK:                            "OK",
+	StatusCreated:                       "Created",
+	StatusLowOnStorageSpace:             "Low on Storage Space",
+	StatusMultipleChoices:               "Multiple Choices",
+	StatusMovedPermanently:              "Moved Permanently",
+	StatusMovedTemporarily:              "Moved Temporarily",
+	StatusSeeOther:                      "See Other",
+	StatusNotModified:                   "Not Modified",
+	StatusUseProxy:                      "Use Proxy",
+	StatusBadRequest:                    "Bad Request",
+	StatusUnauthorized:                  "Unauthorized",
+	StatusPaymentRequired:               "Payment Required",
+	StatusForbidden:                     "Forbidden",
+	StatusNotFound:                      "Not Found",
+	StatusMethodNotAllowed:              "Method Not Allowed",
+	StatusNotAcceptable:                 "Not Acceptable",
+	StatusProxyAuthenticationRequired:   "Proxy Authentication Required",
+	StatusRequestTimeout:                "Request Time-out",
+	StatusGone:                          "Gone",
+	StatusLengthRequired:                "Length Required",
+	StatusPreconditionFailed:            "Precondition Failed",
+	StatusRequestEntityTooLarge:         "Request Entity Too Large",
+	StatusRequestURITooLong:             "Request-URI Too Large",
+	StatusUnsupportedMediaType:          "Unsupported Media Type",
+	StatusInvalidparameter:              "Parameter Not Understood",
+	StatusIllegalConferenceIdentifier:   "Conference Not Found",
+	StatusNotEnoughBandwidth:            "Not Enough Bandwidth",
+	StatusSessionNotFound:               "Session Not Found",
+	StatusMethodNotValidInThisState:     "Method Not Valid in This State",
+	StatusHeaderFieldNotValid:           "Header Field Not Valid for Resource",
+	StatusInvalidRange:                  "Invalid Range",
+	StatusParameterIsReadOnly:           "Parameter Is Read-Only",
+	StatusAggregateOperationNotAllowed:  "Aggregate operation not allowed",
+	StatusOnlyAggregateOperationAllowed: "Only aggregate operation allowed",
+	StatusUnsupportedTransport:          "Unsupported transport",
+	StatusDestinationUnreachable:        "Destination unreachable",
+	StatusInternalServerError:           "Internal Server Error",
+	StatusNotImplemented:                "Not Implemented",
+	StatusBadGateway:                    "Bad Gateway",
+	StatusServiceUnavailable:            "Service Unavailable",
+	StatusGatewayTimeout:                "Gateway Time-out",
+	StatusRTSPVersionNotSupported:       "RTSP Version not supported",
+	StatusOptionNotsupport:              "Option not supported",
+}
+
+//RTSPServer func
 func RTSPServer() {
 	log.WithFields(logrus.Fields{
 		"module": "rtsp_server",
@@ -54,15 +161,15 @@ func RTSPServer() {
 			}).Errorln(err)
 			os.Exit(1)
 		}
-		go handleRequest(conn)
+		go RTSPServerClientHandle(conn)
 	}
 }
 
-// Handles incoming requests.
-func handleRequest(conn net.Conn) {
+//RTSPServerClientHandle func
+func RTSPServerClientHandle(conn net.Conn) {
 	buf := make([]byte, 4096)
-	uuid, cid, channel, in, cSEQ := "", "", 0, 0, 0
-	var ch chan *[]byte
+	uuid, channel, in, cSEQ := "", 0, 0, 0
+	var playStarted bool
 	defer func() {
 		err := conn.Close()
 		if err != nil {
@@ -70,18 +177,11 @@ func handleRequest(conn net.Conn) {
 				"module":  "rtsp_server",
 				"stream":  uuid,
 				"channel": channel,
-				"func":    "handleRequest",
+				"func":    "handleRTSPServerRequest",
 				"call":    "Close",
 			}).Errorln(err.Error())
 		}
-		Storage.ClientDelete(uuid, cid, channel)
-		log.WithFields(logrus.Fields{
-			"module":  "rtsp_server",
-			"stream":  uuid,
-			"channel": channel,
-			"func":    "handleRequest",
-			"call":    "ClientDelete",
-		}).Infoln("Client offline")
+
 	}()
 	err := conn.SetDeadline(time.Now().Add(10 * time.Second))
 	if err != nil {
@@ -89,7 +189,7 @@ func handleRequest(conn net.Conn) {
 			"module":  "rtsp_server",
 			"stream":  uuid,
 			"channel": channel,
-			"func":    "handleRequest",
+			"func":    "handleRTSPServerRequest",
 			"call":    "SetDeadline",
 		}).Errorln(err.Error())
 		return
@@ -101,7 +201,7 @@ func handleRequest(conn net.Conn) {
 				"module":  "rtsp_server",
 				"stream":  uuid,
 				"channel": channel,
-				"func":    "handleRequest",
+				"func":    "handleRTSPServerRequest",
 				"call":    "Read",
 			}).Errorln(err.Error())
 			return
@@ -113,19 +213,45 @@ func handleRequest(conn net.Conn) {
 				"module":  "rtsp_server",
 				"stream":  uuid,
 				"channel": channel,
-				"func":    "handleRequest",
+				"func":    "handleRTSPServerRequest",
 				"call":    "parseStage",
 			}).Errorln(err.Error())
 		}
+		err = conn.SetDeadline(time.Now().Add(60 * time.Second))
+		log.WithFields(logrus.Fields{
+			"module":  "rtsp_server",
+			"stream":  uuid,
+			"channel": channel,
+			"func":    "handleRTSPServerRequest",
+			"call":    "Request",
+		}).Debugln(string(buf[:n]))
+		if err != nil {
+			log.WithFields(logrus.Fields{
+				"module":  "rtsp_server",
+				"stream":  uuid,
+				"channel": channel,
+				"func":    "handleRTSPServerRequest",
+				"call":    "SetDeadline",
+			}).Errorln(err.Error())
+			return
+		}
+
 		switch stage {
 		case OPTIONS:
+			if playStarted {
+				err = RTSPServerClientResponse(uuid, channel, conn, 200, map[string]string{"CSeq": strconv.Itoa(cSEQ), "Public": "DESCRIBE, SETUP, TEARDOWN, PLAY"})
+				if err != nil {
+					return
+				}
+				continue
+			}
 			uuid, channel, err = parseStreamChannel(buf[:n])
 			if err != nil {
 				log.WithFields(logrus.Fields{
 					"module":  "rtsp_server",
 					"stream":  uuid,
 					"channel": channel,
-					"func":    "handleRequest",
+					"func":    "handleRTSPServerRequest",
 					"call":    "parseStreamChannel",
 				}).Errorln(err.Error())
 				return
@@ -135,69 +261,30 @@ func handleRequest(conn net.Conn) {
 					"module":  "rtsp_server",
 					"stream":  uuid,
 					"channel": channel,
-					"func":    "handleRequest",
+					"func":    "handleRTSPServerRequest",
 					"call":    "StreamChannelExist",
 				}).Errorln(ErrorStreamNotFound.Error())
-				_, err := conn.Write([]byte("RTSP/1.0 404 Not Found\r\nCSeq: " + strconv.Itoa(cSEQ) + "\r\n\r\n"))
+				err = RTSPServerClientResponse(uuid, channel, conn, 404, map[string]string{"CSeq": strconv.Itoa(cSEQ)})
 				if err != nil {
-					log.WithFields(logrus.Fields{
-						"module":  "rtsp_server",
-						"stream":  uuid,
-						"channel": channel,
-						"func":    "handleRequest",
-						"call":    "Write",
-					}).Errorln(err.Error())
 					return
 				}
 				return
 			}
 			Storage.StreamRun(uuid, channel)
-			cid, _, ch, err = Storage.ClientAdd(uuid, channel, RTSP)
+			err = RTSPServerClientResponse(uuid, channel, conn, 200, map[string]string{"CSeq": strconv.Itoa(cSEQ), "Public": "DESCRIBE, SETUP, TEARDOWN, PLAY"})
 			if err != nil {
-				log.WithFields(logrus.Fields{
-					"module":  "rtsp_server",
-					"stream":  uuid,
-					"channel": channel,
-					"func":    "handleRequest",
-					"call":    "ClientAdd",
-				}).Errorln(err.Error())
-				return
-			}
-			_, err := conn.Write([]byte("RTSP/1.0 200 OK\r\nCSeq: " + strconv.Itoa(cSEQ) + "\r\nPublic: DESCRIBE, SETUP, TEARDOWN, PLAY\r\n\r\n"))
-			if err != nil {
-				log.WithFields(logrus.Fields{
-					"module":  "rtsp_server",
-					"stream":  uuid,
-					"channel": channel,
-					"func":    "handleRequest",
-					"call":    "Write",
-				}).Errorln(err.Error())
 				return
 			}
 		case SETUP:
 			if !strings.Contains(string(buf[:n]), "interleaved") {
-				_, err = conn.Write([]byte("RTSP/1.0 461 Unsupported transport\r\nCSeq: " + strconv.Itoa(cSEQ) + "\r\n\r\n"))
+				err = RTSPServerClientResponse(uuid, channel, conn, 461, map[string]string{"CSeq": strconv.Itoa(cSEQ)})
 				if err != nil {
-					log.WithFields(logrus.Fields{
-						"module":  "rtsp_server",
-						"stream":  uuid,
-						"channel": channel,
-						"func":    "handleRequest",
-						"call":    "Write",
-					}).Errorln(err.Error())
 					return
 				}
 				continue
 			}
-			_, err = conn.Write([]byte("RTSP/1.0 200 OK\r\nCSeq: " + strconv.Itoa(cSEQ) + "\r\nUser-Agent: Lavf58.29.100\nSession: aaaaaaa\r\nTransport: RTP/AVP/TCP;unicast;interleaved=" + strconv.Itoa(in) + "-" + strconv.Itoa(in+1) + "\r\n\r\n"))
+			err = RTSPServerClientResponse(uuid, channel, conn, 200, map[string]string{"CSeq": strconv.Itoa(cSEQ), "User-Agent:": UserAgent, "Session": Session, "Transport": "RTP/AVP/TCP;unicast;interleaved=" + strconv.Itoa(in) + "-" + strconv.Itoa(in+1)})
 			if err != nil {
-				log.WithFields(logrus.Fields{
-					"module":  "rtsp_server",
-					"stream":  uuid,
-					"channel": channel,
-					"func":    "handleRequest",
-					"call":    "Write",
-				}).Errorln(err.Error())
 				return
 			}
 			in = in + 2
@@ -208,75 +295,26 @@ func handleRequest(conn net.Conn) {
 					"module":  "rtsp_server",
 					"stream":  uuid,
 					"channel": channel,
-					"func":    "handleRequest",
+					"func":    "handleRTSPServerRequest",
 					"call":    "StreamSDP",
 				}).Errorln(err.Error())
 				return
 			}
-			_, err = conn.Write(append([]byte("RTSP/1.0 200 OK\r\nCSeq: "+strconv.Itoa(cSEQ)+"\r\nUser-Agent: Lavf58.29.100\r\nSession: aaaaaaa\r\nContent-Type: application/sdp\r\nContent-Length: "+strconv.Itoa(len(sdp))+"\r\n\r\n"), sdp...))
+			err = RTSPServerClientResponse(uuid, channel, conn, 200, map[string]string{"CSeq": strconv.Itoa(cSEQ), "User-Agent:": UserAgent, "Session": Session, "Content-Type": "application/sdp\r\nContent-Length: " + strconv.Itoa(len(sdp)), "sdp": string(sdp)})
 			if err != nil {
-				log.WithFields(logrus.Fields{
-					"module":  "rtsp_server",
-					"stream":  uuid,
-					"channel": channel,
-					"func":    "handleRequest",
-					"call":    "Write",
-				}).Errorln(err.Error())
 				return
 			}
 		case PLAY:
-			_, err = conn.Write([]byte("RTSP/1.0 200 OK\r\nCSeq: " + strconv.Itoa(cSEQ) + "\r\nUser-Agent: Lavf58.29.100\r\nSession: aaaaaaa\r\n\r\n"))
+			err = RTSPServerClientResponse(uuid, channel, conn, 200, map[string]string{"CSeq": strconv.Itoa(cSEQ), "User-Agent:": UserAgent, "Session": Session})
 			if err != nil {
-				log.WithFields(logrus.Fields{
-					"module":  "rtsp_server",
-					"stream":  uuid,
-					"channel": channel,
-					"func":    "handleRequest",
-					"call":    "Write",
-				}).Errorln(err.Error())
 				return
 			}
-			noVideo := time.NewTimer(10 * time.Second)
-			for {
-				select {
-				case <-noVideo.C:
-					return
-				case pck := <-ch:
-					noVideo.Reset(10 * time.Second)
-					err := conn.SetDeadline(time.Now().Add(10 * time.Second))
-					if err != nil {
-						log.WithFields(logrus.Fields{
-							"module":  "rtsp_server",
-							"stream":  uuid,
-							"channel": channel,
-							"func":    "handleRequest",
-							"call":    "SetDeadline",
-						}).Errorln(err.Error())
-						return
-					}
-					_, err = conn.Write(*pck)
-					if err != nil {
-						log.WithFields(logrus.Fields{
-							"module":  "rtsp_server",
-							"stream":  uuid,
-							"channel": channel,
-							"func":    "handleRequest",
-							"call":    "Write",
-						}).Errorln(err.Error())
-						return
-					}
-				}
-			}
+			playStarted = true
+			go RTSPServerClientPlay(uuid, channel, conn)
 		case TEARDOWN:
-			_, err := conn.Write([]byte("RTSP/1.0 200 OK\r\nCSeq: " + strconv.Itoa(cSEQ) + "\r\n\r\n"))
+			err = RTSPServerClientResponse(uuid, channel, conn, 200, map[string]string{"CSeq": strconv.Itoa(cSEQ), "User-Agent:": UserAgent, "Session": Session})
 			if err != nil {
-				log.WithFields(logrus.Fields{
-					"module":  "rtsp_server",
-					"stream":  uuid,
-					"channel": channel,
-					"func":    "handleRequest",
-					"call":    "Write",
-				}).Errorln(err.Error())
+				return
 			}
 			return
 		default:
@@ -284,14 +322,105 @@ func handleRequest(conn net.Conn) {
 				"module":  "rtsp_server",
 				"stream":  uuid,
 				"channel": channel,
-				"func":    "handleRequest",
+				"func":    "handleRTSPServerRequest",
 				"call":    "Stage",
-			}).Errorln("stage bad", stage)
+			}).Debugln("stage bad", stage)
 		}
 	}
 }
 
-//parsecSEQ
+//handleRTSPServerPlay func
+func RTSPServerClientPlay(uuid string, channel int, conn net.Conn) {
+	cid, _, ch, err := Storage.ClientAdd(uuid, channel, RTSP)
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"module":  "rtsp_server",
+			"stream":  uuid,
+			"channel": channel,
+			"func":    "handleRTSPServerRequest",
+			"call":    "ClientAdd",
+		}).Errorln(err.Error())
+		return
+	}
+	defer func() {
+		Storage.ClientDelete(uuid, cid, channel)
+		log.WithFields(logrus.Fields{
+			"module":  "rtsp_server",
+			"stream":  uuid,
+			"channel": channel,
+			"func":    "handleRTSPServerRequest",
+			"call":    "ClientDelete",
+		}).Infoln("Client offline")
+		err := conn.Close()
+		if err != nil {
+			log.WithFields(logrus.Fields{
+				"module":  "rtsp_server",
+				"stream":  uuid,
+				"channel": channel,
+				"func":    "handleRTSPServerRequest",
+				"call":    "Close",
+			}).Errorln(err.Error())
+		}
+	}()
+
+	noVideo := time.NewTimer(10 * time.Second)
+
+	for {
+		select {
+		case <-noVideo.C:
+			return
+		case pck := <-ch:
+			noVideo.Reset(10 * time.Second)
+			_, err := conn.Write(*pck)
+			if err != nil {
+				log.WithFields(logrus.Fields{
+					"module":  "rtsp_server",
+					"stream":  uuid,
+					"channel": channel,
+					"func":    "handleRTSPServerRequest",
+					"call":    "Write",
+				}).Errorln(err.Error())
+				return
+			}
+		}
+	}
+}
+
+//handleRTSPServerPlay func
+func RTSPServerClientResponse(uuid string, channel int, conn net.Conn, status int, headers map[string]string) error {
+	var sdp string
+	builder := bytes.Buffer{}
+	builder.WriteString(fmt.Sprintf(Version+" %d %s\r\n", status, StatusText(status)))
+	for k, v := range headers {
+		if k == "sdp" {
+			sdp = v
+			continue
+		}
+		builder.WriteString(fmt.Sprintf("%s: %s\r\n", k, v))
+	}
+	builder.WriteString(fmt.Sprintf("\r\n"))
+	builder.WriteString(sdp)
+	log.WithFields(logrus.Fields{
+		"module":  "rtsp_server",
+		"stream":  uuid,
+		"channel": channel,
+		"func":    "RTSPServerClientResponse",
+		"call":    "Response",
+	}).Debugln(builder.String())
+	if _, err := conn.Write(builder.Bytes()); err != nil {
+		log.WithFields(logrus.Fields{
+			"module":  "rtsp_server",
+			"stream":  uuid,
+			"channel": channel,
+			"func":    "RTSPServerClientResponse",
+			"call":    "Write",
+		}).Errorln(err.Error())
+		return err
+	}
+	return nil
+}
+
+//parsecSEQ func
 func parsecSEQ(buf []byte) int {
 	return stringToInt(stringInBetween(string(buf), "CSeq: ", "\r\n"))
 }

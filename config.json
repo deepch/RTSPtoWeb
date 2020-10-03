@@ -1,13 +1,13 @@
 {
   "server": {
     "debug": true,
-    "log_level": "debug",
+    "log_level": "info",
     "http_demo": true,
     "http_debug": false,
     "http_login": "demo",
     "http_password": "demo",
     "http_port": ":8083",
-    "rtsp_port": ":554"
+    "rtsp_port": ":5541"
   },
   "streams": {
     "demo1": {
