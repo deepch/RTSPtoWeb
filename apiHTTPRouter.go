@@ -48,6 +48,8 @@ func HTTPAPIServer() {
 	public.GET("/pages/player/mse/:uuid/:channel", HTTPAPIPlayMse)
 	public.GET("/pages/player/webrtc/:uuid/:channel", HTTPAPIPlayWebrtc)
 	public.GET("/pages/multiview", HTTPAPIMultiview)
+	public.GET("/pages/fullscreenmulti", HTTPAPIFullScreenMultiview)
+	public.POST("/pages/fullscreenmulti", HTTPAPIFullScreenMultiview)
 	public.GET("/pages/documentation", HTTPAPIServerDocumentation)
 	public.GET("/pages/login", HTTPAPIPageLogin)
 
@@ -182,6 +184,14 @@ func HTTPAPIMultiview(c *gin.Context) {
 	})
 }
 
+func HTTPAPIFullScreenMultiview(c *gin.Context) {
+	c.HTML(http.StatusOK, "fullscreenmulti.tmpl", gin.H{
+		"port":    Storage.ServerHTTPPort(),
+		"streams": Storage.Streams,
+		"version": time.Now().String(),
+		"page":    "fullscreenmulti",
+	})
+}
 //CrossOrigin Access-Control-Allow-Origin any methods
 func CrossOrigin() gin.HandlerFunc {
 	return func(c *gin.Context) {

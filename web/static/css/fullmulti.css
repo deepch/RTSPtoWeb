@@ -1,0 +1,11 @@
+.grid-wrapper{
+  height: calc(100vh - 30px);
+  margin: 0px;
+  background: #000;
+  display: flex;
+  flex-wrap: wrap;
+}
+.layout-top-nav .wrapper .main-header {
+    margin-left: 0;
+    height: 30px;
+}

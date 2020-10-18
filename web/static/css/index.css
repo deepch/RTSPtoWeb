@@ -89,6 +89,18 @@
 .grid-wrapper .player.six{
   width: 33.33%;
 }
+.grid-wrapper .player.nine{
+  width: 33.33%;
+  height: 33.33%;
+}
+.grid-wrapper .player.twelve{
+  width: 25%;
+  height: 33.33%;
+}
+.grid-wrapper .player.sixteen{
+  width: 25%;
+  height: 25%;
+}
 .grid-wrapper .player video{
   height: 100%;
   width: 100%;
