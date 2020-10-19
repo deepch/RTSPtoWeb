@@ -37,9 +37,11 @@ func HTTPAPIServer() {
 	//Add private login password protect methods
 	privat := public.Group("/", gin.BasicAuth(gin.Accounts{Storage.ServerHTTPLogin(): Storage.ServerHTTPPassword()}))
 	public.LoadHTMLGlob("web/templates/*")
+
 	/*
 		Html template
 	*/
+
 	public.GET("/", HTTPAPIServerIndex)
 	public.GET("/pages/stream/list", HTTPAPIStreamList)
 	public.GET("/pages/stream/add", HTTPAPIAddStream)
@@ -48,8 +50,7 @@ func HTTPAPIServer() {
 	public.GET("/pages/player/mse/:uuid/:channel", HTTPAPIPlayMse)
 	public.GET("/pages/player/webrtc/:uuid/:channel", HTTPAPIPlayWebrtc)
 	public.GET("/pages/multiview", HTTPAPIMultiview)
-	public.GET("/pages/fullscreenmulti", HTTPAPIFullScreenMultiview)
-	public.POST("/pages/fullscreenmulti", HTTPAPIFullScreenMultiview)
+	public.Any("/pages/multiview/full", HTTPAPIFullScreenMultiview)
 	public.GET("/pages/documentation", HTTPAPIServerDocumentation)
 	public.GET("/pages/login", HTTPAPIPageLogin)
 
@@ -205,6 +206,7 @@ func HTTPAPIFullScreenMultiview(c *gin.Context) {
 		"page":    "fullscreenmulti",
 	})
 }
+
 //CrossOrigin Access-Control-Allow-Origin any methods
 func CrossOrigin() gin.HandlerFunc {
 	return func(c *gin.Context) {
