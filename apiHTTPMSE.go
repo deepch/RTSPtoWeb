@@ -29,7 +29,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}).Errorln(ErrorStreamNotFound.Error())
 		return
 	}
-	Storage.StreamRun(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel")))
+	Storage.StreamChannelRun(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel")))
 	err := ws.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	if err != nil {
 		log.WithFields(logrus.Fields{
@@ -53,7 +53,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		return
 	}
 	defer Storage.ClientDelete(ws.Request().FormValue("uuid"), cid, stringToInt(ws.Request().FormValue("channel")))
-	codecs, err := Storage.StreamCodecs(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel")))
+	codecs, err := Storage.StreamChannelCodecs(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel")))
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"module":  "http_mse",

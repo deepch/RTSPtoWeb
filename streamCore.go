@@ -14,7 +14,7 @@ func StreamServerRunStreamDo(streamID string, channelID int) {
 	defer func() {
 		//TODO fix it no need unlock run if delete stream
 		if status != 2 {
-			Storage.StreamUnlock(streamID, channelID)
+			Storage.StreamChannelUnlock(streamID, channelID)
 		}
 	}()
 	for {
@@ -26,7 +26,7 @@ func StreamServerRunStreamDo(streamID string, channelID int) {
 			"call":    "Run",
 		}).Infoln("Run stream")
 
-		opt, err := Storage.StreamControl(streamID, channelID)
+		opt, err := Storage.StreamChannelControl(streamID, channelID)
 		if opt.OnDemand && !Storage.ClientHas(streamID, channelID) {
 			log.WithFields(logrus.Fields{
 				"module":  "core",
@@ -81,14 +81,14 @@ func StreamServerRunStream(streamID string, channelID int, opt *ChannelST) (int,
 	if err != nil {
 		return 0, err
 	}
-	Storage.StreamStatus(streamID, channelID, ONLINE)
+	Storage.StreamChannelStatus(streamID, channelID, ONLINE)
 	defer func() {
 		RTSPClient.Close()
-		Storage.StreamStatus(streamID, channelID, OFFLINE)
+		Storage.StreamChannelStatus(streamID, channelID, OFFLINE)
 		Storage.StreamHLSFlush(streamID, channelID)
 	}()
 	if len(RTSPClient.CodecData) > 0 {
-		Storage.StreamCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
+		Storage.StreamChannelCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
 	}
 	log.WithFields(logrus.Fields{
 		"module":  "core",
@@ -122,13 +122,13 @@ func StreamServerRunStream(streamID string, channelID int, opt *ChannelST) (int,
 		case signals := <-RTSPClient.Signals:
 			switch signals {
 			case rtspv2.SignalCodecUpdate:
-				Storage.StreamCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
+				Storage.StreamChannelCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
 			case rtspv2.SignalStreamRTPStop:
 				return 0, ErrorStreamStopRTSPSignal
 			}
 		case packetRTP := <-RTSPClient.OutgoingProxy:
 			keyTest.Reset(20 * time.Second)
-			Storage.CastProxy(streamID, channelID, packetRTP)
+			Storage.StreamChannelCastProxy(streamID, channelID, packetRTP)
 		case packetAV := <-RTSPClient.OutgoingPacket:
 			if packetAV.IsKeyFrame {
 				keyTest.Reset(20 * time.Second)
@@ -139,7 +139,7 @@ func StreamServerRunStream(streamID string, channelID int, opt *ChannelST) (int,
 				preKeyTS = packetAV.Time
 			}
 			Seq = append(Seq, packetAV)
-			Storage.Cast(streamID, channelID, packetAV)
+			Storage.StreamChannelCast(streamID, channelID, packetAV)
 		}
 	}
 }

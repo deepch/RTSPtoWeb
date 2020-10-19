@@ -15,7 +15,7 @@ func main() {
 	}).Info("Server CORE start")
 	go HTTPAPIServer()
 	go RTSPServer()
-	go Storage.StreamRunAll()
+	go Storage.StreamChannelRunAll()
 	signalChanel := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
 	signal.Notify(signalChanel, syscall.SIGINT, syscall.SIGTERM)

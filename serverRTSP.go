@@ -270,7 +270,7 @@ func RTSPServerClientHandle(conn net.Conn) {
 				}
 				return
 			}
-			Storage.StreamRun(uuid, channel)
+			Storage.StreamChannelRun(uuid, channel)
 			err = RTSPServerClientResponse(uuid, channel, conn, 200, map[string]string{"CSeq": strconv.Itoa(cSEQ), "Public": "DESCRIBE, SETUP, TEARDOWN, PLAY"})
 			if err != nil {
 				return
@@ -289,7 +289,7 @@ func RTSPServerClientHandle(conn net.Conn) {
 			}
 			in = in + 2
 		case DESCRIBE:
-			sdp, err := Storage.StreamSDP(uuid, channel)
+			sdp, err := Storage.StreamChannelSDP(uuid, channel)
 			if err != nil {
 				log.WithFields(logrus.Fields{
 					"module":  "rtsp_server",

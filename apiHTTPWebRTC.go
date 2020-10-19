@@ -21,8 +21,8 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 		}).Errorln(ErrorStreamNotFound.Error())
 		return
 	}
-	Storage.StreamRun(c.Param("uuid"), stringToInt(c.Param("channel")))
-	codecs, err := Storage.StreamCodecs(c.Param("uuid"), stringToInt(c.Param("channel")))
+	Storage.StreamChannelRun(c.Param("uuid"), stringToInt(c.Param("channel")))
+	codecs, err := Storage.StreamChannelCodecs(c.Param("uuid"), stringToInt(c.Param("channel")))
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		log.WithFields(logrus.Fields{

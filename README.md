@@ -61,31 +61,68 @@ To access the web interface, you open a browser.
  ```shell
 http://127.0.0.1:8083
  ```
+## Stream mode
+
+on_demand true  - receive video from source only has viewer
+
+on_demand false - receive video from source any time
+
+you can set mode use config "on_demand": true or "on_demand": false
 
 ## Configuration
 
 format:
 
-```bash
+```json
 {
   "server": {
     "debug": true,
+    "log_level": "info",
     "http_demo": true,
-    "http_debug": true,
+    "http_debug": false,
     "http_login": "demo",
     "http_password": "demo",
-    "http_port": ":8083"
+    "http_port": ":8083",
+    "rtsp_port": ":5541"
   },
   "streams": {
-    "demo": {
-      "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-      "on_demand": false,
-      "debug": false,
+    "demo1": {
+      "name": "test video stream 1",
+      "channels": {
+        "0": {
+          "name": "ch1",
+          "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+          "on_demand": true,
+          "debug": false,
+          "status": 0
+        },
+        "1": {
+          "name": "ch2",
+          "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+          "on_demand": true,
+          "debug": false,
+          "status": 0
+        }
+      }
     },
     "demo2": {
-        "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-      "on_demand": false,
-      "debug": false,
+      "name": "test video stream 2",
+      "channels": {
+        "0": {
+          "name": "ch1",
+          "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+          "on_demand": true,
+          "debug": false,
+          "status": 0
+        },
+        "1": {
+          "name": "ch2",
+          "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+          "on_demand": true,
+          "debug": false,
+          "status": 0
+        }
+      }
     }
   }
 }
@@ -124,23 +161,43 @@ curl http://demo:demo@127.0.0.1:8083/streams
 {
     "status": 1,
     "payload": {
-        "demo": {
-            "name": "test name 1",
-            "url": "rtsp://admin:123456@127.0.0.1:550/mpeg4",
-            "on_demand": true,
-            "debug": false
-        },
-        "3demo": {
-            "name": "test name 2",
-             "url": "rtsp://admin:123456@127.0.0.1:551/mpeg4",
-            "on_demand": false,
-            "debug": false
+        "demo1": {
+            "name": "test video",
+            "channels": {
+                "0": {
+                    "name": "ch1",
+                    "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                    "on_demand": true,
+                    "debug": false,
+                    "status": 0
+                },
+                "1": {
+                    "name": "ch2",
+                    "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                    "on_demand": true,
+                    "debug": false,
+                    "status": 0
+                }
+            }
         },
         "demo2": {
-            "name": "test name 3",
-             "url": "rtsp://admin:123456@127.0.0.1:552/mpeg4",
-            "on_demand": true,
-            "debug": false
+            "name": "test video",
+            "channels": {
+                "0": {
+                    "name": "ch1",
+                    "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                    "on_demand": true,
+                    "debug": false,
+                    "status": 0
+                },
+                "1": {
+                    "name": "ch2",
+                    "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                    "on_demand": true,
+                    "debug": false,
+                    "status": 0
+                }
+            }
         }
     }
 }
@@ -151,8 +208,26 @@ curl http://demo:demo@127.0.0.1:8083/streams
 POST /stream/:uuid/add
 curl --header "Content-Type: application/json" \
   --request POST \
-  --data '{"name": "test name 1","url": "rtsp://admin:123456@127.0.0.1:550/mpeg4", "on_demand": false,"debug": false}' \
-  http://demo:demo@127.0.0.1:8083/stream/demo/add
+  --data '{
+              "name": "test video",
+              "channels": {
+                  "0": {
+                      "name": "ch1",
+                      "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                      "on_demand": true,
+                      "debug": false,
+                      "status": 0
+                  },
+                  "1": {
+                      "name": "ch2",
+                      "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                      "on_demand": true,
+                      "debug": false,
+                      "status": 0
+                  }
+              }
+          }' \
+  http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/add
 ```
 
 ###### Response
@@ -168,8 +243,26 @@ curl --header "Content-Type: application/json" \
 POST /stream/:uuid/edit
 curl --header "Content-Type: application/json" \
   --request POST \
-  --data '{"name": "test name 1","url": "rtsp://admin:123456@127.0.0.1:550/mpeg4", "on_demand": false,"debug": false}' \
-  http://demo:demo@127.0.0.1:8083/stream/demo/edit
+  --data '{
+            "name": "test video",
+            "channels": {
+                "0": {
+                    "name": "ch1",
+                    "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                    "on_demand": true,
+                    "debug": false,
+                    "status": 0
+                },
+                "1": {
+                    "name": "ch2",
+                    "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                    "on_demand": true,
+                    "debug": false,
+                    "status": 0
+                }
+            }
+        }' \
+  http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/edit
 ```
 
 ###### Response
@@ -183,7 +276,20 @@ curl --header "Content-Type: application/json" \
 ###### Query
 ```bash
 GET /stream/:uuid/reload
-curl http://demo:demo@127.0.0.1:8083/stream/demo/reload
+curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/reload
+```
+###### Response
+```json
+{
+    "status": 1,
+    "payload": "success"
+}
+```
+#### Stream Channel Reload
+###### Query
+```bash
+GET /stream/:uuid/reload
+curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/reload
 ```
 
 ###### Response
@@ -198,7 +304,7 @@ curl http://demo:demo@127.0.0.1:8083/stream/demo/reload
 ###### Query
 ```bash
 GET /stream/:uuid/info
-curl http://demo:demo@127.0.0.1:8083/stream/demo/info
+curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/info
 ```
 
 ###### Response
@@ -206,11 +312,23 @@ curl http://demo:demo@127.0.0.1:8083/stream/demo/info
 {
     "status": 1,
     "payload": {
-        "name": "test name 1",
-        "url": "rtsp://admin:123456@10.128.18.211/mpeg4",
-        "on_demand": false,
-        "debug": false,
-        "status": 1
+        "name": "test video",
+        "channels": {
+            "0": {
+                "name": "ch1",
+                "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                "on_demand": true,
+                "debug": false,
+                "status": 0
+            },
+            "1": {
+                "name": "ch2",
+                "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                "on_demand": true,
+                "debug": false,
+                "status": 0
+            }
+        }
     }
 }
 ```
@@ -219,7 +337,7 @@ curl http://demo:demo@127.0.0.1:8083/stream/demo/info
 ###### Query
 ```bash
 GET /stream/:uuid/codec
-curl http://demo:demo@127.0.0.1:8083/stream/demo/codec
+curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/codec
 ```
 
 ###### Response
@@ -262,7 +380,7 @@ curl http://demo:demo@127.0.0.1:8083/stream/demo/codec
 ###### Query
 ```bash
 GET /stream/:uuid/delete
-curl http://demo:demo@127.0.0.1:8083/stream/demo/delete
+curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/delete
 ```
 
 ###### Response
@@ -277,7 +395,7 @@ curl http://demo:demo@127.0.0.1:8083/stream/demo/delete
 ###### Query
 ```bash
 GET /stream/:uuid/hls/live/index.m3u8
-curl http://127.0.0.1:8083/stream/demo/channel/0/hls/live/index.m3u8
+curl http://127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/hls/live/index.m3u8
 ```
 
 ###### Response
@@ -285,18 +403,16 @@ curl http://127.0.0.1:8083/stream/demo/channel/0/hls/live/index.m3u8
 index.m3u8
 ```
 ```bash
-ffplay http://127.0.0.1:8083/stream/demo/channel/0/hls/live/index.m3u8
+ffplay http://127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/hls/live/index.m3u8
 ```
 
 #### Stream rtsp play
 ###### Query
 
 ```bash
-ffplay -rtsp_transport tcp  rtsp://127.0.0.1/demo1/1
+ffplay -rtsp_transport tcp  rtsp://127.0.0.1/{STREAM_ID}/{CHANNEL_ID}
 ```
-```bash
-ffplay -rtsp_transport tcp  rtsp://127.0.0.1/demo1/0
-```
+
 
 ## Limitations
 

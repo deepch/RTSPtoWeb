@@ -27,16 +27,17 @@ const (
 
 //Default stream errors
 var (
-	Success                   = "success"
-	ErrorStreamNotFound       = errors.New("stream not found")
-	ErrorStreamAlreadyExists  = errors.New("stream already exists")
-	ErrorStreamNotHLSSegments = errors.New("stream hls not ts seq found")
-	ErrorStreamNoVideo        = errors.New("stream no video")
-	ErrorStreamNoClients      = errors.New("stream no clients")
-	ErrorStreamRestart        = errors.New("stream restart")
-	ErrorStreamStopCoreSignal = errors.New("stream stop core signal")
-	ErrorStreamStopRTSPSignal = errors.New("stream stop rtsp signal")
-	ErrorChannelNotFound      = errors.New("channel not found")
+	Success                         = "success"
+	ErrorStreamNotFound             = errors.New("stream not found")
+	ErrorStreamAlreadyExists        = errors.New("stream already exists")
+	ErrorStreamChannelAlreadyExists = errors.New("stream channel already exists")
+	ErrorStreamNotHLSSegments       = errors.New("stream hls not ts seq found")
+	ErrorStreamNoVideo              = errors.New("stream no video")
+	ErrorStreamNoClients            = errors.New("stream no clients")
+	ErrorStreamRestart              = errors.New("stream restart")
+	ErrorStreamStopCoreSignal       = errors.New("stream stop core signal")
+	ErrorStreamStopRTSPSignal       = errors.New("stream stop rtsp signal")
+	ErrorChannelNotFound            = errors.New("channel not found")
 )
 
 //StorageST main storage struct
@@ -64,6 +65,7 @@ type StreamST struct {
 	Channels map[int]ChannelST `json:"channels"`
 }
 type ChannelST struct {
+	Name             string `json:"name"`
 	URL              string `json:"url"`
 	OnDemand         bool   `json:"on_demand"`
 	Debug            bool   `json:"debug"`

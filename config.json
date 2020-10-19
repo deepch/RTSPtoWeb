@@ -14,12 +14,52 @@
       "name": "test video",
       "channels": {
         "0": {
+          "name": "ch1",
           "url": "rtsp://admin:admin123@10.128.18.224/mpeg4",
           "on_demand": true,
           "debug": false,
           "status": 0
         },
         "1": {
+          "name": "ch2",
+          "url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif",
+          "on_demand": false,
+          "debug": false,
+          "status": 0
+        }
+      }
+    },
+    "demo2": {
+      "name": "test video",
+      "channels": {
+        "0": {
+          "name": "ch1",
+          "url": "rtsp://admin:admin123@10.128.18.224/mpeg4",
+          "on_demand": true,
+          "debug": false,
+          "status": 0
+        },
+        "1": {
+          "name": "ch2",
+          "url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif",
+          "on_demand": true,
+          "debug": false,
+          "status": 0
+        }
+      }
+    },
+    "rrrr": {
+      "name": "test video",
+      "channels": {
+        "0": {
+          "name": "ch1",
+          "url": "rtsp://admin:admin123@10.128.18.224/mpeg4",
+          "on_demand": true,
+          "debug": false,
+          "status": 0
+        },
+        "1": {
+          "name": "ch2",
           "url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif",
           "on_demand": true,
           "debug": false,

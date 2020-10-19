@@ -56,16 +56,29 @@ func HTTPAPIServer() {
 	/*
 		Stream Control elements
 	*/
+
 	privat.GET("/streams", HTTPAPIServerStreams)
 	privat.POST("/stream/:uuid/add", HTTPAPIServerStreamAdd)
 	privat.POST("/stream/:uuid/edit", HTTPAPIServerStreamEdit)
 	privat.GET("/stream/:uuid/delete", HTTPAPIServerStreamDelete)
 	privat.GET("/stream/:uuid/reload", HTTPAPIServerStreamReload)
 	privat.GET("/stream/:uuid/info", HTTPAPIServerStreamInfo)
-	privat.GET("/stream/:uuid/codec", HTTPAPIServerStreamCodec)
+
+	/*
+		Stream Channel elements
+	*/
+
+	privat.POST("/stream/:uuid/channel/:channel/add", HTTPAPIServerStreamChannelAdd)
+	privat.POST("/stream/:uuid/channel/:channel/edit", HTTPAPIServerStreamChannelEdit)
+	privat.POST("/stream/:uuid/channel/:channel/delete", HTTPAPIServerStreamChannelDelete)
+	privat.GET("/stream/:uuid/channel/:channel/codec", HTTPAPIServerStreamChannelCodec)
+	privat.GET("/stream/:uuid/channel/:channel/reload", HTTPAPIServerStreamChannelReload)
+	privat.GET("/stream/:uuid/channel/:channel/info", HTTPAPIServerStreamChannelInfo)
+
 	/*
 		Stream video elements
 	*/
+
 	public.GET("/stream/:uuid/channel/:channel/hls/live/index.m3u8", HTTPAPIServerStreamHLSM3U8)
 	public.GET("/stream/:uuid/channel/:channel/hls/live/segment/:seq/file.ts", HTTPAPIServerStreamHLSTS)
 	public.GET("/stream/:uuid/channel/:channel/mse", func(c *gin.Context) {

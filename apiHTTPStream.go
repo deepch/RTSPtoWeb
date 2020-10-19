@@ -7,7 +7,7 @@ import (
 
 //HTTPAPIServerStreams function return stream list
 func HTTPAPIServerStreams(c *gin.Context) {
-	c.IndentedJSON(200, Message{Status: 1, Payload: Storage.List()})
+	c.IndentedJSON(200, Message{Status: 1, Payload: Storage.StreamsList()})
 }
 
 //HTTPAPIServerStreamAdd function add new stream
@@ -119,32 +119,4 @@ func HTTPAPIServerStreamInfo(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(200, Message{Status: 1, Payload: info})
-}
-
-//HTTPAPIServerStreamCodec function return codec info struct
-func HTTPAPIServerStreamCodec(c *gin.Context) {
-	if !Storage.StreamChannelExist(c.Param("uuid"), stringToInt(c.Param("channel"))) {
-		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
-		log.WithFields(logrus.Fields{
-			"module":  "http_stream",
-			"stream":  c.Param("uuid"),
-			"channel": c.Param("channel"),
-			"func":    "HTTPAPIServerStreamCodec",
-			"call":    "StreamChannelExist",
-		}).Errorln(ErrorStreamNotFound.Error())
-		return
-	}
-	codecs, err := Storage.StreamCodecs(c.Param("uuid"), stringToInt(c.Param("channel")))
-	if err != nil {
-		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
-		log.WithFields(logrus.Fields{
-			"module":  "http_stream",
-			"stream":  c.Param("uuid"),
-			"channel": c.Param("channel"),
-			"func":    "HTTPAPIServerStreamCodec",
-			"call":    "StreamCodecs",
-		}).Errorln(err.Error())
-		return
-	}
-	c.IndentedJSON(200, Message{Status: 1, Payload: codecs})
 }

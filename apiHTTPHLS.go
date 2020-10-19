@@ -23,7 +23,7 @@ func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
 		return
 	}
 	c.Header("Content-Type", "application/x-mpegURL")
-	Storage.StreamRun(c.Param("uuid"), stringToInt(c.Param("channel")))
+	Storage.StreamChannelRun(c.Param("uuid"), stringToInt(c.Param("channel")))
 	//If stream mode on_demand need wait ready segment's
 	for i := 0; i < 40; i++ {
 		index, seq, err := Storage.StreamHLSm3u8(c.Param("uuid"), stringToInt(c.Param("channel")))
@@ -70,7 +70,7 @@ func HTTPAPIServerStreamHLSTS(c *gin.Context) {
 		}).Errorln(ErrorStreamNotFound.Error())
 		return
 	}
-	codecs, err := Storage.StreamCodecs(c.Param("uuid"), stringToInt(c.Param("channel")))
+	codecs, err := Storage.StreamChannelCodecs(c.Param("uuid"), stringToInt(c.Param("channel")))
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		log.WithFields(logrus.Fields{
