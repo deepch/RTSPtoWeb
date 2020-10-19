@@ -50,7 +50,7 @@ func HTTPAPIServer() {
 	public.GET("/pages/player/mse/:uuid/:channel", HTTPAPIPlayMse)
 	public.GET("/pages/player/webrtc/:uuid/:channel", HTTPAPIPlayWebrtc)
 	public.GET("/pages/multiview", HTTPAPIMultiview)
-	public.Any("/pages/multiview/full", HTTPAPIFullScreenMultiview)
+	public.Any("/pages/multiview/full", HTTPAPIFullScreenMultiView)
 	public.GET("/pages/documentation", HTTPAPIServerDocumentation)
 	public.GET("/pages/login", HTTPAPIPageLogin)
 
@@ -198,11 +198,36 @@ func HTTPAPIMultiview(c *gin.Context) {
 	})
 }
 
-func HTTPAPIFullScreenMultiview(c *gin.Context) {
+type MultiViewOptions struct {
+	Grid   int                             `json:"grid"`
+	Player map[string]MultiViewOptionsGrid `json:"player"`
+}
+type MultiViewOptionsGrid struct {
+	UUID       string `json:"uuid"`
+	Channel    int    `json:"channel"`
+	PlayerType string `json:"playerType"`
+}
+
+func HTTPAPIFullScreenMultiView(c *gin.Context) {
+	var createParams MultiViewOptions
+	err := c.BindJSON(&createParams)
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"module": "http_page",
+			"func":   "HTTPAPIFullScreenMultiView",
+			"call":   "BindJSON",
+		}).Errorln(err.Error())
+	}
+	log.WithFields(logrus.Fields{
+		"module": "http_page",
+		"func":   "HTTPAPIFullScreenMultiView",
+		"call":   "Options",
+	}).Debugln(createParams)
 	c.HTML(http.StatusOK, "fullscreenmulti.tmpl", gin.H{
 		"port":    Storage.ServerHTTPPort(),
 		"streams": Storage.Streams,
 		"version": time.Now().String(),
+		"options": createParams,
 		"page":    "fullscreenmulti",
 	})
 }

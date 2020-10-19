@@ -1,7 +1,7 @@
 {
   "server": {
     "debug": true,
-    "log_level": "info",
+    "log_level": "debug",
     "http_demo": true,
     "http_debug": false,
     "http_login": "demo",

@@ -80,3 +80,37 @@ curl http://demo:demo@127.0.0.1:8083/stream/testing/info
 sleep 1
 curl http://demo:demo@127.0.0.1:8083/stream/testing/delete
 sleep 1
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{
+            "grid":6,
+            "player":{
+
+              "1": {
+                "uuid": "d43e9364-e2e3-4b41-9f78-b90de1991211",
+                "channel": 1,
+                "playerType": "mse"
+              },
+              "2": {
+                "uuid": "d43e9364-e2e3-4b41-9f78-b90de1991211",
+                "channel": 0,
+                "playerType": "mse"
+              },
+              "3": {
+                "uuid": "d43e9364-e2e3-4b41-9f78-b90de1991211",
+                "channel": 1,
+                "playerType": "hls"
+              },
+              "4": {
+                "uuid": "d43e9364-e2e3-4b41-9f78-b90de1991211",
+                "channel": 0,
+                "playerType": "mse"
+              },
+              "6": {
+                "uuid": "d43e9364-e2e3-4b41-9f78-b90de1991211",
+                "channel": 1,
+                "playerType": "mse"
+              }
+            }
+          }' \
+  http://demo:demo@127.0.0.1:8083/pages/multiview/full
