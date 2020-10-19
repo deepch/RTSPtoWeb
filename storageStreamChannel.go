@@ -264,8 +264,8 @@ func (obj *StorageST) StreamChannelSDP(streamID string, channelID int) ([]byte, 
 func (obj *StorageST) StreamChannelAdd(uuid string, channelID int, val ChannelST) error {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
-	if _, ok := obj.Streams[uuid]; ok {
-		return ErrorStreamAlreadyExists
+	if _, ok := obj.Streams[uuid]; !ok {
+		return ErrorStreamNotFound
 	}
 	if _, ok := obj.Streams[uuid].Channels[channelID]; ok {
 		return ErrorStreamChannelAlreadyExists

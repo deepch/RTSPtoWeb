@@ -71,7 +71,33 @@ you can set mode use config "on_demand": true or "on_demand": false
 
 ## Configuration
 
-format:
+###Options
+
+####Server section's
+```text
+debug         - enable debug output
+log_level     - log level
+http_debug    - debug http api server
+http_login    - http auth login
+http_password - http auth password
+http_port     - http server port
+rtsp_port     - rtsp server port
+```
+####Stream section's
+```text
+name          - stream name
+```
+####Stream section's
+```text
+name          - channel name
+url           - channel rtsp url
+on_demand     - stream mode static (run any time) or ondaemand (run only has viewers)
+debug         - enable debug output (RTSP client)
+status        - default stream status
+
+```
+
+### example
 
 ```json
 {
@@ -202,10 +228,11 @@ curl http://demo:demo@127.0.0.1:8083/streams
     }
 }
 ```
+### Stream Control
 #### Stream Add
 ###### Query
 ```bash
-POST /stream/:uuid/add
+POST /stream/{STREAM_ID}/add
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{
@@ -240,7 +267,7 @@ curl --header "Content-Type: application/json" \
 #### Stream Edit
 ###### Query
 ```bash
-POST /stream/:uuid/edit
+POST /stream/{STREAM_ID}/edit
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{
@@ -275,7 +302,7 @@ curl --header "Content-Type: application/json" \
 #### Stream Reload
 ###### Query
 ```bash
-GET /stream/:uuid/reload
+GET /stream/{STREAM_ID}/reload
 curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/reload
 ```
 ###### Response
@@ -288,7 +315,7 @@ curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/reload
 #### Stream Channel Reload
 ###### Query
 ```bash
-GET /stream/:uuid/reload
+GET /stream/{STREAM_ID}/reload
 curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/reload
 ```
 
@@ -303,7 +330,7 @@ curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/rel
 #### Stream Info
 ###### Query
 ```bash
-GET /stream/:uuid/info
+GET /stream/{STREAM_ID}/info
 curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/info
 ```
 
@@ -333,53 +360,10 @@ curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/info
 }
 ```
 
-#### Stream Codec
-###### Query
-```bash
-GET /stream/:uuid/codec
-curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/codec
-```
-
-###### Response
-```json
-{
-    "status": 1,
-    "payload": [
-        {
-            "Record": "AUKAKP/hACRnQoAo2gHgCJeWVIAAADwAAA4QMCAAHoSAAAiVRXvfC8IhGoABAARozjyA",
-            "RecordInfo": {
-                "AVCProfileIndication": 66,
-                "ProfileCompatibility": 128,
-                "AVCLevelIndication": 40,
-                "LengthSizeMinusOne": 3,
-                "SPS": [
-                    "Z0KAKNoB4AiXllSAAAA8AAAOEDAgAB6EgAAIlUV73wvCIRqA"
-                ],
-                "PPS": [
-                    "aM48gA=="
-                ]
-            },
-            "SPSInfo": {
-                "ProfileIdc": 66,
-                "LevelIdc": 40,
-                "MbWidth": 120,
-                "MbHeight": 68,
-                "CropLeft": 0,
-                "CropRight": 0,
-                "CropTop": 0,
-                "CropBottom": 4,
-                "Width": 1920,
-                "Height": 1080
-            }
-        }
-    ]
-}
-```
-
 #### Stream Delete
 ###### Query
 ```bash
-GET /stream/:uuid/delete
+GET /stream/{STREAM_ID}/delete
 curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/delete
 ```
 
@@ -391,10 +375,150 @@ curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/delete
 }
 ```
 
-#### Stream hls play
+### Channel Control
+#### Channel Add
 ###### Query
 ```bash
-GET /stream/:uuid/hls/live/index.m3u8
+POST /stream/{STREAM_ID}/channel/{CHANNEL_ID}/add
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{
+                      "name": "ch4",
+                      "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                      "on_demand": false,
+                      "debug": false,
+                      "status": 0
+            }' \
+  http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/add
+```
+
+###### Response
+```json
+{
+    "status": 1,
+    "payload": "success"
+}
+```
+#### Channel Edit
+###### Query
+```bash
+POST /stream/{STREAM_ID}/channel/{CHANNEL_ID}/edit
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{
+                      "name": "ch4",
+                      "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                      "on_demand": true,
+                      "debug": false,
+                      "status": 0
+            }' \
+  http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/edit
+```
+
+###### Response
+```json
+{
+    "status": 1,
+    "payload": "success"
+}
+```
+#### Channel Reload
+###### Query
+```bash
+GET /stream/{STREAM_ID}/channel/{CHANNEL_ID}/reload
+curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/reload
+```
+###### Response
+```json
+{
+    "status": 1,
+    "payload": "success"
+}
+```
+
+#### Channel Info
+###### Query
+```bash
+GET /stream/{STREAM_ID}/channel/{CHANNEL_ID}/info
+curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/info
+```
+
+###### Response
+```json
+{
+    "status": 1,
+    "payload": {
+        "name": "ch4",
+        "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+        "on_demand": false,
+        "debug": false,
+        "status": 1
+    }
+}
+```
+
+#### Stream Codec
+###### Query
+```bash
+GET /stream/{STREAM_ID}/{CHANNEL_ID}/codec
+curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/{CHANNEL_ID}/codec
+```
+
+###### Response
+```json
+{
+    "status": 1,
+    "payload": [
+        {
+            "Record": "AU0AFP/hABRnTQAUlahQfoQAAAMABAAAAwCiEAEABGjuPIA=",
+            "RecordInfo": {
+                "AVCProfileIndication": 77,
+                "ProfileCompatibility": 0,
+                "AVCLevelIndication": 20,
+                "LengthSizeMinusOne": 3,
+                "SPS": [
+                    "Z00AFJWoUH6EAAADAAQAAAMAohA="
+                ],
+                "PPS": [
+                    "aO48gA=="
+                ]
+            },
+            "SPSInfo": {
+                "ProfileIdc": 77,
+                "LevelIdc": 20,
+                "MbWidth": 20,
+                "MbHeight": 15,
+                "CropLeft": 0,
+                "CropRight": 0,
+                "CropTop": 0,
+                "CropBottom": 0,
+                "Width": 320,
+                "Height": 240
+            }
+        }
+    ]
+}
+```
+
+#### Channel Delete
+###### Query
+```bash
+GET /stream/{STREAM_ID}/channel/{CHANNEL_ID}/delete
+curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/delete
+```
+
+###### Response
+```json
+{
+    "status": 1,
+    "payload": "success"
+}
+```
+
+#### Channel hls play
+###### Query
+```bash
+GET /stream/{STREAM_ID}/hls/live/index.m3u8
 curl http://127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/hls/live/index.m3u8
 ```
 

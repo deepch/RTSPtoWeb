@@ -1,0 +1,82 @@
+curl http://demo:demo@127.0.0.1:8083/streams
+sleep 1
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{
+              "name": "test video",
+              "channels": {
+                  "0": {
+                      "name": "ch1",
+                      "url": "rtsp://admin:admin123@10.128.18.224/mpeg4",
+                      "on_demand": false,
+                      "debug": false,
+                      "status": 0
+                  },
+                  "1": {
+                      "name": "ch2",
+                      "url": "rtsp://admin:admin123@10.128.18.224:999/mpeg4cif",
+                      "on_demand": true,
+                      "debug": false,
+                      "status": 0
+                  }
+              }
+          }' \
+  http://demo:demo@127.0.0.1:8083/stream/testing/add
+sleep 1
+curl --header "Content-Type: application/json" \
+    --request POST \
+    --data '{
+              "name": "test video",
+              "channels": {
+                  "0": {
+                      "name": "ch1",
+                      "url": "rtsp://admin:admin123@10.128.18.224/mpeg4",
+                      "on_demand": true,
+                      "debug": false,
+                      "status": 0
+                  },
+                  "1": {
+                      "name": "ch2",
+                      "url": "rtsp://admin:admin123@10.128.18.224/mpeg4",
+                      "on_demand": false,
+                      "debug": false,
+                      "status": 0
+                  }
+              }
+          }' \
+    http://demo:demo@127.0.0.1:8083/stream/testing/edit
+sleep 1
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{
+                      "name": "ch4",
+                      "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                      "on_demand": false,
+                      "debug": false,
+                      "status": 0
+            }' \
+  http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/add
+sleep 1
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{
+                      "name": "ch4",
+                      "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
+                      "on_demand": true,
+                      "debug": false,
+                      "status": 0
+            }' \
+  http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/edit
+sleep 1
+curl http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/info
+sleep 1
+curl http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/codec
+sleep 1
+curl http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/delete
+sleep 1
+curl http://demo:demo@127.0.0.1:8083/stream/testing/reload
+sleep 1
+curl http://demo:demo@127.0.0.1:8083/stream/testing/info
+sleep 1
+curl http://demo:demo@127.0.0.1:8083/stream/testing/delete
+sleep 1

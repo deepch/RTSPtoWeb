@@ -25,7 +25,7 @@
           "url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif",
           "on_demand": false,
           "debug": false,
-          "status": 0
+          "status": 1
         }
       }
     },

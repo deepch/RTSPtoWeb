@@ -52,7 +52,6 @@ func HTTPAPIServerStreamChannelInfo(c *gin.Context) {
 
 //HTTPAPIServerStreamChannelReload function reload stream
 func HTTPAPIServerStreamChannelReload(c *gin.Context) {
-	log.Println("deep")
 	err := Storage.StreamChannelReload(c.Param("uuid"), stringToInt(c.Param("channel")))
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
