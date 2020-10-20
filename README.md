@@ -13,7 +13,7 @@ RTSP Stream to WebBrowser MSE or WebRTC or HLS, full native! not use ffmpeg or g
 - [Authors](#Authors)
 - [License](#license) 
 
-## Installation from binary
+##Installation from binary
 
 Select the latest release
 ```shell
@@ -40,7 +40,7 @@ Run the application
 ./RTSPtoWeb
  ```
 
-## Installation from source
+##Installation from source
 
 Enable the go module and get the source code
 ```shell
@@ -172,7 +172,7 @@ Usage of ./RTSPtoWeb:
         set debug mode (default true)
 ```
 
-## API documentation
+##API documentation
    
 #### Streams List
 ###### Query
