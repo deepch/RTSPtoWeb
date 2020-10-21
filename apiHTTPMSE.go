@@ -148,6 +148,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 				"func":    "HTTPAPIServerStreamMSE",
 				"call":    "controlExit",
 			}).Errorln("Client Reader Exit")
+			return
 		case <-noVideo.C:
 			log.WithFields(logrus.Fields{
 				"module":  "http_mse",
