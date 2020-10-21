@@ -19,6 +19,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 			"func":    "HTTPAPIServerStreamMSE",
 			"call":    "Close",
 		}).Errorln(err)
+		log.Println("Client Full Exit")
 	}()
 	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 1")
 	if !Storage.StreamChannelExist(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel"))) {
@@ -115,16 +116,10 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 	}
 	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 14")
 	var videoStart bool
+	controlExit := make(chan bool, 10)
 	go func() {
 		defer func() {
-			err := ws.Close()
-			log.WithFields(logrus.Fields{
-				"module":  "http_mse",
-				"stream":  ws.Request().FormValue("uuid"),
-				"channel": ws.Request().FormValue("channel"),
-				"func":    "HTTPAPIServerStreamMSE",
-				"call":    "Close",
-			}).Errorln(err)
+			controlExit <- true
 		}()
 		for {
 			var message string
@@ -145,6 +140,14 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 	noVideo := time.NewTimer(10 * time.Second)
 	for {
 		select {
+		case <-controlExit:
+			log.WithFields(logrus.Fields{
+				"module":  "http_mse",
+				"stream":  ws.Request().FormValue("uuid"),
+				"channel": ws.Request().FormValue("channel"),
+				"func":    "HTTPAPIServerStreamMSE",
+				"call":    "controlExit",
+			}).Errorln("Client Reader Exit")
 		case <-noVideo.C:
 			log.WithFields(logrus.Fields{
 				"module":  "http_mse",
