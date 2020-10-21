@@ -8,6 +8,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+//HTTPAPIServerStreamMSE func
 func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 	defer func() {
 		err := ws.Close()
@@ -19,6 +20,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 			"call":    "Close",
 		}).Errorln(err)
 	}()
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 1")
 	if !Storage.StreamChannelExist(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel"))) {
 		log.WithFields(logrus.Fields{
 			"module":  "http_mse",
@@ -29,8 +31,11 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}).Errorln(ErrorStreamNotFound.Error())
 		return
 	}
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 2")
 	Storage.StreamChannelRun(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel")))
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 3")
 	err := ws.SetWriteDeadline(time.Now().Add(5 * time.Second))
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 4")
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"module":  "http_mse",
@@ -41,6 +46,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}).Errorln(err.Error())
 		return
 	}
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 5")
 	cid, ch, _, err := Storage.ClientAdd(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel")), MSE)
 	if err != nil {
 		log.WithFields(logrus.Fields{
@@ -52,8 +58,10 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}).Errorln(err.Error())
 		return
 	}
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 6")
 	defer Storage.ClientDelete(ws.Request().FormValue("uuid"), cid, stringToInt(ws.Request().FormValue("channel")))
 	codecs, err := Storage.StreamChannelCodecs(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel")))
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 7")
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"module":  "http_mse",
@@ -64,8 +72,11 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}).Errorln(err.Error())
 		return
 	}
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 8")
 	muxerMSE := mp4f.NewMuxer(nil)
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 9")
 	err = muxerMSE.WriteHeader(codecs)
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 10")
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"module":  "http_mse",
@@ -76,7 +87,9 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}).Errorln(err.Error())
 		return
 	}
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 11")
 	meta, init := muxerMSE.GetInit(codecs)
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 12")
 	err = websocket.Message.Send(ws, append([]byte{9}, meta...))
 	if err != nil {
 		log.WithFields(logrus.Fields{
@@ -88,6 +101,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}).Errorln(err.Error())
 		return
 	}
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 13")
 	err = websocket.Message.Send(ws, init)
 	if err != nil {
 		log.WithFields(logrus.Fields{
@@ -99,6 +113,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}).Errorln(err.Error())
 		return
 	}
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 14")
 	var videoStart bool
 	go func() {
 		defer func() {
@@ -126,6 +141,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 			}
 		}
 	}()
+	log.Println(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), "WS Step 15")
 	noVideo := time.NewTimer(10 * time.Second)
 	for {
 		select {
