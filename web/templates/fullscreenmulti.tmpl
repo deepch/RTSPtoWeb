@@ -42,6 +42,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <li><a href="#" class="dropdown-item" onclick="gridMaker(9)"><i class="fas fa-border-none"></i> 3 x 3 </a></li>
                 <li><a href="#" class="dropdown-item" onclick="gridMaker(12)"><i class="fas fa-border-none"></i> 4 x 3 </a></li>
                 <li><a href="#" class="dropdown-item" onclick="gridMaker(16)"><i class="fas fa-border-none"></i> 4 x 4 </a></li>
+                <li><a href="#" class="dropdown-item" onclick="gridMaker(25)"><i class="fas fa-border-none"></i> 5 x 5 </a></li>
+                <li><a href="#" class="dropdown-item" onclick="gridMaker(36)"><i class="fas fa-border-none"></i> 6 x 6 </a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -133,7 +135,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
   </div>
   <!-- ./wrapper -->
   <script>
-    let streams = {{.streams}};
+    let streams = {{.streams }};
+
+    let presetOptions={{ .options }}
+
   </script>
   <script src="/../static/plugins/jquery/jquery.min.js"></script>
   <script src="/../static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -148,9 +153,16 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <!-- end foot     -->
 <script src="/../static/plugins/hlsjs/hls.min.js"></script>
 <script>
-  const playerType = 'webrtc';
+  let colordebug = false;
   let players = {};
   $(document).ready(() => {
+    logger(9, 'page is ready')
+    if(presetOptions.grid!=0){
+      multiviewGrid('set', presetOptions.grid);
+    }
+    if(presetOptions.player!=null){
+      localStorage.setItem('multiviewPlayers', JSON.stringify(presetOptions.player));
+    }
     gridMaker(multiviewGrid('get'));
     restoreStreams();
   });
@@ -166,16 +178,23 @@ scratch. This page gets rid of all links and provides the needed markup only.
     let colW;
     switch (col) {
       case 6:
-        colW = 'six';
+        colW = 'grid-6';
         break;
       case 9:
-        colW = 'nine';
+        colW = 'grid-9';
         break;
       case 12:
-        colW = 'twelve';
+        colW = 'grid-12';
         break;
       case 16:
-        colW = 'sixteen';
+        colW = 'grid-16';
+        break;
+
+      case 25:
+        colW = 'grid-25';
+        break;
+      case 36:
+        colW = 'grid-36';
         break;
       default:
         colW = '';
@@ -186,7 +205,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
       $('#grid-wrapper').append(
         `<div class=" player ` + colW + `" data-player="none" data-uuid="0">
               <div class="play-info"></div>
-              <video autoplay muted></video>
+              <video class="video-class" autoplay muted></video>
               <div class="control">
                 <a href="#" class="btn  btn-success btn-xs" onclick="openChoise(this)"><i class="fas fa-plus"></i> Add</a>
                 <a href="#" class="btn  btn-info btn-xs btn-play-main"  onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expand</a>
@@ -195,8 +214,67 @@ scratch. This page gets rid of all links and provides the needed markup only.
               </div>`);
     }
     multiviewGrid('set', col);
-  }
 
+    addEventListenerToVideo();
+  }
+  function   addEventListenerToVideo(){
+    $('.video-class').each(function(){
+      let _this=this;
+      let index=$(this).closest('.player').index();
+      let uuid=$(this).closest('.player').attr('data-uuid');
+      this.addEventListener('loadeddata', () => {
+        _this.play();
+        logger(index,'[video]: loadeddata');
+      });
+      this.addEventListener('stalled', () => {
+        logger(index,'[video]: stalled');
+      });
+      this.addEventListener('pause', () => {
+        if (_this.currentTime > _this.buffered.end(_this.buffered.length - 1)) {
+          _this.currentTime = _this.buffered.end(_this.buffered.length - 1) - 0.1;
+          _this.play();
+        }
+        logger(index,'[video]: pause');
+      });
+
+      this.addEventListener('error', (e) => {
+        logger(index, '[video]: error',e);
+        console.log(e);
+      });
+
+      this.addEventListener('abort', () => {
+        logger(index, '[video]: abort');
+      });
+
+      this.addEventListener('emptied', (e) => {
+        logger(index, '[video]: emptied');
+      });
+
+      this.addEventListener('ended', (e) => {
+        logger(index, '[video]: ended');
+      });
+
+      this.addEventListener('play', (e) => {
+        logger(index, '[video]: play');
+      });
+
+      this.addEventListener('suspend', (e) => {
+        logger(index, '[video]: suspend');
+      });
+      this.addEventListener('waiting', (e) => {
+        logger(index, '[video]: waiting');
+      });
+      this.addEventListener('loadeddata', (e) => {
+        logger(index, '[video]: loadeddata');
+      });
+      this.addEventListener('loadedmetadata', (e) => {
+        logger(index, '[video]: loadedmetadata');
+      });
+      this.addEventListener('loadstart', (e) => {
+        logger(index, '[video]: loadstart');
+      });
+    });
+  }
   function destroyGrid() {
     $('.player').each(function(index) {
       destoyPlayer(index);
@@ -350,9 +428,16 @@ scratch. This page gets rid of all links and provides the needed markup only.
       this.mseStreamingStarted = false,
       this.uuid = uuid,
       this.channel = channel || 0;
-      this.timeout=null;
-    this.playMse = function() {
+      this.timeout = null;
+      this.checktime=null;
+      this.checktimecounter=0;
+      this.playMse = function() {
       let _this = this;
+      logger(videoPlayer.index(),
+        'func playMse',
+        'streams: ' + uuid,
+        'channel: ' + channel);
+
       this.mse = new MediaSource();
       this.video.src = window.URL.createObjectURL(this.mse);
 
@@ -364,32 +449,57 @@ scratch. This page gets rid of all links and provides the needed markup only.
       let ws_url = potocol + '://' + location.host + '/stream/' + this.uuid + '/channel/' + this.channel + '/mse?uuid=' + this.uuid + '&channel=' + this.channel;
 
       this.mse.addEventListener('sourceopen', function() {
+        logger(videoPlayer.index(),
+              uuid,
+              channel,
+              '[MSE]: sourceopen');
         _this.ws = new WebSocket(ws_url);
         _this.ws.binaryType = "arraybuffer";
         _this.ws.onopen = function(event) {
-          console.log('Connect to ws');
+
+            logger(videoPlayer.index(),
+                  uuid,
+                  channel,
+                  '[websocket]: connected');
         }
 
         _this.ws.onclose = function(event) {
-          console.log('disconnect, try to reconect until 15 sec');
-
-            setTimeout(()=>{
-
-              play(uuid, videoPlayer.index(), channel,'mse')
-
-            },15000)
+          logger(videoPlayer.index(),
+                uuid,
+                channel,
+                '[websocket]: closed');
+          if (_this.timeout != null) {
+            clearInterval(_this.timeout);
+            _this.timeout = null;
+          }
+          _this.timeout = setTimeout(() => {
+            logger(videoPlayer.index(),
+                  uuid,
+                  channel,
+                  '[websocket]: timeouted func play');
+            play(uuid, videoPlayer.index(), channel, 'mse')
+          }, 15000)
 
 
         }
-          _this.ws.onerror=(e)=>{
-            console.log('error, try to reconect until 15 sec');
-            setTimeout(()=>{
-              play(uuid, videoPlayer.index(), channel,'mse')
-
-            },15000)
-          }
+        _this.ws.onerror = (e) => {
+          logger(videoPlayer.index(),
+                uuid,
+                channel,
+                '[websocket]: error');
+        }
         _this.ws.onmessage = function(event) {
+          _this.checkStalled();
           let data = new Uint8Array(event.data);
+
+
+          if(data[3]==24){
+            logger(videoPlayer.index(),
+                  uuid,
+                  channel,
+                  '[data]: init_file');
+          }
+
           if (data[0] == 9) {
             decoded_arr = data.slice(1);
             if (window.TextDecoder) {
@@ -397,6 +507,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
             } else {
               mimeCodec = Utf8ArrayToStr(decoded_arr);
             }
+            logger(videoPlayer.index(),
+                  uuid,
+                  channel,
+                  '[codec]: '+mimeCodec);
             //console.log(mimeCodec);
             _this.mseSourceBuffer = _this.mse.addSourceBuffer('video/mp4; codecs="' + mimeCodec + '"');
             _this.mseSourceBuffer.mode = "segments"
@@ -408,13 +522,83 @@ scratch. This page gets rid of all links and provides the needed markup only.
         };
       }, false);
 
+      this.mse.addEventListener('sourceended', function() {
+        logger(videoPlayer.index(),
+              uuid,
+              channel,
+              '[MSE]: sourceended');
+      })
+      this.mse.addEventListener('sourceclose', function() {
+        logger(videoPlayer.index(),
+              uuid,
+              channel,
+              '[MSE]: sourceclose');
+      })
+
+      this.mse.addEventListener('error', function() {
+        logger(videoPlayer.index(),
+              uuid,
+              channel,
+              '[MSE]: error');
+      })
+      this.mse.addEventListener('abort', function() {
+        logger(videoPlayer.index(),
+              uuid,
+              channel,
+              '[MSE]: abort');
+      })
+      this.mse.addEventListener('updatestart', function() {
+        logger(videoPlayer.index(),
+              uuid,
+              channel,
+              '[MSE]: updatestart');
+      })
+      this.mse.addEventListener('update', function() {
+        logger(videoPlayer.index(),
+              uuid,
+              channel,
+              '[MSE]: update');
+      })
+      this.mse.addEventListener('updateend', function() {
+        logger(videoPlayer.index(),
+              uuid,
+              channel,
+              '[MSE]: updateend');
+      })
+      this.mse.addEventListener('addsourcebuffer', function() {
+        logger(videoPlayer.index(),
+              uuid,
+              channel,
+              '[MSE]: addsourcebuffer');
+      })
+      this.mse.addEventListener('removesourcebuffer', function() {
+        logger(videoPlayer.index(),
+              uuid,
+              channel,
+              '[MSE]: removesourcebuffer');
+      })
+
     }
 
     this.readPacket = function(packet) {
         if (!this.mseStreamingStarted) {
-          this.mseSourceBuffer.appendBuffer(packet);
-          this.mseStreamingStarted = true;
-          return;
+          try {
+            this.mseSourceBuffer.appendBuffer(packet);
+            this.mseStreamingStarted = true;
+          } catch (e) {
+            logger(videoPlayer.index(),
+              'readPacket error',
+              'streams: ' + uuid,
+              'channel: ' + channel);
+            console.log(e);
+
+          play(uuid, videoPlayer.index(), channel, 'mse');
+
+          } finally {
+             return;
+          }
+
+
         }
         this.mseQueue.push(packet);
 
@@ -428,8 +612,20 @@ scratch. This page gets rid of all links and provides the needed markup only.
         if (!_this.mseSourceBuffer.updating) {
           if (_this.mseQueue.length > 0) {
             packet = _this.mseQueue.shift();
-            let view = new Uint8Array(packet);
-            _this.mseSourceBuffer.appendBuffer(packet);
+
+            try {
+              _this.mseSourceBuffer.appendBuffer(packet)
+            } catch (e) {
+              logger(videoPlayer.index(),
+                'pushPacket error',
+                'streams: ' + uuid,
+                'channel: ' + channel);
+              console.log(e);
+
+            play(uuid, videoPlayer.index(), channel, 'mse');
+            } finally {
+
+            }
           } else {
             _this.mseStreamingStarted = false;
           }
@@ -437,21 +633,47 @@ scratch. This page gets rid of all links and provides the needed markup only.
         if (_this.video.buffered.length > 0) {
           if (typeof document.hidden !== "undefined" && document.hidden) {
             _this.video.currentTime = _this.video.buffered.end((_this.video.buffered.length - 1)) - 0.5;
-          }else{
-            if( (_this.video.buffered.end((_this.video.buffered.length - 1))-_this.video.currentTime)>60 ){
+          } else {
+            if ((_this.video.buffered.end((_this.video.buffered.length - 1)) - _this.video.currentTime) > 60) {
               _this.video.currentTime = _this.video.buffered.end((_this.video.buffered.length - 1)) - 0.5;
             }
           }
         }
       }
+    this.checkStalled = function(){
+      if(!!this.video.currentTime){
+        if(this.video.currentTime==this.checktime){
+          this.checktimecounter+=1;
+        }else{
+          this.checktimecounter=0;
+        }
+      }
+      if(this.checktimecounter>10){
+        logger(videoPlayer.index(),
+              uuid,
+              channel,
+              '[FIX]: player not move');
+        play(uuid, videoPlayer.index(), channel, 'mse');
+      }
+      this.checktime=this.video.currentTime;
 
+    },
     this.destroy = function() {
-      this.ws.onclose=null;
-      if(this.timeout!=null){
+      if (this.timeout != null) {
         clearInterval(this.timeout);
       }
-      this.ws.close(1000, "stop streaming");
+      if(this.ws!=null){
 
+        this.ws.onclose = null;
+          this.ws.close(1000, "stop streaming");
+      }
+
+
+
+      logger(videoPlayer.index(),
+        'Event: PlayerDestroy',
+        'streams: ' + uuid,
+        'channel: ' + channel);
     }
   }
   /*************************end mse obect **************************/
@@ -480,7 +702,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
           'direction': 'sendrecv'
         });
         this.webrtcSendChannel = this.webrtc.createDataChannel('foo');
-        this.webrtcSendChannel.onclose = (e) => console.log('sendChannel has closed',e);
+        this.webrtcSendChannel.onclose = (e) => console.log('sendChannel has closed', e);
         this.webrtcSendChannel.onopen = () => {
           console.log('sendChannel has opened');
           this.webrtcSendChannel.send('ping');
@@ -611,10 +833,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
     return defGrid
   }
 
-  $('#grid-wrapper').on('dblclick','.player',function (){
-      $(this).find('.btn-play-main').click();
+  $('#grid-wrapper').on('dblclick', '.player', function() {
+    $(this).find('.btn-play-main').click();
   });
-  $('.main-player').on('dblclick',function (){
+  $('.main-player').on('dblclick', function() {
     closeMain()
   });
 </script>

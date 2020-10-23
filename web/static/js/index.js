@@ -480,3 +480,28 @@ function chanellTemplate() {
 function removeChannelDiv(element) {
   $(element).closest('.col-12').remove();
 }
+
+function logger() {
+  if (!colordebug) {
+    return;
+  }
+  let colors = {
+    "0": "color:green",
+    "1": "color:#66CDAA",
+    "2": "color:blue",
+    "3": "color:#FF1493",
+    "4": "color:#40E0D0",
+    "5": "color:red",
+    "6": "color:red",
+    "7": "color:red",
+    "8": "color:red",
+    "9": "color:red",
+    "10": "color:red",
+    "11": "color:red",
+    "12": "color:red",
+    "13": "color:red",
+    "14": "color:red",
+    "15": "color:red",
+  }
+  console.log('%c%s', colors[arguments[0]], new Date().toLocaleString() + " " + [].slice.call(arguments).join('|'))
+}
