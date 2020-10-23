@@ -86,20 +86,28 @@
   position: relative;
   padding: 2px;
 }
-.grid-wrapper .player.six{
+.grid-wrapper .player.grid-6{
   width: 33.33%;
 }
-.grid-wrapper .player.nine{
+.grid-wrapper .player.grid-9{
   width: 33.33%;
   height: 33.33%;
 }
-.grid-wrapper .player.twelve{
+.grid-wrapper .player.grid-12{
   width: 25%;
   height: 33.33%;
 }
-.grid-wrapper .player.sixteen{
+.grid-wrapper .player.grid-16{
   width: 25%;
   height: 25%;
+}
+.grid-wrapper .player.grid-25{
+  width: 20%;
+  height: 20%;
+}
+.grid-wrapper .player.grid-36{
+  width: 16.66%;
+  height:  16.66%;
 }
 .grid-wrapper .player video{
   height: 100%;
