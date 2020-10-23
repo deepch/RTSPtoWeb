@@ -153,7 +153,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <!-- end foot     -->
 <script src="/../static/plugins/hlsjs/hls.min.js"></script>
 <script>
+<<<<<<< HEAD
   let colordebug = false;
+=======
+  let colordebug = true;
+>>>>>>> 37e6eb5f760578737c04c09fa82fbcfa6c36d7cc
   let players = {};
   $(document).ready(() => {
     logger(9, 'page is ready')
@@ -492,7 +496,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
           _this.checkStalled();
           let data = new Uint8Array(event.data);
 
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> 37e6eb5f760578737c04c09fa82fbcfa6c36d7cc
           if(data[3]==24){
             logger(videoPlayer.index(),
                   uuid,
