@@ -1,5 +1,7 @@
+echo "curl http://demo:demo@127.0.0.1:8083/streams"
 curl http://demo:demo@127.0.0.1:8083/streams
 sleep 1
+echo "http://demo:demo@127.0.0.1:8083/stream/testing/add"
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{
@@ -23,6 +25,7 @@ curl --header "Content-Type: application/json" \
           }' \
   http://demo:demo@127.0.0.1:8083/stream/testing/add
 sleep 1
+echo "http://demo:demo@127.0.0.1:8083/stream/testing/edit"
 curl --header "Content-Type: application/json" \
     --request POST \
     --data '{
@@ -46,6 +49,7 @@ curl --header "Content-Type: application/json" \
           }' \
     http://demo:demo@127.0.0.1:8083/stream/testing/edit
 sleep 1
+echo "http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/add"
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{
@@ -57,6 +61,7 @@ curl --header "Content-Type: application/json" \
             }' \
   http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/add
 sleep 1
+echo "http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/edit"
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{
@@ -68,18 +73,26 @@ curl --header "Content-Type: application/json" \
             }' \
   http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/edit
 sleep 1
+echo "http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/info"
 curl http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/info
 sleep 1
+echo "http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/codec"
 curl http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/codec
 sleep 1
+echo "http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/delete"
 curl http://demo:demo@127.0.0.1:8083/stream/testing/channel/4/delete
 sleep 1
+echo "http://demo:demo@127.0.0.1:8083/stream/testing/reload"
 curl http://demo:demo@127.0.0.1:8083/stream/testing/reload
 sleep 1
+echo "http://demo:demo@127.0.0.1:8083/stream/testing/info"
+echo "/stream/testing/info"
 curl http://demo:demo@127.0.0.1:8083/stream/testing/info
 sleep 1
+echo "http://demo:demo@127.0.0.1:8083/stream/testing/delete"
 curl http://demo:demo@127.0.0.1:8083/stream/testing/delete
 sleep 1
+echo "http://demo:demo@127.0.0.1:8083/pages/multiview/full"
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{

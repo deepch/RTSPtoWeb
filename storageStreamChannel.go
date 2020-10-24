@@ -128,7 +128,7 @@ func (obj *StorageST) StreamChannelCodecs(streamID string, channelID int) ([]av.
 		}
 		channelTmp, ok := tmp.Channels[channelID]
 		if !ok {
-			return nil, ErrorChannelNotFound
+			return nil, ErrorStreamChannelNotFound
 		}
 
 		if channelTmp.codecs != nil {
@@ -136,7 +136,7 @@ func (obj *StorageST) StreamChannelCodecs(streamID string, channelID int) ([]av.
 		}
 		time.Sleep(50 * time.Millisecond)
 	}
-	return nil, ErrorStreamNotFound
+	return nil, ErrorStreamChannelCodecNotFound
 }
 
 //StreamChannelStatus change stream status
@@ -249,7 +249,7 @@ func (obj *StorageST) StreamChannelSDP(streamID string, channelID int) ([]byte, 
 		}
 		channelTmp, ok := tmp.Channels[channelID]
 		if !ok {
-			return nil, ErrorChannelNotFound
+			return nil, ErrorStreamChannelNotFound
 		}
 
 		if len(channelTmp.sdp) > 0 {

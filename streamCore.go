@@ -25,8 +25,17 @@ func StreamServerRunStreamDo(streamID string, channelID int) {
 			"func":    "StreamServerRunStreamDo",
 			"call":    "Run",
 		}).Infoln("Run stream")
-
 		opt, err := Storage.StreamChannelControl(streamID, channelID)
+		if err != nil {
+			log.WithFields(logrus.Fields{
+				"module":  "core",
+				"stream":  streamID,
+				"channel": channelID,
+				"func":    "StreamChannelControl",
+				"call":    "Exit",
+			}).Infoln("Exit", err)
+			return
+		}
 		if opt.OnDemand && !Storage.ClientHas(streamID, channelID) {
 			log.WithFields(logrus.Fields{
 				"module":  "core",
@@ -36,15 +45,6 @@ func StreamServerRunStreamDo(streamID string, channelID int) {
 				"call":    "ClientHas",
 			}).Infoln("Stop stream no client")
 			return
-		}
-		if err != nil {
-			log.WithFields(logrus.Fields{
-				"module":  "core",
-				"stream":  streamID,
-				"channel": channelID,
-				"func":    "StreamServerRunStreamDo",
-				"call":    "Restart",
-			}).Infoln("Restart stream", err)
 		}
 		status, err = StreamServerRunStream(streamID, channelID, opt)
 		if status > 0 {

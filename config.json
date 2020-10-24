@@ -18,7 +18,7 @@
           "url": "rtsp://admin:admin123@10.128.18.224/mpeg4",
           "on_demand": true,
           "debug": false,
-          "status": 0
+          "status": 1
         },
         "1": {
           "name": "ch2",
