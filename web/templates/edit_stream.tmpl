@@ -16,7 +16,7 @@
 </div>
 <input type="hidden" value="{{.uuid}}" id="uuid" />
 {{ $stream:= (index .streams .uuid)}}
-{{ $mainChannel := (index $stream.Channels 0) }}
+{{ $mainChannel := (index $stream.Channels "0") }}
   <section class="content">
     <div class="container-fluid">
       <div class="row" id="streams-form-wrapper">
@@ -66,7 +66,7 @@
           </div>
           {{ if gt (len $stream.Channels) 1}}
               {{ range $key, $value := $stream.Channels }}
-                {{ if ne $key 0}}
+                {{ if ne $key "0"}}
                 <div class="col-12">
                   <div class="card card-secondary">
                     <div class="card-header">

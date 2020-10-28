@@ -9,7 +9,7 @@ import (
 )
 
 //StreamHLSAdd add hls seq to buffer
-func (obj *StorageST) StreamHLSAdd(uuid string, channelID int, val []*av.Packet, dur time.Duration) {
+func (obj *StorageST) StreamHLSAdd(uuid string, channelID string, val []*av.Packet, dur time.Duration) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[uuid]; ok {
@@ -26,7 +26,7 @@ func (obj *StorageST) StreamHLSAdd(uuid string, channelID int, val []*av.Packet,
 }
 
 //StreamHLSm3u8 get hls m3u8 list
-func (obj *StorageST) StreamHLSm3u8(uuid string, channelID int) (string, int, error) {
+func (obj *StorageST) StreamHLSm3u8(uuid string, channelID string) (string, int, error) {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
 	if tmp, ok := obj.Streams[uuid]; ok {
@@ -52,7 +52,7 @@ func (obj *StorageST) StreamHLSm3u8(uuid string, channelID int) (string, int, er
 }
 
 //StreamHLSTS send hls segment buffer to clients
-func (obj *StorageST) StreamHLSTS(uuid string, channelID int, seq int) ([]*av.Packet, error) {
+func (obj *StorageST) StreamHLSTS(uuid string, channelID string, seq int) ([]*av.Packet, error) {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
 	if tmp, ok := obj.Streams[uuid]; ok {
@@ -66,7 +66,7 @@ func (obj *StorageST) StreamHLSTS(uuid string, channelID int, seq int) ([]*av.Pa
 }
 
 //StreamHLSFlush delete hls cache
-func (obj *StorageST) StreamHLSFlush(uuid string, channelID int) {
+func (obj *StorageST) StreamHLSFlush(uuid string, channelID string) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[uuid]; ok {

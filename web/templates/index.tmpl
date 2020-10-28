@@ -125,12 +125,12 @@
             <div id="carousel_{{$key}}" class="carousel slide" data-ride="carousel">
               <ol class="carousel-indicators">
                 {{ range $k, $v := .Channels }}
-                <li data-target="#carousel_{{$key}}" data-slide-to="{{$k}}" class="{{ if eq $k 0}} active {{end}}"></li>
+                <li data-target="#carousel_{{$key}}" data-slide-to="{{$k}}" class="{{ if eq $k "0"}} active {{end}}"></li>
                 {{end}}
               </ol>
               <div class="carousel-inner">
                 {{ range $k, $v := .Channels }}
-                <div class="carousel-item {{ if eq $k 0}} active {{end}}">
+                <div class="carousel-item {{ if eq $k "0"}} active {{end}}">
                   <img class="d-block w-100 stream-img" channel="{{$k}}" src="/../static/img/noimage.svg">
                   <div class="carousel-caption d-none d-md-block">
                     <h5>Channel: {{$k}}</h5>

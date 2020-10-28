@@ -44,34 +44,35 @@ var (
 //StorageST main storage struct
 type StorageST struct {
 	mutex   sync.RWMutex
-	Server  ServerST            `json:"server"`
-	Streams map[string]StreamST `json:"streams"`
+	Server  ServerST            `json:"server" groups:"api,config"`
+	Streams map[string]StreamST `json:"streams" groups:"api,config"`
 }
 
 //ServerST server storage section
 type ServerST struct {
-	Debug        bool         `json:"debug"`
-	LogLevel     logrus.Level `json:"log_level"`
-	HTTPDemo     bool         `json:"http_demo"`
-	HTTPDebug    bool         `json:"http_debug"`
-	HTTPLogin    string       `json:"http_login"`
-	HTTPPassword string       `json:"http_password"`
-	HTTPPort     string       `json:"http_port"`
-	RTSPPort     string       `json:"rtsp_port"`
+	Debug        bool         `json:"debug" groups:"api,config"`
+	LogLevel     logrus.Level `json:"log_level" groups:"api,config"`
+	HTTPDemo     bool         `json:"http_demo" groups:"api,config"`
+	HTTPDebug    bool         `json:"http_debug" groups:"api,config"`
+	HTTPLogin    string       `json:"http_login" groups:"api,config"`
+	HTTPPassword string       `json:"http_password" groups:"api,config"`
+	HTTPPort     string       `json:"http_port" groups:"api,config"`
+	RTSPPort     string       `json:"rtsp_port" groups:"api,config"`
 }
 
 //ServerST stream storage section
 type StreamST struct {
-	Name     string            `json:"name"`
-	Channels map[int]ChannelST `json:"channels"`
+	Name     string               `json:"name,omitempty" groups:"api,config"`
+	Channels map[string]ChannelST `json:"channels,omitempty" groups:"api,config"`
 }
+
 type ChannelST struct {
-	Name             string `json:"name"`
-	URL              string `json:"url"`
-	OnDemand         bool   `json:"on_demand"`
-	Debug            bool   `json:"debug"`
+	Name             string `json:"name,omitempty" groups:"api,config"`
+	URL              string `json:"url,omitempty" groups:"api,config"`
+	OnDemand         bool   `json:"on_demand,omitempty" groups:"api,config"`
+	Debug            bool   `json:"debug,omitempty" groups:"api,config"`
+	Status           int    `json:"status,omitempty" groups:"api"`
 	runLock          bool
-	Status           int `json:"status"`
 	codecs           []av.CodecData
 	sdp              []byte
 	signals          chan int

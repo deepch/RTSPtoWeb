@@ -168,7 +168,7 @@ func RTSPServer() {
 //RTSPServerClientHandle func
 func RTSPServerClientHandle(conn net.Conn) {
 	buf := make([]byte, 4096)
-	uuid, channel, in, cSEQ := "", 0, 0, 0
+	uuid, channel, in, cSEQ := "", "0", 0, 0
 	var playStarted bool
 	defer func() {
 		err := conn.Close()
@@ -330,7 +330,7 @@ func RTSPServerClientHandle(conn net.Conn) {
 }
 
 //handleRTSPServerPlay func
-func RTSPServerClientPlay(uuid string, channel int, conn net.Conn) {
+func RTSPServerClientPlay(uuid string, channel string, conn net.Conn) {
 	cid, _, ch, err := Storage.ClientAdd(uuid, channel, RTSP)
 	if err != nil {
 		log.WithFields(logrus.Fields{
@@ -387,7 +387,7 @@ func RTSPServerClientPlay(uuid string, channel int, conn net.Conn) {
 }
 
 //handleRTSPServerPlay func
-func RTSPServerClientResponse(uuid string, channel int, conn net.Conn, status int, headers map[string]string) error {
+func RTSPServerClientResponse(uuid string, channel string, conn net.Conn, status int, headers map[string]string) error {
 	var sdp string
 	builder := bytes.Buffer{}
 	builder.WriteString(fmt.Sprintf(Version+" %d %s\r\n", status, StatusText(status)))
@@ -435,11 +435,11 @@ func parseStage(buf []byte) (string, error) {
 }
 
 //parseStreamChannel func
-func parseStreamChannel(buf []byte) (string, int, error) {
+func parseStreamChannel(buf []byte) (string, string, error) {
 	uri := stringInBetween(string(buf), " ", " ")
 	st := strings.Split(uri, "/")
 	if len(st) >= 5 {
-		return st[3], stringToInt(st[4]), nil
+		return st[3], st[4], nil
 	}
-	return "", 0, errors.New("parse stream error " + string(buf))
+	return "", "0", errors.New("parse stream error " + string(buf))
 }

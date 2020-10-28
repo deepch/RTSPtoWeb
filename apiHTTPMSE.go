@@ -21,7 +21,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}).Errorln(err)
 		log.Println("Client Full Exit")
 	}()
-	if !Storage.StreamChannelExist(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel"))) {
+	if !Storage.StreamChannelExist(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel")) {
 		log.WithFields(logrus.Fields{
 			"module":  "http_mse",
 			"stream":  ws.Request().FormValue("uuid"),
@@ -31,7 +31,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}).Errorln(ErrorStreamNotFound.Error())
 		return
 	}
-	Storage.StreamChannelRun(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel")))
+	Storage.StreamChannelRun(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"))
 	err := ws.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	if err != nil {
 		log.WithFields(logrus.Fields{
@@ -43,7 +43,7 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}).Errorln(err.Error())
 		return
 	}
-	cid, ch, _, err := Storage.ClientAdd(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel")), MSE)
+	cid, ch, _, err := Storage.ClientAdd(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), MSE)
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"module":  "http_mse",
@@ -54,8 +54,8 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}).Errorln(err.Error())
 		return
 	}
-	defer Storage.ClientDelete(ws.Request().FormValue("uuid"), cid, stringToInt(ws.Request().FormValue("channel")))
-	codecs, err := Storage.StreamChannelCodecs(ws.Request().FormValue("uuid"), stringToInt(ws.Request().FormValue("channel")))
+	defer Storage.ClientDelete(ws.Request().FormValue("uuid"), cid, ws.Request().FormValue("channel"))
+	codecs, err := Storage.StreamChannelCodecs(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"))
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"module":  "http_mse",

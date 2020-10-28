@@ -9,7 +9,7 @@ import (
 )
 
 //StreamServerRunStreamDo stream run do mux
-func StreamServerRunStreamDo(streamID string, channelID int) {
+func StreamServerRunStreamDo(streamID string, channelID string) {
 	var status int
 	defer func() {
 		//TODO fix it no need unlock run if delete stream
@@ -72,7 +72,7 @@ func StreamServerRunStreamDo(streamID string, channelID int) {
 }
 
 //StreamServerRunStream core stream
-func StreamServerRunStream(streamID string, channelID int, opt *ChannelST) (int, error) {
+func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (int, error) {
 	keyTest := time.NewTimer(20 * time.Second)
 	checkClients := time.NewTimer(20 * time.Second)
 	var preKeyTS = time.Duration(0)

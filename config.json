@@ -1,71 +1,25 @@
 {
   "server": {
     "debug": true,
-    "log_level": "debug",
-    "http_demo": true,
     "http_debug": false,
+    "http_demo": true,
     "http_login": "demo",
     "http_password": "demo",
     "http_port": ":8083",
+    "log_level": "debug",
     "rtsp_port": ":5541"
   },
   "streams": {
     "demo1": {
-      "name": "test video",
       "channels": {
         "0": {
-          "name": "ch1",
-          "url": "rtsp://admin:admin123@10.128.18.224/mpeg4",
-          "on_demand": true,
-          "debug": false,
-          "status": 1
+          "url": "rtsp://admin:admin123@10.128.18.224/mpeg4"
         },
         "1": {
-          "name": "ch2",
-          "url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif",
-          "on_demand": false,
-          "debug": false,
-          "status": 1
+          "url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif"
         }
-      }
-    },
-    "demo2": {
-      "name": "test video",
-      "channels": {
-        "0": {
-          "name": "ch1",
-          "url": "rtsp://admin:admin123@10.128.18.224/mpeg4",
-          "on_demand": true,
-          "debug": false,
-          "status": 0
-        },
-        "1": {
-          "name": "ch2",
-          "url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif",
-          "on_demand": true,
-          "debug": false,
-          "status": 0
-        }
-      }
-    },
-    "rrrr": {
-      "name": "test video",
-      "channels": {
-        "0": {
-          "name": "ch1",
-          "url": "rtsp://admin:admin123@10.128.18.224/mpeg4",
-          "on_demand": true,
-          "debug": false,
-          "status": 0
-        },
-        "1": {
-          "name": "ch2",
-          "url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif",
-          "on_demand": true,
-          "debug": false,
-          "status": 0
-        }
-      }
+      },
+      "name": "test video2"
     }
   }
 }

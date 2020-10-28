@@ -7,7 +7,7 @@ import (
 )
 
 //ClientAdd Add New Client to Translations
-func (obj *StorageST) ClientAdd(streamID string, channelID int, mode int) (string, chan *av.Packet, chan *[]byte, error) {
+func (obj *StorageST) ClientAdd(streamID string, channelID string, mode int) (string, chan *av.Packet, chan *[]byte, error) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	streamTmp, ok := obj.Streams[streamID]
@@ -35,7 +35,7 @@ func (obj *StorageST) ClientAdd(streamID string, channelID int, mode int) (strin
 }
 
 //ClientDelete Delete Client
-func (obj *StorageST) ClientDelete(streamID string, cid string, channelID int) {
+func (obj *StorageST) ClientDelete(streamID string, cid string, channelID string) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if _, ok := obj.Streams[streamID]; ok {
@@ -44,7 +44,7 @@ func (obj *StorageST) ClientDelete(streamID string, cid string, channelID int) {
 }
 
 //ClientHas check is client ext
-func (obj *StorageST) ClientHas(streamID string, channelID int) bool {
+func (obj *StorageST) ClientHas(streamID string, channelID string) bool {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	streamTmp, ok := obj.Streams[streamID]

@@ -37,7 +37,7 @@ func (obj *StorageST) StreamChannelRunAll() {
 }
 
 //StreamChannelRun one stream and lock
-func (obj *StorageST) StreamChannelRun(streamID string, channelID int) {
+func (obj *StorageST) StreamChannelRun(streamID string, channelID string) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if streamTmp, ok := obj.Streams[streamID]; ok {
@@ -53,7 +53,7 @@ func (obj *StorageST) StreamChannelRun(streamID string, channelID int) {
 }
 
 //StreamChannelUnlock unlock status to no lock
-func (obj *StorageST) StreamChannelUnlock(streamID string, channelID int) {
+func (obj *StorageST) StreamChannelUnlock(streamID string, channelID string) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if streamTmp, ok := obj.Streams[streamID]; ok {
@@ -66,7 +66,7 @@ func (obj *StorageST) StreamChannelUnlock(streamID string, channelID int) {
 }
 
 //StreamChannelControl get stream
-func (obj *StorageST) StreamChannelControl(key string, channelID int) (*ChannelST, error) {
+func (obj *StorageST) StreamChannelControl(key string, channelID string) (*ChannelST, error) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if streamTmp, ok := obj.Streams[key]; ok {
@@ -78,7 +78,7 @@ func (obj *StorageST) StreamChannelControl(key string, channelID int) (*ChannelS
 }
 
 //StreamChannelExist check stream exist
-func (obj *StorageST) StreamChannelExist(streamID string, channelID int) bool {
+func (obj *StorageST) StreamChannelExist(streamID string, channelID string) bool {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if streamTmp, ok := obj.Streams[streamID]; ok {
@@ -93,7 +93,7 @@ func (obj *StorageST) StreamChannelExist(streamID string, channelID int) bool {
 }
 
 //StreamChannelReload reload stream
-func (obj *StorageST) StreamChannelReload(uuid string, channelID int) error {
+func (obj *StorageST) StreamChannelReload(uuid string, channelID string) error {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
 	if tmp, ok := obj.Streams[uuid]; ok {
@@ -106,7 +106,7 @@ func (obj *StorageST) StreamChannelReload(uuid string, channelID int) error {
 }
 
 //StreamInfo return stream info
-func (obj *StorageST) StreamChannelInfo(uuid string, channelID int) (*ChannelST, error) {
+func (obj *StorageST) StreamChannelInfo(uuid string, channelID string) (*ChannelST, error) {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
 	if tmp, ok := obj.Streams[uuid]; ok {
@@ -118,7 +118,7 @@ func (obj *StorageST) StreamChannelInfo(uuid string, channelID int) (*ChannelST,
 }
 
 //StreamChannelCodecs get stream codec storage or wait
-func (obj *StorageST) StreamChannelCodecs(streamID string, channelID int) ([]av.CodecData, error) {
+func (obj *StorageST) StreamChannelCodecs(streamID string, channelID string) ([]av.CodecData, error) {
 	for i := 0; i < 100; i++ {
 		obj.mutex.RLock()
 		tmp, ok := obj.Streams[streamID]
@@ -140,7 +140,7 @@ func (obj *StorageST) StreamChannelCodecs(streamID string, channelID int) ([]av.
 }
 
 //StreamChannelStatus change stream status
-func (obj *StorageST) StreamChannelStatus(key string, channelID int, val int) {
+func (obj *StorageST) StreamChannelStatus(key string, channelID string, val int) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[key]; ok {
@@ -153,7 +153,7 @@ func (obj *StorageST) StreamChannelStatus(key string, channelID int, val int) {
 }
 
 //StreamChannelCast broadcast stream
-func (obj *StorageST) StreamChannelCast(key string, channelID int, val *av.Packet) {
+func (obj *StorageST) StreamChannelCast(key string, channelID string, val *av.Packet) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[key]; ok {
@@ -168,16 +168,19 @@ func (obj *StorageST) StreamChannelCast(key string, channelID int, val *av.Packe
 					} else if len(i2.signals) < 10 {
 						//send stop signals to client
 						i2.signals <- SignalStreamStop
-						err := i2.socket.Close()
-						if err != nil {
-							log.WithFields(logrus.Fields{
-								"module":  "storage",
-								"stream":  key,
-								"channel": key,
-								"func":    "CastProxy",
-								"call":    "Close",
-							}).Errorln(err.Error())
-						}
+						//No need close socket only send signal to reader / writer socket closed if client go to offline
+						/*
+							err := i2.socket.Close()
+							if err != nil {
+								log.WithFields(logrus.Fields{
+									"module":  "storage",
+									"stream":  key,
+									"channel": key,
+									"func":    "CastProxy",
+									"call":    "Close",
+								}).Errorln(err.Error())
+							}
+						*/
 					}
 				}
 				channelTmp.ack = time.Now()
@@ -189,7 +192,7 @@ func (obj *StorageST) StreamChannelCast(key string, channelID int, val *av.Packe
 }
 
 //StreamChannelCastProxy broadcast stream
-func (obj *StorageST) StreamChannelCastProxy(key string, channelID int, val *[]byte) {
+func (obj *StorageST) StreamChannelCastProxy(key string, channelID string, val *[]byte) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[key]; ok {
@@ -225,7 +228,7 @@ func (obj *StorageST) StreamChannelCastProxy(key string, channelID int, val *[]b
 }
 
 //StreamChannelCodecsUpdate update stream codec storage
-func (obj *StorageST) StreamChannelCodecsUpdate(streamID string, channelID int, val []av.CodecData, sdp []byte) {
+func (obj *StorageST) StreamChannelCodecsUpdate(streamID string, channelID string, val []av.CodecData, sdp []byte) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[streamID]; ok {
@@ -239,7 +242,7 @@ func (obj *StorageST) StreamChannelCodecsUpdate(streamID string, channelID int, 
 }
 
 //StreamChannelSDP codec storage or wait
-func (obj *StorageST) StreamChannelSDP(streamID string, channelID int) ([]byte, error) {
+func (obj *StorageST) StreamChannelSDP(streamID string, channelID string) ([]byte, error) {
 	for i := 0; i < 100; i++ {
 		obj.mutex.RLock()
 		tmp, ok := obj.Streams[streamID]
@@ -261,7 +264,7 @@ func (obj *StorageST) StreamChannelSDP(streamID string, channelID int) ([]byte, 
 }
 
 //StreamChannelAdd add stream
-func (obj *StorageST) StreamChannelAdd(uuid string, channelID int, val ChannelST) error {
+func (obj *StorageST) StreamChannelAdd(uuid string, channelID string, val ChannelST) error {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if _, ok := obj.Streams[uuid]; !ok {
@@ -284,7 +287,7 @@ func (obj *StorageST) StreamChannelAdd(uuid string, channelID int, val ChannelST
 }
 
 //StreamEdit edit stream
-func (obj *StorageST) StreamChannelEdit(uuid string, channelID int, val ChannelST) error {
+func (obj *StorageST) StreamChannelEdit(uuid string, channelID string, val ChannelST) error {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[uuid]; ok {
@@ -309,7 +312,7 @@ func (obj *StorageST) StreamChannelEdit(uuid string, channelID int, val ChannelS
 }
 
 //StreamChannelDelete stream
-func (obj *StorageST) StreamChannelDelete(uuid string, channelID int) error {
+func (obj *StorageST) StreamChannelDelete(uuid string, channelID string) error {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[uuid]; ok {

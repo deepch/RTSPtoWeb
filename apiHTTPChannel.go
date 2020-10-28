@@ -7,7 +7,7 @@ import (
 
 //HTTPAPIServerStreamChannelCodec function return codec info struct
 func HTTPAPIServerStreamChannelCodec(c *gin.Context) {
-	if !Storage.StreamChannelExist(c.Param("uuid"), stringToInt(c.Param("channel"))) {
+	if !Storage.StreamChannelExist(c.Param("uuid"), c.Param("channel")) {
 		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		log.WithFields(logrus.Fields{
 			"module":  "http_stream",
@@ -18,7 +18,7 @@ func HTTPAPIServerStreamChannelCodec(c *gin.Context) {
 		}).Errorln(ErrorStreamNotFound.Error())
 		return
 	}
-	codecs, err := Storage.StreamChannelCodecs(c.Param("uuid"), stringToInt(c.Param("channel")))
+	codecs, err := Storage.StreamChannelCodecs(c.Param("uuid"), c.Param("channel"))
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		log.WithFields(logrus.Fields{
@@ -35,7 +35,7 @@ func HTTPAPIServerStreamChannelCodec(c *gin.Context) {
 
 //HTTPAPIServerStreamChannelInfo function return stream info struct
 func HTTPAPIServerStreamChannelInfo(c *gin.Context) {
-	info, err := Storage.StreamChannelInfo(c.Param("uuid"), stringToInt(c.Param("channel")))
+	info, err := Storage.StreamChannelInfo(c.Param("uuid"), c.Param("channel"))
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		log.WithFields(logrus.Fields{
@@ -52,7 +52,7 @@ func HTTPAPIServerStreamChannelInfo(c *gin.Context) {
 
 //HTTPAPIServerStreamChannelReload function reload stream
 func HTTPAPIServerStreamChannelReload(c *gin.Context) {
-	err := Storage.StreamChannelReload(c.Param("uuid"), stringToInt(c.Param("channel")))
+	err := Storage.StreamChannelReload(c.Param("uuid"), c.Param("channel"))
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		log.WithFields(logrus.Fields{
@@ -82,7 +82,7 @@ func HTTPAPIServerStreamChannelEdit(c *gin.Context) {
 		}).Errorln(err.Error())
 		return
 	}
-	err = Storage.StreamChannelEdit(c.Param("uuid"), stringToInt(c.Param("channel")), payload)
+	err = Storage.StreamChannelEdit(c.Param("uuid"), c.Param("channel"), payload)
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		log.WithFields(logrus.Fields{
@@ -99,7 +99,7 @@ func HTTPAPIServerStreamChannelEdit(c *gin.Context) {
 
 //HTTPAPIServerStreamChannelDelete function delete stream
 func HTTPAPIServerStreamChannelDelete(c *gin.Context) {
-	err := Storage.StreamChannelDelete(c.Param("uuid"), stringToInt(c.Param("channel")))
+	err := Storage.StreamChannelDelete(c.Param("uuid"), c.Param("channel"))
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		log.WithFields(logrus.Fields{
@@ -129,7 +129,7 @@ func HTTPAPIServerStreamChannelAdd(c *gin.Context) {
 		}).Errorln(err.Error())
 		return
 	}
-	err = Storage.StreamChannelAdd(c.Param("uuid"), stringToInt(c.Param("channel")), payload)
+	err = Storage.StreamChannelAdd(c.Param("uuid"), c.Param("channel"), payload)
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		log.WithFields(logrus.Fields{
