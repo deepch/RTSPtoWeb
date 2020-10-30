@@ -135,7 +135,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   </div>
   <!-- ./wrapper -->
   <script>
-    let streams = {{.streams }};
+    let streams = {{.streams}};
 
     let presetOptions = {{.options}}
   </script>
@@ -322,8 +322,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
     } else {
       packStreamms(index, uuid, chan, playerType);
     }
+    if (colordebug) {
+      videoPlayer.find('.play-info').html('Stream: ' + streams[uuid].name + ' | player type:' + playerType + ' | channel: ' + channel);
+    }
 
-    videoPlayer.find('.play-info').html('Stream: ' + streams[uuid].name + ' | player type:' + playerType + ' | channel: ' + channel);
     //fix stalled video in safari
     videoPlayer.find('video')[0].addEventListener('pause', () => {
       if (videoPlayer.find('video')[0].currentTime > videoPlayer.find('video')[0].buffered.end((videoPlayer.find('video')[0].buffered.length - 1))) {
@@ -810,12 +812,34 @@ scratch. This page gets rid of all links and provides the needed markup only.
         })
       }
 
+    }else{
+
+      if(Object.keys(streams).length>0){
+        let playerIndex=0;
+        let gridSize=$('.player').length;
+        $.each(streams,function(uuid,params){
+          //console.log(i,uuid);
+          if(playerIndex<gridSize){
+            let channel=0;
+            if('1' in params.channels){
+              channel=1;
+            }
+            play(uuid, playerIndex, channel, 'mse');
+              playerIndex++;
+          }else{
+            return;
+          }
+
+
+        })
+      }
+
     }
   }
 
   function multiviewGrid(type, grid) {
     //console.log('type, grid')
-    let defGrid = 4;
+    let defGrid = 16;
     switch (type) {
       case 'set':
         localStorage.setItem('multiviewGrid', grid);
