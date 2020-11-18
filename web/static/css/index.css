@@ -200,3 +200,7 @@
 .carousel-caption{
   pointer-events: none;
 }
+.fix-height{
+  height: 15vw;
+  object-fit: fill;
+}

@@ -35,7 +35,7 @@
                 <div class="carousel-inner">
                   {{ range $k, $v := .Channels }}
                   <div class="carousel-item {{ if eq $k "0"}} active {{end}}">
-                    <img class="d-block w-100 stream-img" channel="{{$k}}" src="/../static/img/noimage.svg">
+                    <img class="d-block w-100 stream-img fix-height" channel="{{$k}}" src="/../static/img/noimage.svg">
                     <div class="carousel-caption d-none d-md-block">
                       <h5>Channel: {{$k}}</h5>
                     </div>

@@ -1,11 +1,124 @@
 .grid-wrapper{
   height: calc(100vh - 30px);
   margin: 0px;
-  background: #000;
+  background: transparent;
   display: flex;
   flex-wrap: wrap;
 }
 .layout-top-nav .wrapper .main-header {
     margin-left: 0;
     height: 30px;
+}
+video.background{
+  pointer-events: none;
+  position: absolute;
+  top:0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.control-sidebar.custom{
+    background: black;
+    height: 100%;
+    margin-top: -57px;
+    padding: 30px 8px 8px;
+    background: linear-gradient(45deg, black, transparent);
+    overflow: auto;
+}
+.control-sidebar.custom>h5{
+  color: white;
+  text-align: center;
+}
+
+.grid-wrapper .player video.video-class {
+    background: #000;
+    object-fit: fill;
+}
+.grid-wrapper .player video.video-class.empty {
+    background: transparent;
+}
+
+.img-background{
+    background: url(/../static/img/back.jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    backdrop-filter: sepia(0.5) grayscale(0.4);
+}
+.img-background .content-wrapper{
+  background: transparent;
+}
+.img-background .main-header{
+  background:
+}
+.grid-wrapper .player {
+
+   padding: 0px;
+    border: 2px solid #000;
+}
+
+.grid-wrapper .player .remove-btn{
+  color:white;
+  display: none;
+  position: absolute;
+  right: 0px;
+    top: 0px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 50px;
+    filter: drop-shadow(1px 1px 1px black);
+}
+.grid-wrapper .player.empty .remove-btn{
+  display: none;
+}
+.grid-wrapper .player:not(.empty):hover .remove-btn{
+    display: block;
+}
+
+.grid-wrapper .player .add-stream-btn{
+  position: absolute;
+  left: 0;
+  top: calc(50% - 2vw);
+  text-align: center;
+  width: 100%;
+  font-variant-caps: all-petite-caps;
+  font-size: 2vw;
+  line-height: 1;
+  color: white;
+  cursor: pointer;
+  display: none;
+}
+.grid-wrapper .player.empty .add-stream-btn{
+  display: block;
+}
+
+.grid-wrapper .player:not(.empty):hover .add-stream-btn{
+  display: block;
+  /* width: auto;
+  top:0;
+  font-size: 1vw; */
+}
+.carousel-caption {
+    pointer-events: none;
+    filter: drop-shadow(1px 1px 1px black);
+}
+.stream-img{
+  height: 150px;
+}
+.player .loader, .main-player .loader{
+  position: absolute;
+  width: 100px;
+  height: 70px;
+  top: calc(50% - 35px);
+  left: calc(50% - 50px);
+}
+.control-sidebar-close-btn{
+  position: absolute;
+    top: 37px;
+    right: 12px;
+    color: #fff;
+}
+.control-sidebar-close-btn:hover{
+  color: #999;
 }

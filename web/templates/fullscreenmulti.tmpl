@@ -1,8 +1,4 @@
 <!DOCTYPE html>
-<!--
-This is a starter template page. Use this page to start your new project from
-scratch. This page gets rid of all links and provides the needed markup only.
--->
 <html lang="en">
 
 <head>
@@ -19,7 +15,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
 
-<body class="hold-transition layout-top-nav">
+<body class="hold-transition layout-top-nav img-background">
   <div class="wrapper">
 
     <!-- Navbar -->
@@ -57,6 +53,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <li class="nav-item">
               <a class="nav-link" href="/pages/login" role="button"><i class="fas fa-sign-out-alt"></i> Exit</a>
             </li>
+
           </ul>
         </div>
       </div>
@@ -71,67 +68,57 @@ scratch. This page gets rid of all links and provides the needed markup only.
           <div class="main-player-wrapper d-none">
 
             <div class="main-player" data-player="none" data-uuid="0">
-              <video autoplay></video>
+              <video class="main-video-player" autoplay id="videoPlayer"></video>
               <div class="play-info"> </div>
+              <img class="loader d-none" src="/../static/img/loader.svg" />
+              <canvas id="canvas" class="d-none"></canvas>
+              <input type="hidden" id="uuid" value="0" />
             </div>
             <a onclick="closeMain()"><i class="fas fa-times"></i></a>
           </div>
-          <!-- STREAMS LIST -->
-          <div class="modal fade" id="choiseChannel" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Click on stream to play</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <input type="hidden" id="player-index" value="0" />
-                  <div class="row">
-                    {{ range $key, $value := .streams }}
-                    <div class="col-12 col-sm-6" id="{{ $key }}">
-                      <div class="card  card-success">
-                        <div id="carousel_{{$key}}" class="carousel slide" data-ride="carousel">
-                          <ol class="carousel-indicators">
-                            {{ range $k, $v := .Channels }}
-                            <li data-target="#carousel_{{$key}}" data-slide-to="{{$k}}" class="{{ if eq $k "0"}} active {{end}}"></li>
-                            {{end}}
-                          </ol>
-                          <div class="carousel-inner">
-                            {{ range $k, $v := .Channels }}
-                            <div class="carousel-item {{ if eq $k "0"}} active {{end}}">
-                              <a onclick="play('{{ $key }}',null,{{$k}})" href="#"><img class="d-block w-100 stream-img" channel="{{$k}}" src="/../static/img/noimage.svg"></a>
-                              <div class="carousel-caption d-none d-md-block">
-                                <h5>{{$value.Name}}</h5>
-                                <p>Channel: {{$k}}</p>
-                              </div>
-                            </div>
-                            {{end}}
-                          </div>
-                          <a class="carousel-control-prev" href="#carousel_{{$key}}" role="button" data-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Previous</span>
-                          </a>
-                          <a class="carousel-control-next" href="#carousel_{{$key}}" role="button" data-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Next</span>
-                          </a>
-                        </div>
 
-                      </div>
-                    </div>
-                    {{ end }}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
 
       <!-- foot -->
-    </div><!-- content-wrapper -->
+    </div>
+    <!-- content-wrapper -->
+    <!-- STREAMS LIST -->
+    <aside class="control-sidebar custom">
+      <!-- Control sidebar content goes here -->
+      <p>
+        <a class="control-sidebar-close-btn pull-right" href="#" onclick="$('.control-sidebar').ControlSidebar('collapse')"><i class="fas fa-times"></i></a>
+      </p>
+
+      <h5>Available streams:</h5>
+      <input type="hidden" id="player-index" value="0" />
+      <div class="row">
+        {{ range $key, $value := .streams }}
+        <div class="col-12" id="{{ $key }}">
+          <div class="card  card-success">
+            <div id="carousel_{{$key}}" class="carousel slide" data-ride="carousel">
+
+              <div class="carousel-inner">
+                {{ range $k, $v := .Channels }}
+                {{ if eq $k "0"}}
+                <div class="carousel-item  active">
+                  <a onclick="play('{{ $key }}',null,{{$k}})" href="#"><img class="d-block w-100 stream-img" channel="{{$k}}" src="/../static/img/noimage.svg"></a>
+                  <div class="carousel-caption d-none d-md-block">
+                    <h5>{{$value.Name}}</h5>
+                  </div>
+                </div>
+                {{end}}
+                {{end}}
+              </div>
+            </div>
+
+          </div>
+        </div>
+        {{ end }}
+      </div>
+    </aside>
+
   </div>
   <!-- ./wrapper -->
   <script>
@@ -203,15 +190,20 @@ scratch. This page gets rid of all links and provides the needed markup only.
     destroyGrid();
     for (var i = 0; i < col; i++) {
       $('#grid-wrapper').append(
-        `<div class=" player ` + colW + `" data-player="none" data-uuid="0">
+        `<div class=" player ` + colW + ` empty" data-player="none" data-uuid="0">
               <div class="play-info"></div>
-              <video class="video-class" autoplay muted></video>
-              <div class="control">
-                <a href="#" class="btn  btn-success btn-xs" onclick="openChoise(this)"><i class="fas fa-plus"></i> Add</a>
-                <a href="#" class="btn  btn-info btn-xs btn-play-main"  onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expand</a>
-                <a href="#" class="btn  btn-danger btn-xs"  onclick="destoyPlayer(` + i + `)"><i class="fas fa-times"></i> Delete</a>
-              </div>
-              </div>`);
+              <video class="video-class empty" autoplay muted></video>
+            `+
+            `<a class="remove-btn" onclick="destoyPlayer(` + i + `)"><i class="fas fa-times"></i></a>`+
+            `<a class="add-stream-btn" onclick="openChoise(this)"><i class="fas fa-plus"></i><br />Click to select stream</a>`+
+            `<a href="#" class="btn  btn-info btn-xs btn-play-main d-none"  onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expand</a>`+
+            `<img class="loader d-none" src="/../static/img/loader.svg" />`+
+            // `<div class="control">
+            //     <a href="#" class="btn  btn-success btn-xs" onclick="openChoise(this)"><i class="fas fa-plus"></i> Add</a>
+            //     <a href="#" class="btn  btn-info btn-xs btn-play-main"  onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expand</a>
+            //     <a href="#" class="btn  btn-danger btn-xs"  onclick="destoyPlayer(` + i + `)"><i class="fas fa-times"></i> Delete</a>
+            //   </div>`+
+              `</div>`);
     }
     multiviewGrid('set', col);
 
@@ -265,8 +257,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
       this.addEventListener('waiting', (e) => {
         logger(index, '[video]: waiting');
       });
-      this.addEventListener('loadeddata', (e) => {
-        logger(index, '[video]: loadeddata');
+      this.addEventListener('canplaythrough', (e) => {
+        $(_this).closest('div').find('.loader').addClass('d-none');
+        logger(index, '[video]: canplaythrough');
       });
       this.addEventListener('loadedmetadata', (e) => {
         logger(index, '[video]: loadedmetadata');
@@ -277,6 +270,18 @@ scratch. This page gets rid of all links and provides the needed markup only.
     });
   }
 
+  $('.main-video-player')[0].addEventListener('canplaythrough', (e) => {
+    $('.main-player').find('.loader').addClass('d-none');
+    logger(0, '[video]: canplaythrough');
+  });
+  $("#videoPlayer")[0].addEventListener('loadeddata', () => {
+    $("#videoPlayer")[0].play();
+    let browser = browserDetector();
+    if (!browser.safari) {
+      makePic();
+    }
+  });
+
   function destroyGrid() {
     $('.player').each(function(index) {
       destoyPlayer(index);
@@ -286,51 +291,53 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
   function openChoise(dom) {
     $('#player-index').val($(dom).closest('.player').index());
-    $('#choiseChannel').modal('show');
+    $('.control-sidebar').ControlSidebar('show')
+
   }
 
   function play(uuid, index, chan, typePlayer) {
-
+    $('#uuid').val(uuid);
     if (typeof(index) == 'undefined' || index == null) {
       index = $('#player-index').val();
     }
-    let videoPlayer = $('.main-player');
+    let videoPlayerVar = $('.main-player');
     if (index != 'main') {
-      videoPlayer = $('.player').eq(index);
+      videoPlayerVar = $('.player').eq(index);
     }
-    $('#choiseChannel').modal('hide');
+
+    $('.control-sidebar').ControlSidebar('collapse');
     destoyPlayer(index);
-    videoPlayer.find('video').css('background', '#000');
+    videoPlayerVar.removeClass('empty');
+    videoPlayerVar.find('video').removeClass('empty');
+
 
     let playerType = $('#defaultPlayer').val();
     if (!!typePlayer) {
       playerType = typePlayer;
     }
-    videoPlayer.attr('data-player', playerType);
-    videoPlayer.attr('data-uuid', uuid);
+    videoPlayerVar.attr('data-player', playerType);
+    videoPlayerVar.attr('data-uuid', uuid);
 
     let channel = 0;
 
     if (typeof(streams[uuid].channels[1]) !== "undefined") {
       channel = 1;
     }
-    // if (typeof(chan) !== "undefined") {
-    //   channel = chan;
-    // }
+
     if (index == 'main') {
       channel = 0;
     } else {
       packStreamms(index, uuid, chan, playerType);
     }
     if (colordebug) {
-      videoPlayer.find('.play-info').html('Stream: ' + streams[uuid].name + ' | player type:' + playerType + ' | channel: ' + channel);
+      videoPlayerVar.find('.play-info').html('Stream: ' + streams[uuid].name + ' | player type:' + playerType + ' | channel: ' + channel);
     }
-
+    videoPlayerVar.find('.loader').removeClass('d-none');
     //fix stalled video in safari
-    videoPlayer.find('video')[0].addEventListener('pause', () => {
-      if (videoPlayer.find('video')[0].currentTime > videoPlayer.find('video')[0].buffered.end((videoPlayer.find('video')[0].buffered.length - 1))) {
-        videoPlayer.find('video')[0].currentTime = videoPlayer.find('video')[0].buffered.end((videoPlayer.find('video')[0].buffered.length - 1)) - 0.1;
-        videoPlayer.find('video')[0].play();
+    videoPlayerVar.find('video')[0].addEventListener('pause', () => {
+      if (videoPlayerVar.find('video')[0].currentTime > videoPlayerVar.find('video')[0].buffered.end((videoPlayerVar.find('video')[0].buffered.length - 1))) {
+        videoPlayerVar.find('video')[0].currentTime = videoPlayerVar.find('video')[0].buffered.end((videoPlayerVar.find('video')[0].buffered.length - 1)) - 0.1;
+        videoPlayerVar.find('video')[0].play();
       }
     });
 
@@ -338,15 +345,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
       case 'hls':
         let url = '/stream/' + uuid + '/channel/' + channel + '/hls/live/index.m3u8';
 
-        if (videoPlayer.find('video')[0].canPlayType('application/vnd.apple.mpegurl')) {
-          videoPlayer.find('video')[0].src = url;
-          videoPlayer.find('video')[0].load();
+        if (videoPlayerVar.find('video')[0].canPlayType('application/vnd.apple.mpegurl')) {
+          videoPlayerVar.find('video')[0].src = url;
+          videoPlayerVar.find('video')[0].load();
         } else if (Hls.isSupported()) {
           players[index] = new Hls({
             manifestLoadingTimeOut: 60000
           });
           players[index].loadSource(url);
-          players[index].attachMedia(videoPlayer.find('video')[0]);
+          players[index].attachMedia(videoPlayerVar.find('video')[0]);
         } else {
           Swal.fire({
             icon: 'error',
@@ -356,13 +363,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
         }
         break;
       case 'webrtc':
-        players[index] = new WebRTCPlayer(uuid, videoPlayer, channel);
+        players[index] = new WebRTCPlayer(uuid, videoPlayerVar, channel);
         players[index].playWebrtc();
         break;
       case 'mse':
       default:
 
-        players[index] = new msePlayer(uuid, videoPlayer, channel);
+        players[index] = new msePlayer(uuid, videoPlayerVar, channel);
         players[index].playMse();
         break;
     }
@@ -370,12 +377,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
   }
 
   function destoyPlayer(index) {
-    let videoPlayer = $('.main-player');
+    let videoPlayerVar = $('.main-player');
     if (index != 'main') {
-      videoPlayer = $('.player').eq(index);
+      videoPlayerVar = $('.player').eq(index);
     }
-    let type = videoPlayer.attr('data-player');
-    videoPlayer.find('video').css('background', '#343a40');
+    let type = videoPlayerVar.attr('data-player');
+    videoPlayerVar.addClass('empty');
+    videoPlayerVar.find('video').addClass('empty')
+
     switch (type) {
       case 'hls':
         if (!!players[index]) {
@@ -396,11 +405,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
         break;
     }
-    videoPlayer.attr('data-player', 'none');
-    videoPlayer.attr('data-uuid', 0);
-    videoPlayer.find('.play-info').html('');
-    videoPlayer.find('video')[0].src = '';
-    videoPlayer.find('video')[0].load();
+    videoPlayerVar.attr('data-player', 'none');
+    videoPlayerVar.attr('data-uuid', 0);
+    videoPlayerVar.find('.play-info').html('');
+    videoPlayerVar.find('video')[0].src = '';
+    videoPlayerVar.find('video')[0].load();
 
     unpackStreams(index);
   }
@@ -423,9 +432,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
     $('.main-player-wrapper').addClass('d-none');
   }
   /*************************mse obect **************************/
-  function msePlayer(uuid, videoPlayer, channel) {
+  function msePlayer(uuid, videoPlayerVar, channel) {
     this.ws = null,
-      this.video = videoPlayer.find('video')[0],
+      this.video = videoPlayerVar.find('video')[0],
       this.mseSourceBuffer = null,
       this.mse = null,
       this.mseQueue = [],
@@ -437,7 +446,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     this.checktimecounter = 0;
     this.playMse = function() {
       let _this = this;
-      logger(videoPlayer.index(),
+      logger(videoPlayerVar.index(),
         'func playMse',
         'streams: ' + uuid,
         'channel: ' + channel);
@@ -453,7 +462,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
       let ws_url = potocol + '://' + location.host + '/stream/' + this.uuid + '/channel/' + this.channel + '/mse?uuid=' + this.uuid + '&channel=' + this.channel;
 
       this.mse.addEventListener('sourceopen', function() {
-        logger(videoPlayer.index(),
+        logger(videoPlayerVar.index(),
           uuid,
           channel,
           '[MSE]: sourceopen');
@@ -461,14 +470,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
         _this.ws.binaryType = "arraybuffer";
         _this.ws.onopen = function(event) {
 
-          logger(videoPlayer.index(),
+          logger(videoPlayerVar.index(),
             uuid,
             channel,
             '[websocket]: connected');
         }
 
         _this.ws.onclose = function(event) {
-          logger(videoPlayer.index(),
+          logger(videoPlayerVar.index(),
             uuid,
             channel,
             '[websocket]: closed');
@@ -477,17 +486,17 @@ scratch. This page gets rid of all links and provides the needed markup only.
             _this.timeout = null;
           }
           _this.timeout = setTimeout(() => {
-            logger(videoPlayer.index(),
+            logger(videoPlayerVar.index(),
               uuid,
               channel,
               '[websocket]: timeouted func play');
-            play(uuid, videoPlayer.index(), channel, 'mse')
+            play(uuid, videoPlayerVar.index(), channel, 'mse')
           }, 15000)
 
 
         }
         _this.ws.onerror = (e) => {
-          logger(videoPlayer.index(),
+          logger(videoPlayerVar.index(),
             uuid,
             channel,
             '[websocket]: error');
@@ -496,7 +505,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
           _this.checkStalled();
           let data = new Uint8Array(event.data);
           if (data[3] == 24) {
-            logger(videoPlayer.index(),
+            logger(videoPlayerVar.index(),
               uuid,
               channel,
               '[data]: init_file');
@@ -509,7 +518,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             } else {
               mimeCodec = Utf8ArrayToStr(decoded_arr);
             }
-            logger(videoPlayer.index(),
+            logger(videoPlayerVar.index(),
               uuid,
               channel,
               '[codec]: ' + mimeCodec);
@@ -525,56 +534,56 @@ scratch. This page gets rid of all links and provides the needed markup only.
       }, false);
 
       this.mse.addEventListener('sourceended', function() {
-        logger(videoPlayer.index(),
+        logger(videoPlayerVar.index(),
           uuid,
           channel,
           '[MSE]: sourceended');
       })
       this.mse.addEventListener('sourceclose', function() {
-        logger(videoPlayer.index(),
+        logger(videoPlayerVar.index(),
           uuid,
           channel,
           '[MSE]: sourceclose');
       })
 
       this.mse.addEventListener('error', function() {
-        logger(videoPlayer.index(),
+        logger(videoPlayerVar.index(),
           uuid,
           channel,
           '[MSE]: error');
       })
       this.mse.addEventListener('abort', function() {
-        logger(videoPlayer.index(),
+        logger(videoPlayerVar.index(),
           uuid,
           channel,
           '[MSE]: abort');
       })
       this.mse.addEventListener('updatestart', function() {
-        logger(videoPlayer.index(),
+        logger(videoPlayerVar.index(),
           uuid,
           channel,
           '[MSE]: updatestart');
       })
       this.mse.addEventListener('update', function() {
-        logger(videoPlayer.index(),
+        logger(videoPlayerVar.index(),
           uuid,
           channel,
           '[MSE]: update');
       })
       this.mse.addEventListener('updateend', function() {
-        logger(videoPlayer.index(),
+        logger(videoPlayerVar.index(),
           uuid,
           channel,
           '[MSE]: updateend');
       })
       this.mse.addEventListener('addsourcebuffer', function() {
-        logger(videoPlayer.index(),
+        logger(videoPlayerVar.index(),
           uuid,
           channel,
           '[MSE]: addsourcebuffer');
       })
       this.mse.addEventListener('removesourcebuffer', function() {
-        logger(videoPlayer.index(),
+        logger(videoPlayerVar.index(),
           uuid,
           channel,
           '[MSE]: removesourcebuffer');
@@ -588,13 +597,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
             this.mseSourceBuffer.appendBuffer(packet);
             this.mseStreamingStarted = true;
           } catch (e) {
-            logger(videoPlayer.index(),
+            logger(videoPlayerVar.index(),
               'readPacket error',
               'streams: ' + uuid,
               'channel: ' + channel);
             console.log(e);
 
-            play(uuid, videoPlayer.index(), channel, 'mse');
+            play(uuid, videoPlayerVar.index(), channel, 'mse');
 
           } finally {
             return;
@@ -618,13 +627,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
             try {
               _this.mseSourceBuffer.appendBuffer(packet)
             } catch (e) {
-              logger(videoPlayer.index(),
+              logger(videoPlayerVar.index(),
                 'pushPacket error',
                 'streams: ' + uuid,
                 'channel: ' + channel);
               console.log(e);
 
-              play(uuid, videoPlayer.index(), channel, 'mse');
+              play(uuid, videoPlayerVar.index(), channel, 'mse');
             } finally {
 
             }
@@ -651,11 +660,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
           }
         }
         if (this.checktimecounter > 10) {
-          logger(videoPlayer.index(),
+          logger(videoPlayerVar.index(),
             uuid,
             channel,
             '[FIX]: player not move');
-          play(uuid, videoPlayer.index(), channel, 'mse');
+          play(uuid, videoPlayerVar.index(), channel, 'mse');
         }
         this.checktime = this.video.currentTime;
 
@@ -672,7 +681,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 
 
-        logger(videoPlayer.index(),
+        logger(videoPlayerVar.index(),
           'Event: PlayerDestroy',
           'streams: ' + uuid,
           'channel: ' + channel);
@@ -680,12 +689,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
   }
   /*************************end mse obect **************************/
   /*************************WEBRTC obect **************************/
-  function WebRTCPlayer(uuid, videoPlayer, channel) {
+  function WebRTCPlayer(uuid, videoPlayerVar, channel) {
     this.webrtc = null;
     this.webrtcSendChannel = null;
     this.webrtcSendChannelInterval = null;
     this.uuid = uuid;
-    this.video = videoPlayer.find('video')[0];
+    this.video = videoPlayerVar.find('video')[0];
     this.channel = channel || 0;
     this.playWebrtc = function() {
         var _this = this;
