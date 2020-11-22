@@ -228,14 +228,17 @@ function goRequestHandle(method, response, uuid) {
 
 
 
-function makePic() {
-  ratio = $("#videoPlayer")[0].videoWidth / $("#videoPlayer")[0].videoHeight;
+function makePic(video_element, uuid, chan) {
+  if (typeof(video_element) === "undefined") {
+    video_element = $("#videoPlayer")[0];
+  }
+  ratio = video_element.videoWidth / video_element.videoHeight;
   w = 400;
   h = parseInt(w / ratio, 10);
   $('#canvas')[0].width = w;
   $('#canvas')[0].height = h;
   $('#canvas')[0].getContext('2d').fillRect(0, 0, w, h);
-  $('#canvas')[0].getContext('2d').drawImage($("#videoPlayer")[0], 0, 0, w, h);
+  $('#canvas')[0].getContext('2d').drawImage(video_element, 0, 0, w, h);
   var imageData = $('#canvas')[0].toDataURL();
   var images = localStorage.getItem('imagesNew');
   if (images != null) {
@@ -243,13 +246,18 @@ function makePic() {
   } else {
     images = {};
   }
-  var channel = $('#channel').val() || 0;
-  if (typeof(images[$('#uuid').val()]) === "undefined") {
-    images[$('#uuid').val()] = {};
+  var uid = $('#uuid').val();
+  if (!!uuid) {
+    uid = uuid;
   }
-  images[$('#uuid').val()][channel] = imageData;
+
+  var channel = $('#channel').val() || chan || 0;
+  if (typeof(images[uid]) === "undefined") {
+    images[uid] = {};
+  }
+  images[uid][channel] = imageData;
   localStorage.setItem('imagesNew', JSON.stringify(images));
-  $('#' + $('#uuid').val()).find('.stream-img[channel="' + channel + '"]').attr('src', imageData);
+  $('#' + uid).find('.stream-img[channel="' + channel + '"]').attr('src', imageData);
 }
 
 function localImages() {

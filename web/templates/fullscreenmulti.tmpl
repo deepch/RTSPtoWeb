@@ -19,7 +19,7 @@
   <div class="wrapper">
 
     <!-- Navbar -->
-    <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
+    <nav class="main-header navbar navbar-expand-md navbar-light navbar-dark">
       <div class="container-fluid">
 
 
@@ -31,20 +31,51 @@
           <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
             <input type="hidden" id="defaultPlayer" value="mse" />
             <li class="nav-item dropdown">
+              <a  href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><i class="fas fa-photo-video"></i></a>
+              <div class="dropdown-menu dropdown-menu-right custom-dropdown">
+                <div class="custom-dropdown-item with-img" onclick="changeBackground('back')">
+                  <img src="/../static/img/back.jpg" />
+                </div>
+                <div class="custom-dropdown-item with-img" onclick="changeBackground('red')">
+                  <img src="/../static/img/red.jpg" />
+                </div>
+                <div class="custom-dropdown-item with-img" onclick="changeBackground('green')">
+                  <img src="/../static/img/green.jpg" />
+                </div>
+                <div class="custom-dropdown-item with-img" onclick="changeBackground('white')">
+                  <img src="/../static/img/white.jpg" />
+                </div>
+              </div>
+            </li>
+            <li class="nav-item dropdown">
               <a id="defaultGrid" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><i class="fas fa-th-large"></i></a>
-              <ul aria-labelledby="defaultGrid" class="dropdown-menu border-0 shadow">
-                <li><a href="#" class="dropdown-item" onclick="gridMaker(4)"><i class="fas fa-border-none"></i> 2 x 2 </a></li>
-                <li><a href="#" class="dropdown-item" onclick="gridMaker(6)"><i class="fas fa-border-none"></i> 3 x 2 </a></li>
-                <li><a href="#" class="dropdown-item" onclick="gridMaker(9)"><i class="fas fa-border-none"></i> 3 x 3 </a></li>
-                <li><a href="#" class="dropdown-item" onclick="gridMaker(12)"><i class="fas fa-border-none"></i> 4 x 3 </a></li>
-                <li><a href="#" class="dropdown-item" onclick="gridMaker(16)"><i class="fas fa-border-none"></i> 4 x 4 </a></li>
-                <li><a href="#" class="dropdown-item" onclick="gridMaker(25)"><i class="fas fa-border-none"></i> 5 x 5 </a></li>
-                <li><a href="#" class="dropdown-item" onclick="gridMaker(36)"><i class="fas fa-border-none"></i> 6 x 6 </a></li>
-              </ul>
+              <div aria-labelledby="defaultGrid" class="dropdown-menu dropdown-menu-right custom-dropdown">
+                <div class="custom-dropdown-item grid-maker" grid="4" onclick="gridMaker(4)">
+                  2 x 2
+                </div>
+                <div class="custom-dropdown-item grid-maker" grid="6" onclick="gridMaker(6)">
+                  3 x 2
+                </div>
+                <div class="custom-dropdown-item grid-maker" grid="9" onclick="gridMaker(9)">
+                  3 x 3
+                </div>
+                <div class="custom-dropdown-item grid-maker" grid="12" onclick="gridMaker(12)">
+                  4 x 3
+                </div>
+                <div class="custom-dropdown-item grid-maker" grid="16" onclick="gridMaker(16)">
+                  4 x 4
+                </div>
+                <div class="custom-dropdown-item grid-maker" grid="25" onclick="gridMaker(25)">
+                  5 x 5
+                </div>
+                <div class="custom-dropdown-item grid-maker" grid="36" onclick="gridMaker(36)">
+                  6 x 6
+                </div>
+              </div>
             </li>
             <li class="nav-item dropdown">
               <a id="defaultPlayerMenu" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">MSE</a>
-              <ul aria-labelledby="defaultPlayerMenu" class="dropdown-menu border-0 shadow">
+              <ul aria-labelledby="defaultPlayerMenu" class="dropdown-menu  custom-dropdown">
                 <li><a href="#" class="dropdown-item" onclick="defaultPlayer('mse',this)">MSE</a></li>
                 <li><a href="#" class="dropdown-item" onclick="defaultPlayer('hls',this)">HLS</a></li>
                 <li><a href="#" class="dropdown-item" onclick="defaultPlayer('webrtc',this)">WebRTC</a></li>
@@ -101,7 +132,7 @@
 
               <div class="carousel-inner">
                 {{ range $k, $v := .Channels }}
-                {{ if eq $k "0"}}
+                {{ if eq $k "1"}}
                 <div class="carousel-item  active">
                   <a onclick="play('{{ $key }}',null,{{$k}})" href="#"><img class="d-block w-100 stream-img" channel="{{$k}}" src="/../static/img/noimage.svg"></a>
                   <div class="carousel-caption d-none d-md-block">
@@ -123,8 +154,8 @@
   <!-- ./wrapper -->
   <script>
     let streams = {{.streams}};
-
     let presetOptions = {{.options}}
+
   </script>
   <script src="/../static/plugins/jquery/jquery.min.js"></script>
   <script src="/../static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -144,6 +175,7 @@
   let players = {};
   $(document).ready(() => {
     logger(9, 'page is ready')
+    changeBackground(localStorage.getItem('backgroundImage'));
     if (presetOptions.grid != 0) {
       multiviewGrid('set', presetOptions.grid);
     }
@@ -187,6 +219,7 @@
         colW = '';
         break;
     }
+    let memory=localStorage.getItem('multiviewPlayers');
     destroyGrid();
     for (var i = 0; i < col; i++) {
       $('#grid-wrapper').append(
@@ -198,16 +231,17 @@
             `<a class="add-stream-btn" onclick="openChoise(this)"><i class="fas fa-plus"></i><br />Click to select stream</a>`+
             `<a href="#" class="btn  btn-info btn-xs btn-play-main d-none"  onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expand</a>`+
             `<img class="loader d-none" src="/../static/img/loader.svg" />`+
-            // `<div class="control">
-            //     <a href="#" class="btn  btn-success btn-xs" onclick="openChoise(this)"><i class="fas fa-plus"></i> Add</a>
-            //     <a href="#" class="btn  btn-info btn-xs btn-play-main"  onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expand</a>
-            //     <a href="#" class="btn  btn-danger btn-xs"  onclick="destoyPlayer(` + i + `)"><i class="fas fa-times"></i> Delete</a>
-            //   </div>`+
-              `</div>`);
+            `</div>`);
     }
     multiviewGrid('set', col);
-
     addEventListenerToVideo();
+    $('.grid-maker').removeClass('active');
+    $('.grid-maker[grid="'+col+'"]').addClass('active');
+    if(memory!=null){
+      localStorage.setItem('multiviewPlayers',memory);
+      restoreStreams();
+    }
+
   }
 
   function addEventListenerToVideo() {
@@ -215,8 +249,10 @@
       let _this = this;
       let index = $(this).closest('.player').index();
       let uuid = $(this).closest('.player').attr('data-uuid');
+
       this.addEventListener('loadeddata', () => {
         _this.play();
+        makePic(this, $(_this).closest('.player').attr('data-uuid'), 1);
         logger(index, '[video]: loadeddata');
       });
       this.addEventListener('stalled', () => {
@@ -410,6 +446,7 @@
     videoPlayerVar.find('.play-info').html('');
     videoPlayerVar.find('video')[0].src = '';
     videoPlayerVar.find('video')[0].load();
+    videoPlayerVar.find('.loader').addClass('d-none');
 
     unpackStreams(index);
   }
@@ -814,7 +851,10 @@
         $.each(multiviewPlayers, function(key, val) {
 
           if (val.uuid in streams && val.channel in streams[val.uuid].channels) {
-            play(val.uuid, key, val.channel, val.playerType);
+            if($('.player').eq(key).length>0){
+              play(val.uuid, key, val.channel, val.playerType);
+            }
+
           } else {
             unpackStreams(key);
           }
@@ -872,4 +912,23 @@
   $('.main-player').on('dblclick', function() {
     closeMain()
   });
+
+  function changeBackground(num){
+    let back='/../static/img/';
+    localStorage.setItem('backgroundImage',num);
+    switch (num) {
+      case 'green':
+      back+='green.jpg'
+        break;
+      case 'red':
+      back+='red.jpg'
+        break;
+      case 'white':
+      back+='white.jpg'
+        break;
+      default:
+        back+='back.jpg'
+    }
+    $('.img-background').css('background-image','url("'+back+'")');
+  }
 </script>

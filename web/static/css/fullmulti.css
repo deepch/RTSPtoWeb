@@ -40,7 +40,8 @@ video.background{
 }
 
 .img-background{
-    background: url(/../static/img/back.jpg);
+    /* background: url(/../static/img/back.jpg); */
+    background-color: #343a40;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -88,16 +89,16 @@ video.background{
   color: white;
   cursor: pointer;
   display: none;
+  filter: drop-shadow(2px 4px 6px black);
 }
 .grid-wrapper .player.empty .add-stream-btn{
   display: block;
+
 }
 
 .grid-wrapper .player:not(.empty):hover .add-stream-btn{
   display: block;
-  /* width: auto;
-  top:0;
-  font-size: 1vw; */
+
 }
 .carousel-caption {
     pointer-events: none;
@@ -121,4 +122,42 @@ video.background{
 }
 .control-sidebar-close-btn:hover{
   color: #999;
+}
+.dropdown-menu.custom-dropdown.show{
+  color: #ffF;
+    border: 1px solid #343a40;
+    background: linear-gradient(45deg, #000000d1 30%,#343a40);
+    padding: 0;
+    text-align: center;
+}
+
+.dropdown-menu.custom-dropdown .custom-dropdown-item{
+  float: left;
+  width: 33%;
+  padding: 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.dropdown-menu.custom-dropdown .custom-dropdown-item.active,.dropdown-menu.custom-dropdown .custom-dropdown-item:hover{
+  border-radius: 5px;
+  box-shadow: inset 0px 0px 15px -5px;
+}
+.dropdown-menu.custom-dropdown .dropdown-item{
+  color: #fff;
+
+}
+.dropdown-menu.custom-dropdown .dropdown-item:hover{
+  box-shadow: inset 0px 0px 15px -5px;
+  background: transparent;
+}
+
+.custom-dropdown-item.with-img{
+  width: 50%!important;
+    height: auto;
+    padding: 2px!important;
+
+}
+.custom-dropdown-item.with-img img{
+  width: 100%;
+  height: auto;
 }
