@@ -96,10 +96,6 @@ video.background{
 
 }
 
-.grid-wrapper .player:not(.empty):hover .add-stream-btn{
-  display: block;
-
-}
 .carousel-caption {
     pointer-events: none;
     filter: drop-shadow(1px 1px 1px black);
