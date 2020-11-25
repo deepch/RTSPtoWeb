@@ -71,6 +71,9 @@
                 <div class="custom-dropdown-item grid-maker" grid="36" onclick="gridMaker(36)">
                   6 x 6
                 </div>
+                <div class="custom-dropdown-item grid-maker" grid="49" onclick="gridMaker(49)">
+                  7 x 7
+                </div>
               </div>
             </li>
             <li class="nav-item dropdown">
@@ -215,6 +218,9 @@
       case 36:
         colW = 'grid-36';
         break;
+      case 49:
+        colW = 'grid-49';
+        break;
       default:
         colW = '';
         break;
@@ -268,7 +274,7 @@
 
       this.addEventListener('error', (e) => {
         logger(index, '[video]: error', e);
-        console.log(e);
+        //console.log(e);
       });
 
       this.addEventListener('abort', () => {
@@ -887,8 +893,7 @@
   }
 
   function multiviewGrid(type, grid) {
-    //console.log('type, grid')
-    let defGrid = 16;
+    let defGrid = 25;
     switch (type) {
       case 'set':
         localStorage.setItem('multiviewGrid', grid);
