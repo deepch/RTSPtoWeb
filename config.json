@@ -5,6 +5,7 @@
     "http_demo": true,
     "http_login": "demo",
     "http_password": "demo",
+    "http_dir": "web",
     "http_port": ":8083",
     "log_level": "debug",
     "rtsp_port": ":5541"

@@ -36,7 +36,7 @@ func HTTPAPIServer() {
 	public.Use(CrossOrigin())
 	//Add private login password protect methods
 	privat := public.Group("/", gin.BasicAuth(gin.Accounts{Storage.ServerHTTPLogin(): Storage.ServerHTTPPassword()}))
-	public.LoadHTMLGlob("web/templates/*")
+	public.LoadHTMLGlob(Storage.ServerHTTPDir() + "/templates/*")
 
 	/*
 		Html template
@@ -91,7 +91,7 @@ func HTTPAPIServer() {
 		Static HTML Files Demo Mode
 	*/
 	if Storage.ServerHTTPDemo() {
-		public.StaticFS("/static", http.Dir("web/static"))
+		public.StaticFS("/static", http.Dir(Storage.ServerHTTPDir()+"/static"))
 	}
 	err := public.Run(Storage.ServerHTTPPort())
 	if err != nil {

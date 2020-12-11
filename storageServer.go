@@ -1,6 +1,25 @@
 package main
 
-import "github.com/sirupsen/logrus"
+import (
+	"path/filepath"
+
+	"github.com/sirupsen/logrus"
+)
+
+var (
+	//Default www static file dir
+	DefaultHTTPDir = "web"
+)
+
+//ServerHTTPDir
+func (obj *StorageST) ServerHTTPDir() string {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	if filepath.Clean(obj.Server.HTTPDir) == "." {
+		return DefaultHTTPDir
+	}
+	return filepath.Clean(obj.Server.HTTPDir)
+}
 
 //ServerHTTPDebug read debug options
 func (obj *StorageST) ServerHTTPDebug() bool {
