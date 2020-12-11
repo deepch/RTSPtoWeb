@@ -39,6 +39,7 @@ var (
 	ErrorStreamStopRTSPSignal       = errors.New("stream stop rtsp signal")
 	ErrorStreamChannelNotFound      = errors.New("stream channel not found")
 	ErrorStreamChannelCodecNotFound = errors.New("stream channel codec not ready, possible stream offline")
+	ErrorStreamsLen0                = errors.New("streams len zero")
 )
 
 //StorageST main storage struct

@@ -3,15 +3,15 @@
     "debug": true,
     "http_debug": false,
     "http_demo": true,
+    "http_dir": "web",
     "http_login": "demo",
     "http_password": "demo",
-    "http_dir": "web",
     "http_port": ":8083",
     "log_level": "debug",
     "rtsp_port": ":5541"
   },
   "streams": {
-    "demo1": {
+    "test": {
       "channels": {
         "0": {
           "url": "rtsp://admin:admin123@10.128.18.224/mpeg4"
@@ -20,7 +20,7 @@
           "url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif"
         }
       },
-      "name": "test video2"
+      "name": "test video1"
     }
   }
 }

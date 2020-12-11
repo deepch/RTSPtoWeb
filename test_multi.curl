@@ -1,0 +1,128 @@
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{
+          	"streams": {
+          		"demo1": {
+          			"channels": {
+          				"0": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4"
+          				},
+          				"1": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif"
+          				}
+          			},
+          			"name": "test video1"
+          		},
+          		"demo2": {
+          			"channels": {
+          				"0": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4"
+          				},
+          				"1": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif"
+          				}
+          			},
+          			"name": "test video2"
+          		},
+          		"demo3": {
+          			"channels": {
+          				"0": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4"
+          				},
+          				"1": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif"
+          				}
+          			},
+          			"name": "test video3"
+          		},
+          		"demo4": {
+          			"channels": {
+          				"0": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4"
+          				},
+          				"1": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif"
+          				}
+          			},
+          			"name": "test video4"
+          		},
+          		"demo5": {
+          			"channels": {
+          				"0": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4"
+          				},
+          				"1": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif"
+          				}
+          			},
+          			"name": "test video5"
+          		},
+          		"demo6": {
+          			"channels": {
+          				"0": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4"
+          				},
+          				"1": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif"
+          				}
+          			},
+          			"name": "test video6"
+          		},
+          		"demo7": {
+          			"channels": {
+          				"0": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4"
+          				},
+          				"1": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif"
+          				}
+          			},
+          			"name": "test video7"
+          		},
+          		"demo8": {
+          			"channels": {
+          				"0": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4"
+          				},
+          				"1": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif"
+          				}
+          			},
+          			"name": "test video8"
+          		},
+          		"demo9": {
+          			"channels": {
+          				"0": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4"
+          				},
+          				"1": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif"
+          				}
+          			},
+          			"name": "test video9"
+          		},
+          		"demo10": {
+          			"channels": {
+          				"0": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4"
+          				},
+          				"1": {
+          					"url": "rtsp://admin:admin123@10.128.18.224/mpeg4cif"
+          				}
+          			},
+          			"name": "test video10"
+          		}
+          	}
+          }' \
+  http://demo:demo@127.0.0.1:8083/streams/multi/control/add
+sleep 1
+echo "curl http://demo:demo@127.0.0.1:8083/streams"
+curl http://demo:demo@127.0.0.1:8083/streams
+sleep 1
+ curl --header "Content-Type: application/json" \
+   --request POST \
+   --data '["demo1", "demo2", "demo3", "demo4", "demo5", "demo6", "demo7", "demo8", "demo9", "demo10"]' \
+  http://demo:demo@127.0.0.1:8083/streams/multi/control/delete
+sleep 1
+echo "curl http://demo:demo@127.0.0.1:8083/streams"
+curl http://demo:demo@127.0.0.1:8083/streams

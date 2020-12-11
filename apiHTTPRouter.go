@@ -66,6 +66,13 @@ func HTTPAPIServer() {
 	privat.GET("/stream/:uuid/info", HTTPAPIServerStreamInfo)
 
 	/*
+		Streams Multi Control elements
+	*/
+
+	privat.POST("/streams/multi/control/add", HTTPAPIServerStreamsMultiControlAdd)
+	privat.POST("/streams/multi/control/delete", HTTPAPIServerStreamsMultiControlDelete)
+
+	/*
 		Stream Channel elements
 	*/
 
