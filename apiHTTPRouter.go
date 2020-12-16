@@ -236,6 +236,7 @@ func HTTPAPIFullScreenMultiView(c *gin.Context) {
 		"version": time.Now().String(),
 		"options": createParams,
 		"page":    "fullscreenmulti",
+		"query": c.Request.URL.Query(),
 	})
 }
 

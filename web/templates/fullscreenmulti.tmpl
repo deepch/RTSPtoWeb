@@ -16,6 +16,7 @@
 </head>
 
 <body class="hold-transition layout-top-nav img-background">
+
   <div class="wrapper">
 
     <!-- Navbar -->
@@ -30,8 +31,9 @@
         <div class="collapse navbar-collapse order-3" id="navbarCollapse">
           <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
             <input type="hidden" id="defaultPlayer" value="mse" />
+            {{ if .query.controls}}
             <li class="nav-item dropdown">
-              <a  href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><i class="fas fa-photo-video"></i></a>
+              <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><i class="fas fa-photo-video"></i></a>
               <div class="dropdown-menu dropdown-menu-right custom-dropdown">
                 <div class="custom-dropdown-item with-img" onclick="changeBackground('back')">
                   <img src="/../static/img/back.jpg" />
@@ -47,6 +49,7 @@
                 </div>
               </div>
             </li>
+            {{end}}
             <li class="nav-item dropdown">
               <a id="defaultGrid" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><i class="fas fa-th-large"></i></a>
               <div aria-labelledby="defaultGrid" class="dropdown-menu dropdown-menu-right custom-dropdown">
@@ -76,6 +79,7 @@
                 </div>
               </div>
             </li>
+              {{ if .query.controls}}
             <li class="nav-item dropdown">
               <a id="defaultPlayerMenu" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">MSE</a>
               <ul aria-labelledby="defaultPlayerMenu" class="dropdown-menu  custom-dropdown">
@@ -87,7 +91,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/pages/login" role="button"><i class="fas fa-sign-out-alt"></i> Exit</a>
             </li>
-
+            {{end}}
           </ul>
         </div>
       </div>
@@ -156,9 +160,9 @@
   </div>
   <!-- ./wrapper -->
   <script>
-    let streams = {{.streams}};
-    let presetOptions = {{.options}}
-
+    let streams = {{ .streams }};
+    let presetOptions = {{ .options }}
+    console.log({{.query}})
   </script>
   <script src="/../static/plugins/jquery/jquery.min.js"></script>
   <script src="/../static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -225,26 +229,26 @@
         colW = '';
         break;
     }
-    let memory=localStorage.getItem('multiviewPlayers');
+    let memory = localStorage.getItem('multiviewPlayers');
     destroyGrid();
     for (var i = 0; i < col; i++) {
       $('#grid-wrapper').append(
         `<div class=" player ` + colW + ` empty" data-player="none" data-uuid="0">
               <div class="play-info"></div>
               <video class="video-class empty" autoplay muted></video>
-            `+
-            `<a class="remove-btn" onclick="destoyPlayer(` + i + `)"><i class="fas fa-times"></i></a>`+
-            `<a class="add-stream-btn" onclick="openChoise(this)"><i class="fas fa-plus"></i><br />Click to select stream</a>`+
-            `<a href="#" class="btn  btn-info btn-xs btn-play-main d-none"  onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expand</a>`+
-            `<img class="loader d-none" src="/../static/img/loader.svg" />`+
-            `</div>`);
+            ` +
+        `<a class="remove-btn" onclick="destoyPlayer(` + i + `)"><i class="fas fa-times"></i></a>` +
+        `<a class="add-stream-btn" onclick="openChoise(this)"><i class="fas fa-plus"></i><br />Click to select stream</a>` +
+        `<a href="#" class="btn  btn-info btn-xs btn-play-main d-none"  onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expand</a>` +
+        `<img class="loader d-none" src="/../static/img/loader.svg" />` +
+        `</div>`);
     }
     multiviewGrid('set', col);
     addEventListenerToVideo();
     $('.grid-maker').removeClass('active');
-    $('.grid-maker[grid="'+col+'"]').addClass('active');
-    if(memory!=null){
-      localStorage.setItem('multiviewPlayers',memory);
+    $('.grid-maker[grid="' + col + '"]').addClass('active');
+    if (memory != null) {
+      localStorage.setItem('multiviewPlayers', memory);
       restoreStreams();
     }
 
@@ -857,7 +861,7 @@
         $.each(multiviewPlayers, function(key, val) {
 
           if (val.uuid in streams && val.channel in streams[val.uuid].channels) {
-            if($('.player').eq(key).length>0){
+            if ($('.player').eq(key).length > 0) {
               play(val.uuid, key, val.channel, val.playerType);
             }
 
@@ -867,21 +871,21 @@
         })
       }
 
-    }else{
+    } else {
 
-      if(Object.keys(streams).length>0){
-        let playerIndex=0;
-        let gridSize=$('.player').length;
-        $.each(streams,function(uuid,params){
+      if (Object.keys(streams).length > 0) {
+        let playerIndex = 0;
+        let gridSize = $('.player').length;
+        $.each(streams, function(uuid, params) {
           //console.log(i,uuid);
-          if(playerIndex<gridSize){
-            let channel=0;
-            if('1' in params.channels){
-              channel=1;
+          if (playerIndex < gridSize) {
+            let channel = 0;
+            if ('1' in params.channels) {
+              channel = 1;
             }
             play(uuid, playerIndex, channel, 'mse');
-              playerIndex++;
-          }else{
+            playerIndex++;
+          } else {
             return;
           }
 
@@ -918,22 +922,22 @@
     closeMain()
   });
 
-  function changeBackground(num){
-    let back='/../static/img/';
-    localStorage.setItem('backgroundImage',num);
+  function changeBackground(num) {
+    let back = '/../static/img/';
+    localStorage.setItem('backgroundImage', num);
     switch (num) {
       case 'green':
-      back+='green.jpg'
+        back += 'green.jpg'
         break;
       case 'red':
-      back+='red.jpg'
+        back += 'red.jpg'
         break;
       case 'white':
-      back+='white.jpg'
+        back += 'white.jpg'
         break;
       default:
-        back+='back.jpg'
+        back += 'back.jpg'
     }
-    $('.img-background').css('background-image','url("'+back+'")');
+    $('.img-background').css('background-image', 'url("' + back + '")');
   }
 </script>
