@@ -161,8 +161,8 @@
   <!-- ./wrapper -->
   <script>
     let streams = {{ .streams }};
-    let presetOptions = {{ .options }}
-    console.log({{.query}})
+    let presetOptions = {{ .options }};
+    let get_query={{.query}};
   </script>
   <script src="/../static/plugins/jquery/jquery.min.js"></script>
   <script src="/../static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -183,9 +183,14 @@
   $(document).ready(() => {
     logger(9, 'page is ready')
     changeBackground(localStorage.getItem('backgroundImage'));
+    if('grid' in get_query){
+      let get_grid=get_query.grid[0]||4;
+      multiviewGrid('set', get_grid);
+    }
     if (presetOptions.grid != 0) {
       multiviewGrid('set', presetOptions.grid);
     }
+
     if (presetOptions.player != null) {
       localStorage.setItem('multiviewPlayers', JSON.stringify(presetOptions.player));
     }
@@ -199,8 +204,9 @@
   }
 
   function gridMaker(col = 4) {
-
+    let grid_sizes=[4,6,9,12,16,25,36,49];
     col = parseInt(col);
+    col=grid_sizes.filter(v => v >= col)[0]||4;
     let colW;
     switch (col) {
       case 6:
