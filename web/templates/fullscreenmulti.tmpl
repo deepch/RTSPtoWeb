@@ -880,6 +880,7 @@
     } else {
 
       if (Object.keys(streams).length > 0) {
+        gridMaker(Object.keys(streams).length);
         let playerIndex = 0;
         let gridSize = $('.player').length;
         $.each(streams, function(uuid, params) {
