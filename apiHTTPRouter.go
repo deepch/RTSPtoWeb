@@ -217,7 +217,7 @@ type MultiViewOptionsGrid struct {
 
 func HTTPAPIFullScreenMultiView(c *gin.Context) {
 	var createParams MultiViewOptions
-	err := c.BindJSON(&createParams)
+	err := c.ShouldBindJSON(&createParams)
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"module": "http_page",
