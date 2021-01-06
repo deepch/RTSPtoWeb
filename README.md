@@ -11,7 +11,7 @@ RTSP Stream to WebBrowser MSE or WebRTC or HLS, full native! not use ffmpeg or g
 - [Limitations](#Limitations)
 - [Performance](#Performance)
 - [Authors](#Authors)
-- [License](#license) 
+- [License](#license)
 
 ##Installation from binary
 
@@ -162,7 +162,7 @@ status        - default stream status
 ./RTSPtoWeb --help
 ```
 
-######Response 
+######Response
 
 ```bash
 Usage of ./RTSPtoWeb:
@@ -173,7 +173,7 @@ Usage of ./RTSPtoWeb:
 ```
 
 ##API documentation
-   
+
 #### Streams List
 ###### Query
 ```bash
@@ -536,8 +536,16 @@ ffplay http://127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/hls/live/in
 ```bash
 ffplay -rtsp_transport tcp  rtsp://127.0.0.1/{STREAM_ID}/{CHANNEL_ID}
 ```
+#### Paramerts full multiview page
+###### Grid size
 
-
+```
+http://localhost:8083/pages/multiview/full?grid=5
+```
+###### Show additional control
+```
+http://localhost:8083/pages/multiview/full?controls
+```
 ## Limitations
 
 Video Codecs Supported: H264 all profiles
@@ -553,7 +561,7 @@ CPU usage ≈0.2%-1% one (thread) core cpu intel core i7 per stream
 ## Authors
 
 * **Andrey Semochkin** - *Initial work video* - [deepch](https://github.com/deepch)
-* **Dmitry Vladikin** - *Initial work web UI* - [vdalex25](https://github.com/vdalex25)
+* **Dmitriy Vladykin** - *Initial work web UI* - [vdalex25](https://github.com/vdalex25)
 
 See also the list of [contributors](https://github.com/deepch/RTSPtoWeb/contributors) who participated in this project.
 
