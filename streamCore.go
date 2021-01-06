@@ -77,7 +77,7 @@ func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (i
 	checkClients := time.NewTimer(20 * time.Second)
 	var preKeyTS = time.Duration(0)
 	var Seq []*av.Packet
-	RTSPClient, err := rtspv2.Dial(rtspv2.RTSPClientOptions{URL: opt.URL, DisableAudio: true, DialTimeout: 3 * time.Second, ReadWriteTimeout: time.Second * 5 * time.Second, Debug: opt.Debug})
+	RTSPClient, err := rtspv2.Dial(rtspv2.RTSPClientOptions{URL: opt.URL, DisableAudio: true, DialTimeout: 3 * time.Second, ReadWriteTimeout: 5 * time.Second, Debug: opt.Debug, OutgoingProxy: true})
 	if err != nil {
 		return 0, err
 	}
@@ -126,10 +126,10 @@ func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (i
 			case rtspv2.SignalStreamRTPStop:
 				return 0, ErrorStreamStopRTSPSignal
 			}
-		case packetRTP := <-RTSPClient.OutgoingProxy:
+		case packetRTP := <-RTSPClient.OutgoingProxyQueue:
 			keyTest.Reset(20 * time.Second)
 			Storage.StreamChannelCastProxy(streamID, channelID, packetRTP)
-		case packetAV := <-RTSPClient.OutgoingPacket:
+		case packetAV := <-RTSPClient.OutgoingPacketQueue:
 			if packetAV.IsKeyFrame {
 				keyTest.Reset(20 * time.Second)
 				if preKeyTS > 0 {
