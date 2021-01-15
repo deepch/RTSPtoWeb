@@ -11,39 +11,18 @@
     "rtsp_port": ":5541"
   },
   "streams": {
-    "458cc579-5517-45c6-b48d-31659a506c9d": {
+    "demo": {
       "channels": {
         "0": {
-          "debug": true,
-          "url": "rtsp://171.25.232.11/8bd52e0892c44f5d8af5214520af3b9f"
+          "debug": false,
+          "url": "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"
+        },
+        "1": {
+          "debug": false,
+          "url": "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"
         }
       },
       "name": "fdgfdgdfg"
-    },
-    "test": {
-      "channels": {
-        "0": {
-          "url": "rtsp://171.25.232.11/8bd52e0892c44f5d8af5214520af3b9f"
-        },
-        "1": {
-          "url": "rtsp://171.25.232.11/8bd52e0892c44f5d8af5214520af3b9f"
-        }
-      },
-      "name": "test video1"
-    },
-    "testing": {
-      "channels": {
-        "0": {
-          "name": "ch1",
-          "url": "rtsp://171.25.232.11/8bd52e0892c44f5d8af5214520af3b9f"
-        },
-        "1": {
-          "name": "ch2",
-          "on_demand": true,
-          "url": "rtsp://171.25.232.11/8bd52e0892c44f5d8af5214520af3b9f"
-        }
-      },
-      "name": "test video"
     }
   }
 }
