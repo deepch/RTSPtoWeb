@@ -5,6 +5,8 @@ github.com/deepch/vdk v0.0.0-20210105225600-23ad40b14bbd h1:a/X2ddyXWOm7IcQ/vzMk
 github.com/deepch/vdk v0.0.0-20210105225600-23ad40b14bbd/go.mod h1:mFKn6/jT2OgoMrw/2kgoVDN67kokS5T3kRn04x3eJXg=
 github.com/deepch/vdk v0.0.0-20210106145838-3c9911e11bd4 h1:JE8kbbneKxJi7ekXw6jopboa0h8rem0rclDcGo6pkvY=
 github.com/deepch/vdk v0.0.0-20210106145838-3c9911e11bd4/go.mod h1:mFKn6/jT2OgoMrw/2kgoVDN67kokS5T3kRn04x3eJXg=
+github.com/deepch/vdk v0.0.0-20210115152623-8d167fd1c067 h1:AXCt/Vv86pFtvro2pNaShzeK2yUAD+28jesL2Dr1azQ=
+github.com/deepch/vdk v0.0.0-20210115152623-8d167fd1c067/go.mod h1:mFKn6/jT2OgoMrw/2kgoVDN67kokS5T3kRn04x3eJXg=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=

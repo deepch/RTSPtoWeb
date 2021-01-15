@@ -3,7 +3,7 @@ module github.com/deepch/RTSPtoWeb
 go 1.15
 
 require (
-	github.com/deepch/vdk v0.0.0-20210106145838-3c9911e11bd4
+	github.com/deepch/vdk v0.0.0-20210115152623-8d167fd1c067
 	github.com/gin-gonic/gin v1.6.3
 	github.com/hashicorp/go-version v1.2.1
 	github.com/liip/sheriff v0.9.0

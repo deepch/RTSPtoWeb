@@ -34,7 +34,7 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 		}).Errorln(err.Error())
 		return
 	}
-	muxerWebRTC := webrtc.NewMuxer()
+	muxerWebRTC := webrtc.NewMuxer(webrtc.Options{})
 	answer, err := muxerWebRTC.WriteHeader(codecs, c.PostForm("data"))
 	if err != nil {
 		c.IndentedJSON(400, Message{Status: 0, Payload: err.Error()})
