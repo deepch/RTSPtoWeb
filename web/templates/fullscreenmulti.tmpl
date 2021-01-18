@@ -138,6 +138,14 @@
             <div id="carousel_{{$key}}" class="carousel slide" data-ride="carousel">
 
               <div class="carousel-inner">
+                {{if eq (len $value.Channels) 1}}
+                <div class="carousel-item  active">
+                  <a onclick="play('{{ $key }}',null,0)" href="#"><img class="d-block w-100 stream-img" channel="0" src="/../static/img/noimage.svg"></a>
+                  <div class="carousel-caption d-none d-md-block">
+                    <h5>{{$value.Name}}</h5>
+                  </div>
+                </div>
+                {{else}}
                 {{ range $k, $v := .Channels }}
                 {{ if eq $k "1"}}
                 <div class="carousel-item  active">
@@ -148,6 +156,8 @@
                 </div>
                 {{end}}
                 {{end}}
+                {{end}}
+
               </div>
             </div>
 
