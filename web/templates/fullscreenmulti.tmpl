@@ -323,6 +323,10 @@
         $(_this).closest('div').find('.loader').addClass('d-none');
         logger(index, '[video]: canplaythrough');
       });
+      this.addEventListener('playing', (e) => {
+        $(_this).closest('div').find('.loader').addClass('d-none');
+        logger(index, '[video]: playing');
+      });
       this.addEventListener('loadedmetadata', (e) => {
         logger(index, '[video]: loadedmetadata');
       });
@@ -336,6 +340,11 @@
     $('.main-player').find('.loader').addClass('d-none');
     logger(0, '[video]: canplaythrough');
   });
+  $('.main-video-player')[0].addEventListener('playing', (e) => {
+    $('.main-player').find('.loader').addClass('d-none');
+    logger(0, '[video]: canplaythrough');
+  });
+
   $("#videoPlayer")[0].addEventListener('loadeddata', () => {
     $("#videoPlayer")[0].play();
     let browser = browserDetector();
