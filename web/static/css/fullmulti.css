@@ -24,7 +24,11 @@ video.background{
     margin-top: -57px;
     padding: 30px 8px 8px;
     background: linear-gradient(45deg, black, transparent);
-    overflow: auto;
+    overflow: hidden;
+}
+.control-sidebar.custom .row{
+  height:100%;
+  overflow: auto;
 }
 .control-sidebar.custom>h5{
   color: white;
