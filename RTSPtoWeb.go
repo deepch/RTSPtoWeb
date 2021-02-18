@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -32,6 +33,8 @@ func main() {
 		"func":   "main",
 	}).Info("Server start success a wait signals")
 	<-done
+	Storage.StopAll()
+	time.Sleep(2 * time.Second)
 	log.WithFields(logrus.Fields{
 		"module": "main",
 		"func":   "main",
