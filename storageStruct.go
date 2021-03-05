@@ -60,6 +60,10 @@ type ServerST struct {
 	HTTPDir      string       `json:"http_dir" groups:"api,config"`
 	HTTPPort     string       `json:"http_port" groups:"api,config"`
 	RTSPPort     string       `json:"rtsp_port" groups:"api,config"`
+	HTTPS        bool         `json:"https" groups:"api,config"`
+	HTTPSPort    string       `json:"https_port" groups:"api,config"`
+	HTTPSCert    string       `json:"https_cert" groups:"api,config"`
+	HTTPSKey     string       `json:"https_key" groups:"api,config"`
 }
 
 //ServerST stream storage section

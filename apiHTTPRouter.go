@@ -100,6 +100,31 @@ func HTTPAPIServer() {
 	if Storage.ServerHTTPDemo() {
 		public.StaticFS("/static", http.Dir(Storage.ServerHTTPDir()+"/static"))
 	}
+	/*
+		HTTPS Mode Cert
+		# Key considerations for algorithm "RSA" ≥ 2048-bit
+		openssl genrsa -out server.key 2048
+
+		# Key considerations for algorithm "ECDSA" ≥ secp384r1
+		# List ECDSA the supported curves (openssl ecparam -list_curves)
+		#openssl ecparam -genkey -name secp384r1 -out server.key
+		#Generation of self-signed(x509) public key (PEM-encodings .pem|.crt) based on the private (.key)
+
+		openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
+	*/
+	if Storage.ServerHTTPS() {
+		go func() {
+			err := public.RunTLS(Storage.ServerHTTPSPort(), Storage.ServerHTTPSCert(), Storage.ServerHTTPSKey())
+			if err != nil {
+				log.WithFields(logrus.Fields{
+					"module": "http_router",
+					"func":   "HTTPSAPIServer",
+					"call":   "ServerHTTPSPort",
+				}).Fatalln(err.Error())
+				os.Exit(1)
+			}
+		}()
+	}
 	err := public.Run(Storage.ServerHTTPPort())
 	if err != nil {
 		log.WithFields(logrus.Fields{
@@ -109,6 +134,7 @@ func HTTPAPIServer() {
 		}).Fatalln(err.Error())
 		os.Exit(1)
 	}
+
 }
 
 //HTTPAPIServerIndex index file
@@ -236,7 +262,7 @@ func HTTPAPIFullScreenMultiView(c *gin.Context) {
 		"version": time.Now().String(),
 		"options": createParams,
 		"page":    "fullscreenmulti",
-		"query": c.Request.URL.Query(),
+		"query":   c.Request.URL.Query(),
 	})
 }
 

@@ -69,3 +69,31 @@ func (obj *StorageST) ServerRTSPPort() string {
 	defer obj.mutex.RUnlock()
 	return obj.Server.RTSPPort
 }
+
+//ServerHTTPSPort read HTTPS Port options
+func (obj *StorageST) ServerHTTPS() bool {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	return obj.Server.HTTPS
+}
+
+//ServerHTTPSPort read HTTPS Port options
+func (obj *StorageST) ServerHTTPSPort() string {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	return obj.Server.HTTPSPort
+}
+
+//ServerHTTPSCert read HTTPS Cert options
+func (obj *StorageST) ServerHTTPSCert() string {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	return obj.Server.HTTPSCert
+}
+
+//ServerHTTPSKey read HTTPS Key options
+func (obj *StorageST) ServerHTTPSKey() string {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	return obj.Server.HTTPSKey
+}

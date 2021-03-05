@@ -8,7 +8,11 @@
     "http_password": "demo",
     "http_port": ":8083",
     "log_level": "debug",
-    "rtsp_port": ":5541"
+    "rtsp_port": ":5541",
+    "https": false,
+    "https_port": ":443",
+    "https_cert": "server.crt",
+    "https_key": "server.key"
   },
   "streams": {
     "demo": {
