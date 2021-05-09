@@ -106,7 +106,7 @@
           <div class="main-player-wrapper d-none">
 
             <div class="main-player" data-player="none" data-uuid="0">
-              <video class="main-video-player" autoplay id="videoPlayer"></video>
+              <video class="main-video-player" id="videoPlayer" autoplay muted playsinline></video>
               <div class="play-info"> </div>
               <img class="loader d-none" src="/../static/img/loader.svg" />
               <canvas id="canvas" class="d-none"></canvas>
@@ -251,7 +251,7 @@
       $('#grid-wrapper').append(
         `<div class=" player ` + colW + ` empty" data-player="none" data-uuid="0">
               <div class="play-info"></div>
-              <video class="video-class empty" autoplay muted></video>
+              <video class="video-class empty" autoplay muted playsinline></video>
             ` +
         `<a class="remove-btn" onclick="destoyPlayer(` + i + `)"><i class="fas fa-times"></i></a>` +
         `<a class="add-stream-btn" onclick="openChoise(this)"><i class="fas fa-plus"></i><br />Click to select stream</a>` +
