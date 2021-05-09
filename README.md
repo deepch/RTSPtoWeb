@@ -13,54 +13,26 @@ RTSP Stream to WebBrowser MSE or WebRTC or HLS, full native! not use ffmpeg or g
 - [Authors](#Authors)
 - [License](#license)
 
-##Installation from binary
 
-Select the latest release
-```shell
-go to https://github.com/deepch/RTSPtoWeb/releases
-```
+### Download Source
 
-Download the latest version [$version].tar.gz
-```shell
-wget https://github.com/deepch/RTSPtoWeb/archive/v0.0.1.tar.gz
-```
-
-Extract the archive
-```shell
-tar -xvzf v0.0.1.tar.gz
-```
-
-Change permission
-```shell
-chmod 777 RTSPtoWeb
-```
-
-Run the application
- ```shell
-./RTSPtoWeb
- ```
-
-##Installation from source
-
-Enable the go module and get the source code
-```shell
-GO111MODULE=on go get github.com/deepch/RTSPtoWeb
-```
-Go to working directory
-
-```shell
-cd src/github.com/deepch/RTSPtoWeb
-```
-
-Run the source
-```shell
-go run *.go
-```
-
-To access the web interface, you open a browser.
- ```shell
-http://127.0.0.1:8083
- ```
+1. Download source
+   ```bash 
+   $ git clone https://github.com/deepch/RTSPtoWeb  
+   ```
+3. CD to Directory
+   ```bash
+    $ cd RTSPtoWeb/
+   ```
+4. Test Run
+   ```bash
+    $ GO111MODULE=on go run *.go
+   ```
+5. Open Browser
+    ```bash
+    open web browser http://127.0.0.1:8083 work chrome, safari, firefox
+    ```
+   
 ## Stream mode
 
 on_demand true  - receive video from source only has viewer
@@ -573,6 +545,15 @@ This project licensed. License - see the [LICENSE.md](LICENSE.md) file for detai
 
 [joy4](https://github.com/nareix/joy4) follows license MIT [license](https://raw.githubusercontent.com/nareix/joy4/master/LICENSE).
 
-See also included packages.
+## Other Example
+
+Examples of working with video on golang
+
+- [RTSPtoWeb](https://github.com/deepch/RTSPtoWeb)
+- [RTSPtoWebRTC](https://github.com/deepch/RTSPtoWebRTC)
+- [RTSPtoWSMP4f](https://github.com/deepch/RTSPtoWSMP4f)
+- [RTSPtoImage](https://github.com/deepch/RTSPtoImage)
+- [RTSPtoHLS](https://github.com/deepch/RTSPtoHLS)
+- [RTSPtoHLSLL](https://github.com/deepch/RTSPtoHLSLL)
 
 [![paypal.me/AndreySemochkin](https://ionicabizau.github.io/badges/paypal.svg)](https://www.paypal.me/AndreySemochkin) - You can make one-time donations via PayPal. I'll probably buy a ~~coffee~~ tea. :tea:
