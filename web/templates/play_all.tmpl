@@ -182,7 +182,7 @@ let colordebug = true;
         var url = '/stream/' + uuid + '/channel/' + channel + '/hls/live/index.m3u8';
         if ($(this)[0].canPlayType('application/vnd.apple.mpegurl')) {
           $(this)[0].src = url;
-          $(this).find('video')[0].load();
+          $(this)[0].load();
         } else if (Hls.isSupported()) {
           let hlsplayer = new Hls({
             manifestLoadingTimeOut: 60000
@@ -201,7 +201,7 @@ let colordebug = true;
         var url = '/stream/' + uuid + '/channel/' + channel + '/hlsll/live/index.m3u8';
         if ($(this)[0].canPlayType('application/vnd.apple.mpegurl')) {
           $(this)[0].src = url;
-          $(this).find('video')[0].load();
+          $(this)[0].load();
         } else if (Hls.isSupported()) {
           let hlsplayer = new Hls({
             manifestLoadingTimeOut: 60000
@@ -231,7 +231,7 @@ let colordebug = true;
   });
 
   function msePlayer(uuid, videoPlayerVar, channel) {
-    this.ws = null,
+      this.ws = null,
       this.video = videoPlayerVar.find('video')[0],
       this.mseSourceBuffer = null,
       this.mse = null,
@@ -396,7 +396,7 @@ let colordebug = true;
               'channel: ' + channel);
             console.log(e);
 
-            play(uuid, videoPlayerVar.index(), channel, 'mse');
+            //play(uuid, videoPlayerVar.index(), channel, 'mse');
 
           } finally {
             return;
@@ -426,7 +426,7 @@ let colordebug = true;
                 'channel: ' + channel);
               console.log(e);
 
-              play(uuid, videoPlayerVar.index(), channel, 'mse');
+              //play(uuid, videoPlayerVar.index(), channel, 'mse');
             } finally {
 
             }
@@ -457,11 +457,12 @@ let colordebug = true;
             uuid,
             channel,
             '[FIX]: player not move');
-          play(uuid, videoPlayerVar.index(), channel, 'mse');
+          //play(uuid, videoPlayerVar.index(), channel, 'mse');
         }
         this.checktime = this.video.currentTime;
 
-      },
+      }
+
       this.destroy = function() {
         if (this.timeout != null) {
           clearInterval(this.timeout);
@@ -479,6 +480,12 @@ let colordebug = true;
           'streams: ' + uuid,
           'channel: ' + channel);
       }
+      this.video.addEventListener('pause', () => {
+        if (this.video.currentTime > this.video.buffered.end((this.video.buffered.length - 1))) {
+          this.video.currentTime = this.video.buffered.end((this.video.buffered.length - 1)) - 0.1;
+          this.video.play();
+        }
+      });
   }
   /*************************end mse obect **************************/
   /*************************WEBRTC obect **************************/
