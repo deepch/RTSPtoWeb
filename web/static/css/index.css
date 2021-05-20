@@ -7,6 +7,15 @@
   margin-bottom: -6px;
 
 }
+.videoPlayer{
+  width: 100%;
+  background: black;
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 15px;
+  margin-bottom: -6px;
+
+}
 .btn-group.stream{
   display: flex;
   justify-content: space-between;

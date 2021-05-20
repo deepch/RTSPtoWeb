@@ -1,0 +1,548 @@
+{{template "head.tmpl" .}}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0 text-dark">Play hls video</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item active">Play hls video</li>
+        </ol>
+      </div>
+    </div>
+  </div><!-- /.container-fluid -->
+</div>
+<div class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <!-- player -->
+      <div class="col-12 col-md-8 col-lg-9">
+        <div class="row">
+          <div class="col-12 col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title one-line-header">HLS</h3>
+              </div>
+              <div class="card-body p-0">
+                <video class="videoPlayer" vtype="hls" id="videoPlayer" autoplay controls muted playsinline></video>
+                <canvas id="canvas" class="d-none"></canvas>
+              </div>
+              <input type="hidden" id="uuid" value="{{ .uuid }}" />
+              <input type="hidden" id="channel" value="{{ .channel }}" />
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title one-line-header">HLSLL</h3>
+              </div>
+              <div class="card-body p-0">
+                <video class="videoPlayer"  vtype="hlsll" autoplay controls muted playsinline></video>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title one-line-header">MSE</h3>
+              </div>
+              <div class="card-body p-0">
+                <video class="videoPlayer" vtype="mse"  autoplay controls muted playsinline></video>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title one-line-header">WEBRTC</h3>
+              </div>
+              <div class="card-body p-0">
+                <video class="videoPlayer" vtype="webrtc"  autoplay controls muted playsinline></video>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="col-12 col-md-4 col-lg-3">
+        <div class="row">
+          {{ range $key, $value := .streams }}
+          <div class="col-12" id="{{ $key }}">
+
+            <div class="card card-outline card-success">
+              <div class="card-header">
+                <h3 class="card-title one-line-header">{{.Name}}</h3>
+                <div class="card-tools">
+                  <span data-toggle="tooltip" title="avaliable channels" class="badge badge-success">{{len .Channels }}</span>
+                </div>
+              </div>
+              <div class="card-body p-0">
+
+                <div id="carousel_{{$key}}" class="carousel slide" data-ride="carousel">
+                  <ol class="carousel-indicators">
+                    {{ range $k, $v := .Channels }}
+                    <li data-target="#carousel_{{$key}}" data-slide-to="{{$k}}" class="{{ if eq $k "0"}} active {{end}}"></li>
+                    {{end}}
+                  </ol>
+                  <div class="carousel-inner">
+                    {{ range $k, $v := .Channels }}
+                    <div class="carousel-item {{ if eq $k "0"}} active {{end}}">
+                      <img class="d-block w-100 stream-img fix-height" channel="{{$k}}" src="/../static/img/noimage.svg">
+                      <div class="carousel-caption d-none d-md-block">
+                        <h5>Channel: {{$k}}</h5>
+                      </div>
+                    </div>
+                    {{end}}
+                  </div>
+                  <a class="carousel-control-prev" href="#carousel_{{$key}}" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                  </a>
+                  <a class="carousel-control-next" href="#carousel_{{$key}}" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                  </a>
+                </div>
+                <div class="row">
+                  <div class="col-12">
+                    <div class="btn-group stream">
+                      {{ if gt (len .Channels) 1}}
+                      <div class="input-group-prepend">
+                        <a class="btn btn-info btn-flat btn-xs" data-toggle="dropdown" href="#"><i class="fas fa-play"></i> MSE</a>
+                        <div class="dropdown-menu">
+                          {{ range $k, $v := .Channels }}
+                          <a class="dropdown-item" href="/pages/player/mse/{{$key}}/{{$k}}">Channel {{$k}}</a>
+                          {{end}}
+                        </div>
+                      </div>
+                      <div class="input-group-prepend">
+                        <a class="btn btn-info btn-flat btn-xs" data-toggle="dropdown" href="#"><i class="fas fa-play"></i> HLS</a>
+                        <div class="dropdown-menu">
+                          {{ range $k, $v := .Channels }}
+                          <a class="dropdown-item" href="/pages/player/hls/{{$key}}/{{$k}}">Channel {{$k}}</a>
+                          {{end}}
+                        </div>
+                      </div>
+                      <div class="input-group-prepend">
+                        <a class="btn btn-info btn-flat btn-xs" data-toggle="dropdown" href="#"><i class="fas fa-play"></i> WebRTC</a>
+                        <div class="dropdown-menu">
+                          {{ range $k, $v := .Channels }}
+                          <a class="dropdown-item" href="/pages/player/webrtc/{{$key}}/{{$k}}">Channel {{$k}}</a>
+                          {{end}}
+                        </div>
+                      </div>
+                      <div class="input-group-prepend">
+                        <a class="btn btn-info btn-flat btn-xs" data-toggle="dropdown" href="#"><i class="fas fa-play"></i> ALL</a>
+                        <div class="dropdown-menu">
+                          {{ range $k, $v := .Channels }}
+                          <a class="dropdown-item" href="/pages/player/all/{{$key}}/{{$k}}">Channel {{$k}}</a>
+                          {{end}}
+                        </div>
+                      </div>
+                      {{else}}
+                        <a class="btn btn-info btn-flat btn-xs" href="/pages/player/mse/{{$key}}/0"><i class="fas fa-play"></i> MSE</a>
+                        <a class="btn btn-info btn-flat btn-xs" href="/pages/player/hls/{{$key}}/0"><i class="fas fa-play"></i> HLS</a>
+                        <a class="btn btn-info btn-flat btn-xs" href="/pages/player/webrtc/{{$key}}/0"><i class="fas fa-play"></i> WebRTC</a>
+                        <a class="btn btn-info btn-flat btn-xs" href="/pages/player/all/{{$key}}/0"><i class="fas fa-play"></i> ALL</a>
+                        {{end}}
+                        <a class="btn btn-secondary btn-flat btn-xs" href="/pages/stream/edit/{{$key}}"><i class="fas fa-edit"></i> Edit</a>
+                        <a class="btn btn-danger btn-flat btn-xs" onclick="deleteStream('{{ $key }}')" href="#"><i class="fas fa-times"></i> Delete</a>
+                    </div>
+                  </div>
+                </div>
+
+
+              </div>
+
+            </div>
+          </div>
+          {{ end }}
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  {{template "foot.tmpl" .}}
+  </div>
+  <script src="/../static/plugins/hlsjs/hls.min.js"></script>
+<script>
+let uuid=$('#uuid').val();
+let channel=$('#channel').val();
+let colordebug = true;
+  $(document).ready(()=>{
+    $('.videoPlayer').each(function() {
+
+      switch ($(this).attr('vtype')) {
+        case 'hls':
+        var url = '/stream/' + uuid + '/channel/' + channel + '/hls/live/index.m3u8';
+        if ($(this)[0].canPlayType('application/vnd.apple.mpegurl')) {
+          $(this)[0].src = url;
+          $(this).find('video')[0].load();
+        } else if (Hls.isSupported()) {
+          let hlsplayer = new Hls({
+            manifestLoadingTimeOut: 60000
+          });
+          hlsplayer.loadSource(url);
+          hlsplayer.attachMedia($(this)[0]);
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Your browser don`t support hls '
+          });
+        }
+          break;
+        case 'hlsll':
+        var url = '/stream/' + uuid + '/channel/' + channel + '/hlsll/live/index.m3u8';
+        if ($(this)[0].canPlayType('application/vnd.apple.mpegurl')) {
+          $(this)[0].src = url;
+          $(this).find('video')[0].load();
+        } else if (Hls.isSupported()) {
+          let hlsplayer = new Hls({
+            manifestLoadingTimeOut: 60000
+          });
+          hlsplayer.loadSource(url);
+          hlsplayer.attachMedia($(this)[0]);
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Your browser don`t support hls '
+          });
+        }
+          break;
+        case 'mse':
+          var mse = new msePlayer(uuid, $(this).closest('div'), channel);
+          mse.playMse()
+          break;
+        case 'webrtc':
+          var webrtc = new WebRTCPlayer(uuid, $(this).closest('div'), channel);
+          webrtc.playWebrtc()
+          break;
+        default:
+
+      }
+    })
+  });
+
+  function msePlayer(uuid, videoPlayerVar, channel) {
+    this.ws = null,
+      this.video = videoPlayerVar.find('video')[0],
+      this.mseSourceBuffer = null,
+      this.mse = null,
+      this.mseQueue = [],
+      this.mseStreamingStarted = false,
+      this.uuid = uuid,
+      this.channel = channel || 0;
+      this.timeout = null;
+      this.checktime = null;
+      this.checktimecounter = 0;
+      this.playMse = function() {
+      let _this = this;
+      this.mse = new MediaSource();
+      this.video.src = window.URL.createObjectURL(this.mse);
+
+      let potocol = 'ws';
+      if (location.protocol == 'https:') {
+        potocol = 'wss';
+      }
+
+      let ws_url = potocol + '://' + location.host + '/stream/' + this.uuid + '/channel/' + this.channel + '/mse?uuid=' + this.uuid + '&channel=' + this.channel;
+
+      this.mse.addEventListener('sourceopen', function() {
+        logger(videoPlayerVar.index(),
+          uuid,
+          channel,
+          '[MSE]: sourceopen');
+        _this.ws = new WebSocket(ws_url);
+        _this.ws.binaryType = "arraybuffer";
+        _this.ws.onopen = function(event) {
+
+          logger(videoPlayerVar.index(),
+            uuid,
+            channel,
+            '[websocket]: connected');
+        }
+
+        _this.ws.onclose = function(event) {
+          logger(videoPlayerVar.index(),
+            uuid,
+            channel,
+            '[websocket]: closed');
+          if (_this.timeout != null) {
+            clearInterval(_this.timeout);
+            _this.timeout = null;
+          }
+          _this.timeout = setTimeout(() => {
+            logger(videoPlayerVar.index(),
+              uuid,
+              channel,
+              '[websocket]: timeouted func play');
+            //play(uuid, videoPlayerVar.index(), channel, 'mse')
+          }, 15000)
+
+
+        }
+        _this.ws.onerror = (e) => {
+          logger(videoPlayerVar.index(),
+            uuid,
+            channel,
+            '[websocket]: error');
+        }
+        _this.ws.onmessage = function(event) {
+          _this.checkStalled();
+          let data = new Uint8Array(event.data);
+          if (data[3] == 24) {
+            logger(videoPlayerVar.index(),
+              uuid,
+              channel,
+              '[data]: init_file');
+          }
+
+          if (data[0] == 9) {
+            decoded_arr = data.slice(1);
+            if (window.TextDecoder) {
+              mimeCodec = new TextDecoder("utf-8").decode(decoded_arr);
+            } else {
+              mimeCodec = Utf8ArrayToStr(decoded_arr);
+            }
+            logger(videoPlayerVar.index(),
+              uuid,
+              channel,
+              '[codec]: ' + mimeCodec);
+            //console.log(mimeCodec);
+            _this.mseSourceBuffer = _this.mse.addSourceBuffer('video/mp4; codecs="' + mimeCodec + '"');
+            _this.mseSourceBuffer.mode = "segments"
+            _this.mseSourceBuffer.addEventListener("updateend", _this.pushPacket.bind(_this));
+
+          } else {
+            _this.readPacket(event.data);
+          }
+        };
+      }, false);
+
+      this.mse.addEventListener('sourceended', function() {
+        logger(videoPlayerVar.index(),
+          uuid,
+          channel,
+          '[MSE]: sourceended');
+      })
+      this.mse.addEventListener('sourceclose', function() {
+        logger(videoPlayerVar.index(),
+          uuid,
+          channel,
+          '[MSE]: sourceclose');
+      })
+
+      this.mse.addEventListener('error', function() {
+        logger(videoPlayerVar.index(),
+          uuid,
+          channel,
+          '[MSE]: error');
+      })
+      this.mse.addEventListener('abort', function() {
+        logger(videoPlayerVar.index(),
+          uuid,
+          channel,
+          '[MSE]: abort');
+      })
+      this.mse.addEventListener('updatestart', function() {
+        logger(videoPlayerVar.index(),
+          uuid,
+          channel,
+          '[MSE]: updatestart');
+      })
+      this.mse.addEventListener('update', function() {
+        logger(videoPlayerVar.index(),
+          uuid,
+          channel,
+          '[MSE]: update');
+      })
+      this.mse.addEventListener('updateend', function() {
+        logger(videoPlayerVar.index(),
+          uuid,
+          channel,
+          '[MSE]: updateend');
+      })
+      this.mse.addEventListener('addsourcebuffer', function() {
+        logger(videoPlayerVar.index(),
+          uuid,
+          channel,
+          '[MSE]: addsourcebuffer');
+      })
+      this.mse.addEventListener('removesourcebuffer', function() {
+        logger(videoPlayerVar.index(),
+          uuid,
+          channel,
+          '[MSE]: removesourcebuffer');
+      })
+
+    }
+
+    this.readPacket = function(packet) {
+        if (!this.mseStreamingStarted) {
+          try {
+            this.mseSourceBuffer.appendBuffer(packet);
+            this.mseStreamingStarted = true;
+          } catch (e) {
+            logger(videoPlayerVar.index(),
+              'readPacket error',
+              'streams: ' + uuid,
+              'channel: ' + channel);
+            console.log(e);
+
+            play(uuid, videoPlayerVar.index(), channel, 'mse');
+
+          } finally {
+            return;
+          }
+
+
+        }
+        this.mseQueue.push(packet);
+
+        if (!this.mseSourceBuffer.updating) {
+          this.pushPacket();
+        }
+      },
+
+      this.pushPacket = function() {
+        let _this = this;
+        if (!_this.mseSourceBuffer.updating) {
+          if (_this.mseQueue.length > 0) {
+            packet = _this.mseQueue.shift();
+
+            try {
+              _this.mseSourceBuffer.appendBuffer(packet)
+            } catch (e) {
+              logger(videoPlayerVar.index(),
+                'pushPacket error',
+                'streams: ' + uuid,
+                'channel: ' + channel);
+              console.log(e);
+
+              play(uuid, videoPlayerVar.index(), channel, 'mse');
+            } finally {
+
+            }
+          } else {
+            _this.mseStreamingStarted = false;
+          }
+        }
+        if (_this.video.buffered.length > 0) {
+          if (typeof document.hidden !== "undefined" && document.hidden) {
+            _this.video.currentTime = _this.video.buffered.end((_this.video.buffered.length - 1)) - 0.5;
+          } else {
+            if ((_this.video.buffered.end((_this.video.buffered.length - 1)) - _this.video.currentTime) > 60) {
+              _this.video.currentTime = _this.video.buffered.end((_this.video.buffered.length - 1)) - 0.5;
+            }
+          }
+        }
+      }
+    this.checkStalled = function() {
+        if (!!this.video.currentTime) {
+          if (this.video.currentTime == this.checktime) {
+            this.checktimecounter += 1;
+          } else {
+            this.checktimecounter = 0;
+          }
+        }
+        if (this.checktimecounter > 10) {
+          logger(videoPlayerVar.index(),
+            uuid,
+            channel,
+            '[FIX]: player not move');
+          play(uuid, videoPlayerVar.index(), channel, 'mse');
+        }
+        this.checktime = this.video.currentTime;
+
+      },
+      this.destroy = function() {
+        if (this.timeout != null) {
+          clearInterval(this.timeout);
+        }
+        if (this.ws != null) {
+
+          this.ws.onclose = null;
+          this.ws.close(1000, "stop streaming");
+        }
+
+
+
+        logger(videoPlayerVar.index(),
+          'Event: PlayerDestroy',
+          'streams: ' + uuid,
+          'channel: ' + channel);
+      }
+  }
+  /*************************end mse obect **************************/
+  /*************************WEBRTC obect **************************/
+  function WebRTCPlayer(uuid, videoPlayerVar, channel) {
+    this.webrtc = null;
+    this.webrtcSendChannel = null;
+    this.webrtcSendChannelInterval = null;
+    this.uuid = uuid;
+    this.video = videoPlayerVar.find('video')[0];
+    this.channel = channel || 0;
+    this.playWebrtc = function() {
+        var _this = this;
+        this.webrtc = new RTCPeerConnection({
+          iceServers: [{
+            urls: ["stun:stun.l.google.com:19302"]
+          }]
+        });
+        this.webrtc.onnegotiationneeded = this.handleNegotiationNeeded.bind(this);
+        this.webrtc.ontrack = function(event) {
+          console.log(event.streams.length + ' track is delivered');
+          _this.video.srcObject = event.streams[0];
+          _this.video.play();
+        }
+        this.webrtc.addTransceiver('video', {
+          'direction': 'sendrecv'
+        });
+        this.webrtcSendChannel = this.webrtc.createDataChannel('foo');
+        this.webrtcSendChannel.onclose = (e) => console.log('sendChannel has closed', e);
+        this.webrtcSendChannel.onopen = () => {
+          console.log('sendChannel has opened');
+          this.webrtcSendChannel.send('ping');
+          this.webrtcSendChannelInterval = setInterval(() => {
+            this.webrtcSendChannel.send('ping');
+          }, 1000)
+        }
+
+        this.webrtcSendChannel.onmessage = e => console.log(e.data);
+      },
+      this.handleNegotiationNeeded = async function() {
+        var _this = this;
+
+        offer = await _this.webrtc.createOffer();
+        await _this.webrtc.setLocalDescription(offer);
+        $.post("/stream/" + _this.uuid + "/channel/" + this.channel + "/webrtc?uuid=" + _this.uuid + "&channel=" + this.channel, {
+          data: btoa(_this.webrtc.localDescription.sdp)
+        }, function(data) {
+          try {
+            _this.webrtc.setRemoteDescription(new RTCSessionDescription({
+              type: 'answer',
+              sdp: atob(data)
+            }))
+          } catch (e) {
+            console.warn(e);
+          }
+
+        });
+      }
+
+    this.destroy = function() {
+      clearInterval(this.webrtcSendChannelInterval);
+      this.webrtc.close();
+      this.video.srcObject = null;
+    }
+  }
+
+
+</script>

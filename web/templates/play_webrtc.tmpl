@@ -18,62 +18,71 @@
   {{template "player.tmpl" .}}
 
   {{template "foot.tmpl" .}}
-  </div>
+</div>
 <script>
-  let webrtc,webrtcSendChannel;
+  let webrtc, webrtcSendChannel;
 
-  $(document).ready(()=>{
+  $(document).ready(() => {
     startPlay();
   });
-  function startPlay(){
-      webrtc=new RTCPeerConnection({
-        iceServers: [{
-          urls: ["stun:stun.l.google.com:19302"]
-        }]
-      });
-      webrtc.onnegotiationneeded = handleNegotiationNeeded;
-      webrtc.ontrack = function(event) {
-        console.log(event.streams.length + ' track is delivered');
-        $("#videoPlayer")[0].srcObject = event.streams[0];
-        $("#videoPlayer")[0].play();
-      }
-      webrtc.addTransceiver('video', {
-        'direction': 'sendrecv'
-      });
-      webrtcSendChannel = webrtc.createDataChannel('foo');
-      webrtcSendChannel.onclose = () => console.log('sendChannel has closed');
-      webrtcSendChannel.onopen = () => {
-        console.log('sendChannel has opened');
+
+  function startPlay() {
+    webrtc = new RTCPeerConnection({
+      iceServers: [{
+        urls: ["stun:stun.l.google.com:19302"]
+      }],
+      sdpSemantics: "unified-plan"
+    });
+    webrtc.onnegotiationneeded = handleNegotiationNeeded;
+    webrtc.ontrack = function(event) {
+      console.log(event.streams.length + ' track is delivered');
+      $("#videoPlayer")[0].srcObject = event.streams[0];
+      $("#videoPlayer")[0].play();
+    }
+    webrtc.addTransceiver('video', {
+      'direction': 'sendrecv'
+    });
+    webrtcSendChannel = webrtc.createDataChannel('foo');
+    // webrtc.addTransceiver('video', {
+    //   'direction': 'sendrecv'
+    // });
+    webrtcSendChannel.onclose = () => {
+      startPlay();
+      console.log('sendChannel has closed');
+    }
+    webrtcSendChannel.onopen = () => {
+      console.log('sendChannel has opened');
+      webrtcSendChannel.send('ping');
+      webrtcSendChannelInterval = setInterval(() => {
         webrtcSendChannel.send('ping');
-        webrtcSendChannelInterval =  setInterval(() => {
-          webrtcSendChannel.send('ping');
-        }, 1000)
-      }
-
-      webrtcSendChannel.onmessage = e => console.log(e.data);
-
-  }
-async function handleNegotiationNeeded(){
-  let uuid=$('#uuid').val();
-  let channel=$('#channel').val();
-  let url ="/stream/"+uuid+"/channel/"+channel+"/webrtc?uuid=" + uuid+'&channel='+channel;
-  let offer = await webrtc.createOffer();
-
-  await webrtc.setLocalDescription(offer);
-  $.post(url, {
-    data: btoa(webrtc.localDescription.sdp)
-  }, function(data) {
-    try {
-      webrtc.setRemoteDescription(new RTCSessionDescription({
-        type: 'answer',
-        sdp: atob(data)
-      }))
-    } catch (e) {
-      console.warn(e);
+      }, 1000)
     }
 
-  });
-}
+    webrtcSendChannel.onmessage = e => console.log(e.data);
+
+  }
+  async function handleNegotiationNeeded() {
+    let uuid = $('#uuid').val();
+    let channel = $('#channel').val();
+    let url = "/stream/" + uuid + "/channel/" + channel + "/webrtc?uuid=" + uuid + '&channel=' + channel;
+    let offer = await webrtc.createOffer();
+
+    await webrtc.setLocalDescription(offer);
+    $.post(url, {
+      data: btoa(webrtc.localDescription.sdp)
+    }, function(data) {
+      try {
+        console.log(data);
+        webrtc.setRemoteDescription(new RTCSessionDescription({
+          type: 'answer',
+          sdp: atob(data)
+        }))
+      } catch (e) {
+        console.warn(e);
+      }
+
+    });
+  }
 
   $("#videoPlayer")[0].addEventListener('loadeddata', () => {
     $("#videoPlayer")[0].play();

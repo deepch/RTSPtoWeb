@@ -53,6 +53,7 @@ func HTTPAPIServer() {
 	public.Any("/pages/multiview/full", HTTPAPIFullScreenMultiView)
 	public.GET("/pages/documentation", HTTPAPIServerDocumentation)
 	public.GET("/pages/login", HTTPAPIPageLogin)
+	public.GET("/pages/player/all/:uuid/:channel", HTTPAPIPlayAll)
 
 	/*
 		Stream Control elements
@@ -228,6 +229,17 @@ func HTTPAPIMultiview(c *gin.Context) {
 		"streams": Storage.Streams,
 		"version": time.Now().String(),
 		"page":    "multiview",
+	})
+}
+
+func HTTPAPIPlayAll(c *gin.Context) {
+	c.HTML(http.StatusOK, "play_all.tmpl", gin.H{
+		"port":    Storage.ServerHTTPPort(),
+		"streams": Storage.Streams,
+		"version": time.Now().String(),
+		"page":    "play_all",
+		"uuid":    c.Param("uuid"),
+		"channel": c.Param("channel"),
 	})
 }
 
