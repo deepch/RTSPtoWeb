@@ -3,12 +3,12 @@
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Play hls video</h1>
+        <h1 class="m-0 text-dark">Comparsion page</h1>
       </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
           <li class="breadcrumb-item"><a href="/">Home</a></li>
-          <li class="breadcrumb-item active">Play hls video</li>
+          <li class="breadcrumb-item active">Comparsion page</li>
         </ol>
       </div>
     </div>
@@ -174,13 +174,14 @@
 let uuid=$('#uuid').val();
 let channel=$('#channel').val();
 let colordebug = true;
+let isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 && navigator.userAgent && navigator.userAgent.indexOf('CriOS') == -1 && navigator.userAgent.indexOf('FxiOS') == -1;
   $(document).ready(()=>{
     $('.videoPlayer').each(function() {
 
       switch ($(this).attr('vtype')) {
         case 'hls':
         var url = '/stream/' + uuid + '/channel/' + channel + '/hls/live/index.m3u8';
-        if ($(this)[0].canPlayType('application/vnd.apple.mpegurl')) {
+        if (isSafari && $(this)[0].canPlayType('application/vnd.apple.mpegurl')) {
           $(this)[0].src = url;
           $(this)[0].load();
         } else if (Hls.isSupported()) {
@@ -199,7 +200,7 @@ let colordebug = true;
           break;
         case 'hlsll':
         var url = '/stream/' + uuid + '/channel/' + channel + '/hlsll/live/index.m3u8';
-        if ($(this)[0].canPlayType('application/vnd.apple.mpegurl')) {
+        if (isSafari && $(this)[0].canPlayType('application/vnd.apple.mpegurl')) {
           $(this)[0].src = url;
           $(this)[0].load();
         } else if (Hls.isSupported()) {
