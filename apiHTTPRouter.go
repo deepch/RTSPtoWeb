@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/websocket"
@@ -87,9 +88,15 @@ func HTTPAPIServer() {
 	/*
 		Stream video elements
 	*/
-
+	//HLS
 	public.GET("/stream/:uuid/channel/:channel/hls/live/index.m3u8", HTTPAPIServerStreamHLSM3U8)
 	public.GET("/stream/:uuid/channel/:channel/hls/live/segment/:seq/file.ts", HTTPAPIServerStreamHLSTS)
+	//HLS LL
+	public.GET("/stream/:uuid/channel/:channel/hlsll/live/index.m3u8", HTTPAPIServerStreamHLSLLM3U8)
+	public.GET("/stream/:uuid/channel/:channel/hlsll/live/init.mp4", HTTPAPIServerStreamHLSLLInit)
+	public.GET("/stream/:uuid/channel/:channel/hlsll/live/segment/:segment/:any", HTTPAPIServerStreamHLSLLM4Segment)
+	public.GET("/stream/:uuid/channel/:channel/hlsll/live/fragment/:segment/:fragment/:any", HTTPAPIServerStreamHLSLLM4Fragment)
+	//MSE
 	public.GET("/stream/:uuid/channel/:channel/mse", func(c *gin.Context) {
 		handler := websocket.Handler(HTTPAPIServerStreamMSE)
 		handler.ServeHTTP(c.Writer, c.Request)
@@ -114,17 +121,26 @@ func HTTPAPIServer() {
 		openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
 	*/
 	if Storage.ServerHTTPS() {
-		go func() {
-			err := public.RunTLS(Storage.ServerHTTPSPort(), Storage.ServerHTTPSCert(), Storage.ServerHTTPSKey())
-			if err != nil {
-				log.WithFields(logrus.Fields{
-					"module": "http_router",
-					"func":   "HTTPSAPIServer",
-					"call":   "ServerHTTPSPort",
-				}).Fatalln(err.Error())
-				os.Exit(1)
-			}
-		}()
+		if Storage.ServerHTTPSAutoTLSEnable() {
+			go func() {
+				err := autotls.Run(public, Storage.ServerHTTPSAutoTLSName()+Storage.ServerHTTPSPort())
+				if err != nil {
+					log.Println("Start HTTPS Server Error", err)
+				}
+			}()
+		} else {
+			go func() {
+				err := public.RunTLS(Storage.ServerHTTPSPort(), Storage.ServerHTTPSCert(), Storage.ServerHTTPSKey())
+				if err != nil {
+					log.WithFields(logrus.Fields{
+						"module": "http_router",
+						"func":   "HTTPSAPIServer",
+						"call":   "ServerHTTPSPort",
+					}).Fatalln(err.Error())
+					os.Exit(1)
+				}
+			}()
+		}
 	}
 	err := public.Run(Storage.ServerHTTPPort())
 	if err != nil {

@@ -15,7 +15,7 @@ func (obj *StorageST) StreamHLSAdd(uuid string, channelID string, val []*av.Pack
 	if tmp, ok := obj.Streams[uuid]; ok {
 		if channelTmp, ok := tmp.Channels[channelID]; ok {
 			channelTmp.hlsSegmentNumber++
-			channelTmp.hlsSegmentBuffer[channelTmp.hlsSegmentNumber] = Segment{data: val, dur: dur}
+			channelTmp.hlsSegmentBuffer[channelTmp.hlsSegmentNumber] = SegmentOld{data: val, dur: dur}
 			if len(channelTmp.hlsSegmentBuffer) >= 6 {
 				delete(channelTmp.hlsSegmentBuffer, channelTmp.hlsSegmentNumber-6-1)
 			}
@@ -71,7 +71,7 @@ func (obj *StorageST) StreamHLSFlush(uuid string, channelID string) {
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[uuid]; ok {
 		if channelTmp, ok := tmp.Channels[channelID]; ok {
-			channelTmp.hlsSegmentBuffer = make(map[int]Segment)
+			channelTmp.hlsSegmentBuffer = make(map[int]SegmentOld)
 			channelTmp.hlsSegmentNumber = 0
 			tmp.Channels[channelID] = channelTmp
 			obj.Streams[uuid] = tmp

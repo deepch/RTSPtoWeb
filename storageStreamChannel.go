@@ -14,7 +14,7 @@ func (obj *StorageST) StreamChannelMake(val ChannelST) ChannelST {
 	//make last ack
 	val.ack = time.Now().Add(-255 * time.Hour)
 	//make hls buffer
-	val.hlsSegmentBuffer = make(map[int]Segment)
+	val.hlsSegmentBuffer = make(map[int]SegmentOld)
 	//make signals buffer chain
 	val.signals = make(chan int, 100)
 	return val
@@ -329,4 +329,92 @@ func (obj *StorageST) StreamChannelDelete(uuid string, channelID string) error {
 		}
 	}
 	return ErrorStreamNotFound
+}
+
+//NewHLSMuxer new muxer init
+func (obj *StorageST) NewHLSMuxer(uuid string, channelID string) {
+	obj.mutex.Lock()
+	defer obj.mutex.Unlock()
+	if tmp, ok := obj.Streams[uuid]; ok {
+		if channelTmp, ok := tmp.Channels[channelID]; ok {
+			channelTmp.hlsMuxer = NewHLSMuxer(uuid)
+			tmp.Channels[channelID] = channelTmp
+			obj.Streams[uuid] = tmp
+		}
+	}
+}
+
+//HlsMuxerSetFPS write packet
+func (obj *StorageST) HlsMuxerSetFPS(uuid string, channelID string, fps int) {
+	obj.mutex.Lock()
+	defer obj.mutex.Unlock()
+	if tmp, ok := obj.Streams[uuid]; ok {
+		if channelTmp, ok := tmp.Channels[channelID]; ok {
+			channelTmp.hlsMuxer.SetFPS(fps)
+			tmp.Channels[channelID] = channelTmp
+			obj.Streams[uuid] = tmp
+		}
+	}
+}
+
+//HlsMuxerWritePacket write packet
+func (obj *StorageST) HlsMuxerWritePacket(uuid string, channelID string, packet *av.Packet) {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	if tmp, ok := obj.Streams[uuid]; ok {
+		if channelTmp, ok := tmp.Channels[channelID]; ok {
+			channelTmp.hlsMuxer.WritePacket(packet)
+		}
+	}
+}
+
+//HLSMuxerClose close muxer
+func (obj *StorageST) HLSMuxerClose(uuid string, channelID string) {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	if tmp, ok := obj.Streams[uuid]; ok {
+		if channelTmp, ok := tmp.Channels[channelID]; ok {
+			channelTmp.hlsMuxer.Close()
+		}
+	}
+}
+
+//HLSMuxerM3U8 get m3u8 list
+func (obj *StorageST) HLSMuxerM3U8(uuid string, channelID string, msn, part int) (string, error) {
+	obj.mutex.Lock()
+	tmp, ok := obj.Streams[uuid]
+	obj.mutex.Unlock()
+	if ok {
+		if channelTmp, ok := tmp.Channels[channelID]; ok {
+			index, err := channelTmp.hlsMuxer.GetIndexM3u8(msn, part)
+			return index, err
+		}
+	}
+	return "", ErrorStreamNotFound
+}
+
+//HLSMuxerSegment get segment
+func (obj *StorageST) HLSMuxerSegment(uuid string, channelID string, segment int) ([]*av.Packet, error) {
+	obj.mutex.Lock()
+	defer obj.mutex.Unlock()
+	if tmp, ok := obj.Streams[uuid]; ok {
+		if channelTmp, ok := tmp.Channels[channelID]; ok {
+			return channelTmp.hlsMuxer.GetSegment(segment)
+		}
+	}
+	return nil, ErrorStreamChannelNotFound
+}
+
+//HLSMuxerFragment get fragment
+func (obj *StorageST) HLSMuxerFragment(uuid string, channelID string, segment, fragment int) ([]*av.Packet, error) {
+	obj.mutex.Lock()
+	tmp, ok := obj.Streams[uuid]
+	obj.mutex.Unlock()
+	if ok {
+		if channelTmp, ok := tmp.Channels[channelID]; ok {
+			packet, err := channelTmp.hlsMuxer.GetFragment(segment, fragment)
+			return packet, err
+		}
+	}
+	return nil, ErrorStreamChannelNotFound
 }

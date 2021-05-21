@@ -51,19 +51,21 @@ type StorageST struct {
 
 //ServerST server storage section
 type ServerST struct {
-	Debug        bool         `json:"debug" groups:"api,config"`
-	LogLevel     logrus.Level `json:"log_level" groups:"api,config"`
-	HTTPDemo     bool         `json:"http_demo" groups:"api,config"`
-	HTTPDebug    bool         `json:"http_debug" groups:"api,config"`
-	HTTPLogin    string       `json:"http_login" groups:"api,config"`
-	HTTPPassword string       `json:"http_password" groups:"api,config"`
-	HTTPDir      string       `json:"http_dir" groups:"api,config"`
-	HTTPPort     string       `json:"http_port" groups:"api,config"`
-	RTSPPort     string       `json:"rtsp_port" groups:"api,config"`
-	HTTPS        bool         `json:"https" groups:"api,config"`
-	HTTPSPort    string       `json:"https_port" groups:"api,config"`
-	HTTPSCert    string       `json:"https_cert" groups:"api,config"`
-	HTTPSKey     string       `json:"https_key" groups:"api,config"`
+	Debug              bool         `json:"debug" groups:"api,config"`
+	LogLevel           logrus.Level `json:"log_level" groups:"api,config"`
+	HTTPDemo           bool         `json:"http_demo" groups:"api,config"`
+	HTTPDebug          bool         `json:"http_debug" groups:"api,config"`
+	HTTPLogin          string       `json:"http_login" groups:"api,config"`
+	HTTPPassword       string       `json:"http_password" groups:"api,config"`
+	HTTPDir            string       `json:"http_dir" groups:"api,config"`
+	HTTPPort           string       `json:"http_port" groups:"api,config"`
+	RTSPPort           string       `json:"rtsp_port" groups:"api,config"`
+	HTTPS              bool         `json:"https" groups:"api,config"`
+	HTTPSPort          string       `json:"https_port" groups:"api,config"`
+	HTTPSCert          string       `json:"https_cert" groups:"api,config"`
+	HTTPSKey           string       `json:"https_key" groups:"api,config"`
+	HTTPSAutoTLSEnable bool         `json:"https_auto_tls" groups:"api,config"`
+	HTTPSAutoTLSName   string       `json:"https_auto_tls_name" groups:"api,config"`
 }
 
 //ServerST stream storage section
@@ -82,10 +84,11 @@ type ChannelST struct {
 	codecs           []av.CodecData
 	sdp              []byte
 	signals          chan int
-	hlsSegmentBuffer map[int]Segment
+	hlsSegmentBuffer map[int]SegmentOld
 	hlsSegmentNumber int
 	clients          map[string]ClientST
 	ack              time.Time
+	hlsMuxer         *MuxerHLS `json:"-"`
 }
 
 //ClientST client storage section
@@ -97,8 +100,8 @@ type ClientST struct {
 	socket            net.Conn
 }
 
-//Segment HLS cache section
-type Segment struct {
+//SegmentOld HLS cache section
+type SegmentOld struct {
 	dur  time.Duration
 	data []*av.Packet
 }

@@ -84,6 +84,20 @@ func (obj *StorageST) ServerHTTPSPort() string {
 	return obj.Server.HTTPSPort
 }
 
+//ServerHTTPSAutoTLSEnable read HTTPS Port options
+func (obj *StorageST) ServerHTTPSAutoTLSEnable() bool {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	return obj.Server.HTTPSAutoTLSEnable
+}
+
+//ServerHTTPSAutoTLSName read HTTPS Port options
+func (obj *StorageST) ServerHTTPSAutoTLSName() string {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	return obj.Server.HTTPSAutoTLSName
+}
+
 //ServerHTTPSCert read HTTPS Cert options
 func (obj *StorageST) ServerHTTPSCert() string {
 	obj.mutex.RLock()

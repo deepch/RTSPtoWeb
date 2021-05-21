@@ -1,0 +1,276 @@
+package main
+
+import (
+	"github.com/deepch/vdk/format/mp4f"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+)
+
+//HTTPAPIServerStreamHLSLLInit send client ts segment
+func HTTPAPIServerStreamHLSLLInit(c *gin.Context) {
+	if !Storage.StreamChannelExist(c.Param("uuid"), c.Param("channel")) {
+		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLInit",
+			"call":    "StreamChannelExist",
+		}).Errorln(ErrorStreamNotFound.Error())
+		return
+	}
+	c.Header("Content-Type", "application/x-mpegURL")
+	Storage.StreamChannelRun(c.Param("uuid"), c.Param("channel"))
+	codecs, err := Storage.StreamChannelCodecs(c.Param("uuid"), c.Param("channel"))
+	if err != nil {
+		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLInit",
+			"call":    "StreamChannelCodecs",
+		}).Errorln(err.Error())
+		return
+	}
+	Muxer := mp4f.NewMuxer(nil)
+	err = Muxer.WriteHeader(codecs)
+	if err != nil {
+		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLInit",
+			"call":    "WriteHeader",
+		}).Errorln(err.Error())
+		return
+	}
+	c.Header("Content-Type", "video/mp4")
+	_, buf := Muxer.GetInit(codecs)
+	_, err = c.Writer.Write(buf)
+	if err != nil {
+		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLInit",
+			"call":    "Write",
+		}).Errorln(err.Error())
+		return
+	}
+
+}
+
+//HTTPAPIServerStreamHLSLLM3U8 send client m3u8 play list
+func HTTPAPIServerStreamHLSLLM3U8(c *gin.Context) {
+	if !Storage.StreamChannelExist(c.Param("uuid"), c.Param("channel")) {
+		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM3U8",
+			"call":    "StreamChannelExist",
+		}).Errorln(ErrorStreamNotFound.Error())
+		return
+	}
+	c.Header("Content-Type", "application/x-mpegURL")
+	Storage.StreamChannelRun(c.Param("uuid"), c.Param("channel"))
+	index, err := Storage.HLSMuxerM3U8(c.Param("uuid"), c.Param("channel"), stringToInt(c.DefaultQuery("_HLS_msn", "-1")), stringToInt(c.DefaultQuery("_HLS_part", "-1")))
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM3U8",
+			"call":    "HLSMuxerM3U8",
+		}).Errorln(ErrorStreamNotFound.Error())
+		return
+	}
+	_, err = c.Writer.Write([]byte(index))
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM3U8",
+			"call":    "Write",
+		}).Errorln(ErrorStreamNotFound.Error())
+		return
+	}
+}
+
+//HTTPAPIServerStreamHLSLLM4Segment send client ts segment
+func HTTPAPIServerStreamHLSLLM4Segment(c *gin.Context) {
+	c.Header("Content-Type", "video/mp4")
+	if !Storage.StreamChannelExist(c.Param("uuid"), c.Param("channel")) {
+		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM4Segment",
+			"call":    "StreamChannelExist",
+		}).Errorln(ErrorStreamNotFound.Error())
+		return
+	}
+	codecs, err := Storage.StreamChannelCodecs(c.Param("uuid"), c.Param("channel"))
+	if err != nil {
+		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM4Segment",
+			"call":    "StreamChannelCodecs",
+		}).Errorln(err.Error())
+		return
+	}
+	if codecs == nil {
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM4Segment",
+			"call":    "StreamCodecs",
+		}).Errorln("Codec Null")
+		return
+	}
+	Muxer := mp4f.NewMuxer(nil)
+	err = Muxer.WriteHeader(codecs)
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM4Segment",
+			"call":    "WriteHeader",
+		}).Errorln(err.Error())
+		return
+	}
+	seqData, err := Storage.HLSMuxerSegment(c.Param("uuid"), c.Param("channel"), stringToInt(c.Param("segment")))
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM4Segment",
+			"call":    "HLSMuxerSegment",
+		}).Errorln(err.Error())
+		return
+	}
+	for _, v := range seqData {
+		err = Muxer.WritePacket4(*v)
+		if err != nil {
+			log.WithFields(logrus.Fields{
+				"module":  "http_hlsll",
+				"stream":  c.Param("uuid"),
+				"channel": c.Param("channel"),
+				"func":    "HTTPAPIServerStreamHLSLLM4Segment",
+				"call":    "WritePacket4",
+			}).Errorln(err.Error())
+			return
+		}
+	}
+	buf := Muxer.Finalize()
+	_, err = c.Writer.Write(buf)
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM4Segment",
+			"call":    "Write",
+		}).Errorln(err.Error())
+		return
+	}
+}
+
+//HTTPAPIServerStreamHLSLLM4Fragment send client ts segment
+func HTTPAPIServerStreamHLSLLM4Fragment(c *gin.Context) {
+	c.Header("Content-Type", "video/mp4")
+	if !Storage.StreamChannelExist(c.Param("uuid"), c.Param("channel")) {
+		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM4Fragment",
+			"call":    "StreamChannelExist",
+		}).Errorln(ErrorStreamNotFound.Error())
+		return
+	}
+	codecs, err := Storage.StreamChannelCodecs(c.Param("uuid"), c.Param("channel"))
+	if err != nil {
+		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM4Fragment",
+			"call":    "StreamChannelCodecs",
+		}).Errorln(err.Error())
+		return
+	}
+	if codecs == nil {
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM4Fragment",
+			"call":    "StreamCodecs",
+		}).Errorln("Codec Null")
+		return
+	}
+	Muxer := mp4f.NewMuxer(nil)
+	err = Muxer.WriteHeader(codecs)
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM4Fragment",
+			"call":    "WriteHeader",
+		}).Errorln(err.Error())
+		return
+	}
+	seqData, err := Storage.HLSMuxerFragment(c.Param("uuid"), c.Param("channel"), stringToInt(c.Param("segment")), stringToInt(c.Param("fragment")))
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM4Fragment",
+			"call":    "HLSMuxerFragment",
+		}).Errorln(err.Error())
+		return
+	}
+	for _, v := range seqData {
+		err = Muxer.WritePacket4(*v)
+		if err != nil {
+			log.WithFields(logrus.Fields{
+				"module":  "http_hlsll",
+				"stream":  c.Param("uuid"),
+				"channel": c.Param("channel"),
+				"func":    "HTTPAPIServerStreamHLSLLM4Fragment",
+				"call":    "WritePacket4",
+			}).Errorln(err.Error())
+			return
+		}
+	}
+	buf := Muxer.Finalize()
+	_, err = c.Writer.Write(buf)
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"module":  "http_hlsll",
+			"stream":  c.Param("uuid"),
+			"channel": c.Param("channel"),
+			"func":    "HTTPAPIServerStreamHLSLLM4Fragment",
+			"call":    "Write",
+		}).Errorln(err.Error())
+		return
+	}
+}

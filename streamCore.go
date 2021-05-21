@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"time"
 
 	"github.com/deepch/vdk/av"
@@ -75,6 +76,8 @@ func StreamServerRunStreamDo(streamID string, channelID string) {
 func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (int, error) {
 	keyTest := time.NewTimer(20 * time.Second)
 	checkClients := time.NewTimer(20 * time.Second)
+	var start bool
+	var fps int
 	var preKeyTS = time.Duration(0)
 	var Seq []*av.Packet
 	RTSPClient, err := rtspv2.Dial(rtspv2.RTSPClientOptions{URL: opt.URL, DisableAudio: true, DialTimeout: 3 * time.Second, ReadWriteTimeout: 5 * time.Second, Debug: opt.Debug, OutgoingProxy: true})
@@ -97,6 +100,11 @@ func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (i
 		"func":    "StreamServerRunStream",
 		"call":    "Start",
 	}).Infoln("Success connection RTSP")
+	var ProbeCount int
+	var ProbeFrame int
+	var ProbePTS time.Duration
+	Storage.NewHLSMuxer(streamID, channelID)
+	defer Storage.HLSMuxerClose(streamID, channelID)
 	for {
 		select {
 		//Check stream have clients
@@ -140,6 +148,33 @@ func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (i
 			}
 			Seq = append(Seq, packetAV)
 			Storage.StreamChannelCast(streamID, channelID, packetAV)
+			/*
+			   HLS LL Test
+			*/
+			if packetAV.IsKeyFrame && !start {
+				start = true
+			}
+			/*
+				FPS mode probe
+			*/
+			if start {
+				ProbePTS += packetAV.Duration
+				ProbeFrame++
+				if packetAV.IsKeyFrame && ProbePTS.Seconds() >= 1 {
+					ProbeCount++
+					if ProbeCount == 2 {
+						fps = int(math.Round(float64(ProbeFrame) / ProbePTS.Seconds()))
+					}
+					ProbeFrame = 0
+					ProbePTS = 0
+				}
+			}
+			if start && fps != 0 {
+				//TODO fix it
+				packetAV.Duration = time.Duration((float32(1000)/float32(fps))*1000*1000) * time.Nanosecond
+				Storage.HlsMuxerSetFPS(streamID, channelID, fps)
+				Storage.HlsMuxerWritePacket(streamID, channelID, packetAV)
+			}
 		}
 	}
 }
