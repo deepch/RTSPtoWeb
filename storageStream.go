@@ -15,6 +15,15 @@ func (obj *StorageST) StreamsList() map[string]StreamST {
 func (obj *StorageST) StreamAdd(uuid string, val StreamST) error {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
+	//TODO create empty map bug save https://github.com/liip/sheriff empty not nil map[] != {} json
+	//data, err := sheriff.Marshal(&sheriff.Options{
+	//		Groups:     []string{"config"},
+	//		ApiVersion: v2,
+	//	}, obj)
+	//Not Work map[] != {}
+	if obj.Streams == nil {
+		obj.Streams = make(map[string]StreamST)
+	}
 	if _, ok := obj.Streams[uuid]; ok {
 		return ErrorStreamAlreadyExists
 	}
@@ -28,7 +37,6 @@ func (obj *StorageST) StreamAdd(uuid string, val StreamST) error {
 			val.Channels[i] = i2
 		}
 	}
-
 	obj.Streams[uuid] = val
 	err := obj.SaveConfig()
 	if err != nil {
