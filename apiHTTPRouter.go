@@ -304,7 +304,8 @@ func CrossOrigin() gin.HandlerFunc {
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
 			return
+		} else {
+			c.Next()
 		}
-		c.Next()
 	}
 }
