@@ -10,94 +10,69 @@ import (
 
 //HTTPAPIServerStreamMSE func
 func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
+	requestLogger := log.WithFields(logrus.Fields{
+		"module":  "http_mse",
+		"stream":  ws.Request().FormValue("uuid"),
+		"channel": ws.Request().FormValue("channel"),
+		"func":    "HTTPAPIServerStreamMSE",
+	})
+
 	defer func() {
 		err := ws.Close()
-		log.WithFields(logrus.Fields{
-			"module":  "http_mse",
-			"stream":  ws.Request().FormValue("uuid"),
-			"channel": ws.Request().FormValue("channel"),
-			"func":    "HTTPAPIServerStreamMSE",
-			"call":    "Close",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "Close",
 		}).Errorln(err)
 		log.Println("Client Full Exit")
 	}()
 	if !Storage.StreamChannelExist(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel")) {
-		log.WithFields(logrus.Fields{
-			"module":  "http_mse",
-			"stream":  ws.Request().FormValue("uuid"),
-			"channel": ws.Request().FormValue("channel"),
-			"func":    "HTTPAPIServerStreamMSE",
-			"call":    "StreamChannelExist",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "StreamChannelExist",
 		}).Errorln(ErrorStreamNotFound.Error())
 		return
 	}
 	Storage.StreamChannelRun(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"))
 	err := ws.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"module":  "http_mse",
-			"stream":  ws.Request().FormValue("uuid"),
-			"channel": ws.Request().FormValue("channel"),
-			"func":    "HTTPAPIServerStreamMSE",
-			"call":    "SetWriteDeadline",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "SetWriteDeadline",
 		}).Errorln(err.Error())
 		return
 	}
 	cid, ch, _, err := Storage.ClientAdd(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), MSE)
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"module":  "http_mse",
-			"stream":  ws.Request().FormValue("uuid"),
-			"channel": ws.Request().FormValue("channel"),
-			"func":    "HTTPAPIServerStreamMSE",
-			"call":    "ClientAdd",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "ClientAdd",
 		}).Errorln(err.Error())
 		return
 	}
 	defer Storage.ClientDelete(ws.Request().FormValue("uuid"), cid, ws.Request().FormValue("channel"))
 	codecs, err := Storage.StreamChannelCodecs(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"))
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"module":  "http_mse",
-			"stream":  ws.Request().FormValue("uuid"),
-			"channel": ws.Request().FormValue("channel"),
-			"func":    "HTTPAPIServerStreamMSE",
-			"call":    "StreamCodecs",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "StreamCodecs",
 		}).Errorln(err.Error())
 		return
 	}
 	muxerMSE := mp4f.NewMuxer(nil)
 	err = muxerMSE.WriteHeader(codecs)
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"module":  "http_mse",
-			"stream":  ws.Request().FormValue("uuid"),
-			"channel": ws.Request().FormValue("channel"),
-			"func":    "HTTPAPIServerStreamMSE",
-			"call":    "WriteHeader",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "WriteHeader",
 		}).Errorln(err.Error())
 		return
 	}
 	meta, init := muxerMSE.GetInit(codecs)
 	err = websocket.Message.Send(ws, append([]byte{9}, meta...))
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"module":  "http_mse",
-			"stream":  ws.Request().FormValue("uuid"),
-			"channel": ws.Request().FormValue("channel"),
-			"func":    "HTTPAPIServerStreamMSE",
-			"call":    "Send",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "Send",
 		}).Errorln(err.Error())
 		return
 	}
 	err = websocket.Message.Send(ws, init)
 	if err != nil {
-		log.WithFields(logrus.Fields{
-			"module":  "http_mse",
-			"stream":  ws.Request().FormValue("uuid"),
-			"channel": ws.Request().FormValue("channel"),
-			"func":    "HTTPAPIServerStreamMSE",
-			"call":    "Send",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "Send",
 		}).Errorln(err.Error())
 		return
 	}
@@ -111,12 +86,8 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 			var message string
 			err := websocket.Message.Receive(ws, &message)
 			if err != nil {
-				log.WithFields(logrus.Fields{
-					"module":  "http_mse",
-					"stream":  ws.Request().FormValue("uuid"),
-					"channel": ws.Request().FormValue("channel"),
-					"func":    "HTTPAPIServerStreamMSE",
-					"call":    "Receive",
+				requestLogger.WithFields(logrus.Fields{
+					"call": "Receive",
 				}).Errorln(err.Error())
 				return
 			}
@@ -126,21 +97,13 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 	for {
 		select {
 		case <-controlExit:
-			log.WithFields(logrus.Fields{
-				"module":  "http_mse",
-				"stream":  ws.Request().FormValue("uuid"),
-				"channel": ws.Request().FormValue("channel"),
-				"func":    "HTTPAPIServerStreamMSE",
-				"call":    "controlExit",
+			requestLogger.WithFields(logrus.Fields{
+				"call": "controlExit",
 			}).Errorln("Client Reader Exit")
 			return
 		case <-noVideo.C:
-			log.WithFields(logrus.Fields{
-				"module":  "http_mse",
-				"stream":  ws.Request().FormValue("uuid"),
-				"channel": ws.Request().FormValue("channel"),
-				"func":    "HTTPAPIServerStreamMSE",
-				"call":    "ErrorStreamNoVideo",
+			requestLogger.WithFields(logrus.Fields{
+				"call": "ErrorStreamNoVideo",
 			}).Errorln(ErrorStreamNoVideo.Error())
 			return
 		case pck := <-ch:
@@ -153,35 +116,23 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 			}
 			ready, buf, err := muxerMSE.WritePacket(*pck, false)
 			if err != nil {
-				log.WithFields(logrus.Fields{
-					"module":  "http_mse",
-					"stream":  ws.Request().FormValue("uuid"),
-					"channel": ws.Request().FormValue("channel"),
-					"func":    "HTTPAPIServerStreamMSE",
-					"call":    "WritePacket",
+				requestLogger.WithFields(logrus.Fields{
+					"call": "WritePacket",
 				}).Errorln(err.Error())
 				return
 			}
 			if ready {
 				err := ws.SetWriteDeadline(time.Now().Add(10 * time.Second))
 				if err != nil {
-					log.WithFields(logrus.Fields{
-						"module":  "http_mse",
-						"stream":  ws.Request().FormValue("uuid"),
-						"channel": ws.Request().FormValue("channel"),
-						"func":    "HTTPAPIServerStreamMSE",
-						"call":    "SetWriteDeadline",
+					requestLogger.WithFields(logrus.Fields{
+						"call": "SetWriteDeadline",
 					}).Errorln(err.Error())
 					return
 				}
 				err = websocket.Message.Send(ws, buf)
 				if err != nil {
-					log.WithFields(logrus.Fields{
-						"module":  "http_mse",
-						"stream":  ws.Request().FormValue("uuid"),
-						"channel": ws.Request().FormValue("channel"),
-						"func":    "HTTPAPIServerStreamMSE",
-						"call":    "Send",
+					requestLogger.WithFields(logrus.Fields{
+						"call": "Send",
 					}).Errorln(err.Error())
 					return
 				}

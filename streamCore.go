@@ -19,52 +19,37 @@ func StreamServerRunStreamDo(streamID string, channelID string) {
 		}
 	}()
 	for {
-		log.WithFields(logrus.Fields{
+		baseLogger := log.WithFields(logrus.Fields{
 			"module":  "core",
 			"stream":  streamID,
 			"channel": channelID,
 			"func":    "StreamServerRunStreamDo",
-			"call":    "Run",
-		}).Infoln("Run stream")
+		})
+
+		baseLogger.WithFields(logrus.Fields{"call": "Run"}).Infoln("Run stream")
 		opt, err := Storage.StreamChannelControl(streamID, channelID)
 		if err != nil {
-			log.WithFields(logrus.Fields{
-				"module":  "core",
-				"stream":  streamID,
-				"channel": channelID,
-				"func":    "StreamChannelControl",
-				"call":    "Exit",
+			baseLogger.WithFields(logrus.Fields{
+				"call": "StreamChannelControl",
 			}).Infoln("Exit", err)
 			return
 		}
 		if opt.OnDemand && !Storage.ClientHas(streamID, channelID) {
-			log.WithFields(logrus.Fields{
-				"module":  "core",
-				"stream":  streamID,
-				"channel": channelID,
-				"func":    "StreamServerRunStreamDo",
-				"call":    "ClientHas",
+			baseLogger.WithFields(logrus.Fields{
+				"call": "ClientHas",
 			}).Infoln("Stop stream no client")
 			return
 		}
 		status, err = StreamServerRunStream(streamID, channelID, opt)
 		if status > 0 {
-			log.WithFields(logrus.Fields{
-				"module":  "core",
-				"stream":  streamID,
-				"channel": channelID,
-				"func":    "StreamServerRunStreamDo",
-				"call":    "StreamServerRunStream",
+			baseLogger.WithFields(logrus.Fields{
+				"call": "StreamServerRunStream",
 			}).Infoln("Stream exit by signal or not client")
 			return
 		}
 		if err != nil {
 			log.WithFields(logrus.Fields{
-				"module":  "core",
-				"stream":  streamID,
-				"channel": channelID,
-				"func":    "StreamServerRunStreamDo",
-				"call":    "Restart",
+				"call": "Restart",
 			}).Errorln("Stream error restart stream", err)
 		}
 		time.Sleep(2 * time.Second)
