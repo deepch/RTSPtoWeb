@@ -9,16 +9,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//HTTPAPIServerStreamHLSTS send client m3u8 play list
+//HTTPAPIServerStreamHLSM3U8 send client m3u8 play list
 func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
+	requestLogger := log.WithFields(logrus.Fields{
+		"module":  "http_hls",
+		"stream":  c.Param("uuid"),
+		"channel": c.Param("channel"),
+		"func":    "HTTPAPIServerStreamHLSM3U8",
+	})
+
 	if !Storage.StreamChannelExist(c.Param("uuid"), c.Param("channel")) {
 		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
-		log.WithFields(logrus.Fields{
-			"module":  "http_hls",
-			"stream":  c.Param("uuid"),
-			"channel": c.Param("channel"),
-			"func":    "HTTPAPIServerStreamHLSM3U8",
-			"call":    "StreamChannelExist",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "StreamChannelExist",
 		}).Errorln(ErrorStreamNotFound.Error())
 		return
 	}
@@ -29,12 +32,8 @@ func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
 		index, seq, err := Storage.StreamHLSm3u8(c.Param("uuid"), c.Param("channel"))
 		if err != nil {
 			c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
-			log.WithFields(logrus.Fields{
-				"module":  "http_hls",
-				"stream":  c.Param("uuid"),
-				"channel": c.Param("channel"),
-				"func":    "HTTPAPIServerStreamHLSM3U8",
-				"call":    "StreamHLSm3u8",
+			requestLogger.WithFields(logrus.Fields{
+				"call": "StreamHLSm3u8",
 			}).Errorln(err.Error())
 			return
 		}
@@ -42,12 +41,8 @@ func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
 			_, err := c.Writer.Write([]byte(index))
 			if err != nil {
 				c.IndentedJSON(400, Message{Status: 0, Payload: err.Error()})
-				log.WithFields(logrus.Fields{
-					"module":  "http_hls",
-					"stream":  c.Param("uuid"),
-					"channel": c.Param("channel"),
-					"func":    "HTTPAPIServerStreamHLSM3U8",
-					"call":    "Write",
+				requestLogger.WithFields(logrus.Fields{
+					"call": "Write",
 				}).Errorln(err.Error())
 				return
 			}
@@ -59,26 +54,25 @@ func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
 
 //HTTPAPIServerStreamHLSTS send client ts segment
 func HTTPAPIServerStreamHLSTS(c *gin.Context) {
+	requestLogger := log.WithFields(logrus.Fields{
+		"module":  "http_hls",
+		"stream":  c.Param("uuid"),
+		"channel": c.Param("channel"),
+		"func":    "HTTPAPIServerStreamHLSTS",
+	})
+
 	if !Storage.StreamChannelExist(c.Param("uuid"), c.Param("channel")) {
 		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
-		log.WithFields(logrus.Fields{
-			"module":  "http_hls",
-			"stream":  c.Param("uuid"),
-			"channel": c.Param("channel"),
-			"func":    "HTTPAPIServerStreamHLSTS",
-			"call":    "StreamChannelExist",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "StreamChannelExist",
 		}).Errorln(ErrorStreamNotFound.Error())
 		return
 	}
 	codecs, err := Storage.StreamChannelCodecs(c.Param("uuid"), c.Param("channel"))
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
-		log.WithFields(logrus.Fields{
-			"module":  "http_hls",
-			"stream":  c.Param("uuid"),
-			"channel": c.Param("channel"),
-			"func":    "HTTPAPIServerStreamHLSTS",
-			"call":    "StreamCodecs",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "StreamCodecs",
 		}).Errorln(err.Error())
 		return
 	}
@@ -88,35 +82,23 @@ func HTTPAPIServerStreamHLSTS(c *gin.Context) {
 	err = Muxer.WriteHeader(codecs)
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
-		log.WithFields(logrus.Fields{
-			"module":  "http_hls",
-			"stream":  c.Param("uuid"),
-			"channel": c.Param("channel"),
-			"func":    "HTTPAPIServerStreamHLSTS",
-			"call":    "WriteHeader",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "WriteHeader",
 		}).Errorln(err.Error())
 		return
 	}
 	seqData, err := Storage.StreamHLSTS(c.Param("uuid"), c.Param("channel"), stringToInt(c.Param("seq")))
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
-		log.WithFields(logrus.Fields{
-			"module":  "http_hls",
-			"stream":  c.Param("uuid"),
-			"channel": c.Param("channel"),
-			"func":    "HTTPAPIServerStreamHLSTS",
-			"call":    "StreamHLSTS",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "StreamHLSTS",
 		}).Errorln(err.Error())
 		return
 	}
 	if len(seqData) == 0 {
 		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotHLSSegments.Error()})
-		log.WithFields(logrus.Fields{
-			"module":  "http_hls",
-			"stream":  c.Param("uuid"),
-			"channel": c.Param("channel"),
-			"func":    "HTTPAPIServerStreamHLSTS",
-			"call":    "seqData",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "seqData",
 		}).Errorln(ErrorStreamNotHLSSegments.Error())
 		return
 	}
@@ -125,12 +107,8 @@ func HTTPAPIServerStreamHLSTS(c *gin.Context) {
 		err = Muxer.WritePacket(*v)
 		if err != nil {
 			c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
-			log.WithFields(logrus.Fields{
-				"module":  "http_hls",
-				"stream":  c.Param("uuid"),
-				"channel": c.Param("channel"),
-				"func":    "HTTPAPIServerStreamHLSTS",
-				"call":    "WritePacket",
+			requestLogger.WithFields(logrus.Fields{
+				"call": "WritePacket",
 			}).Errorln(err.Error())
 			return
 		}
@@ -138,24 +116,16 @@ func HTTPAPIServerStreamHLSTS(c *gin.Context) {
 	err = Muxer.WriteTrailer()
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
-		log.WithFields(logrus.Fields{
-			"module":  "http_hls",
-			"stream":  c.Param("uuid"),
-			"channel": c.Param("channel"),
-			"func":    "HTTPAPIServerStreamHLSTS",
-			"call":    "WriteTrailer",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "WriteTrailer",
 		}).Errorln(err.Error())
 		return
 	}
 	_, err = c.Writer.Write(outfile.Bytes())
 	if err != nil {
 		c.IndentedJSON(400, Message{Status: 0, Payload: err.Error()})
-		log.WithFields(logrus.Fields{
-			"module":  "http_hls",
-			"stream":  c.Param("uuid"),
-			"channel": c.Param("channel"),
-			"func":    "HTTPAPIServerStreamHLSTS",
-			"call":    "Write",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "Write",
 		}).Errorln(err.Error())
 		return
 	}

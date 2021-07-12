@@ -12,23 +12,24 @@ func HTTPAPIServerStreams(c *gin.Context) {
 
 //HTTPAPIServerStreamsMultiControlAdd function add new stream's
 func HTTPAPIServerStreamsMultiControlAdd(c *gin.Context) {
+	requestLogger := log.WithFields(logrus.Fields{
+		"module": "http_stream",
+		"func":   "HTTPAPIServerStreamsMultiControlAdd",
+	})
+
 	var payload StorageST
 	err := c.BindJSON(&payload)
 	if err != nil {
 		c.IndentedJSON(400, Message{Status: 0, Payload: err.Error()})
-		log.WithFields(logrus.Fields{
-			"module": "http_stream",
-			"func":   "HTTPAPIServerStreamsMultiControlAdd",
-			"call":   "BindJSON",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "BindJSON",
 		}).Errorln(err.Error())
 		return
 	}
 	if payload.Streams == nil || len(payload.Streams) < 1 {
 		c.IndentedJSON(400, Message{Status: 0, Payload: ErrorStreamsLen0.Error()})
-		log.WithFields(logrus.Fields{
-			"module": "http_stream",
-			"func":   "HTTPAPIServerStreamsMultiControlAdd",
-			"call":   "len(payload)",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "len(payload)",
 		}).Errorln(ErrorStreamsLen0.Error())
 		return
 	}
@@ -37,10 +38,8 @@ func HTTPAPIServerStreamsMultiControlAdd(c *gin.Context) {
 	for k, v := range payload.Streams {
 		err = Storage.StreamAdd(k, v)
 		if err != nil {
-			log.WithFields(logrus.Fields{
-				"module": "http_stream",
+			requestLogger.WithFields(logrus.Fields{
 				"stream": k,
-				"func":   "HTTPAPIServerStreamsMultiControlAdd",
 				"call":   "StreamAdd",
 			}).Errorln(err.Error())
 			resp[k] = Message{Status: 0, Payload: err.Error()}
@@ -58,23 +57,24 @@ func HTTPAPIServerStreamsMultiControlAdd(c *gin.Context) {
 
 //HTTPAPIServerStreamsMultiControlDelete function delete stream's
 func HTTPAPIServerStreamsMultiControlDelete(c *gin.Context) {
+	requestLogger := log.WithFields(logrus.Fields{
+		"module": "http_stream",
+		"func":   "HTTPAPIServerStreamsMultiControlDelete",
+	})
+
 	var payload []string
 	err := c.BindJSON(&payload)
 	if err != nil {
 		c.IndentedJSON(400, Message{Status: 0, Payload: err.Error()})
-		log.WithFields(logrus.Fields{
-			"module": "http_stream",
-			"func":   "HTTPAPIServerStreamsMultiControlDelete",
-			"call":   "BindJSON",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "BindJSON",
 		}).Errorln(err.Error())
 		return
 	}
 	if len(payload) < 1 {
 		c.IndentedJSON(400, Message{Status: 0, Payload: ErrorStreamsLen0.Error()})
-		log.WithFields(logrus.Fields{
-			"module": "http_stream",
-			"func":   "HTTPAPIServerStreamsMultiControlDelete",
-			"call":   "len(payload)",
+		requestLogger.WithFields(logrus.Fields{
+			"call": "len(payload)",
 		}).Errorln(ErrorStreamsLen0.Error())
 		return
 	}
@@ -83,10 +83,8 @@ func HTTPAPIServerStreamsMultiControlDelete(c *gin.Context) {
 	for _, key := range payload {
 		err := Storage.StreamDelete(key)
 		if err != nil {
-			log.WithFields(logrus.Fields{
-				"module": "http_stream",
+			requestLogger.WithFields(logrus.Fields{
 				"stream": key,
-				"func":   "HTTPAPIServerStreamsMultiControlDelete",
 				"call":   "StreamDelete",
 			}).Errorln(err.Error())
 			resp[key] = Message{Status: 0, Payload: err.Error()}
