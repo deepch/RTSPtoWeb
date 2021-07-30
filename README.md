@@ -1,24 +1,28 @@
 # RTSPtoWeb share you ip camera to world!
 
-RTSP Stream to WebBrowser MSE or WebRTC or HLS, full native! not use ffmpeg or gstreamer
+RTSPtoWeb converts your RTSP streams to formats consumable in a web browser
+like MSE (Media Source Extensions), WebRTC, or HLS. It's fully native Golang
+without the use of FFmpeg or GStreamer!
 
 ## Table of Contents
 
-- [Installation from binary](#Installation from binary)
-- [Installation from source](#Installation from source)
-- [Configuration](#Configuration)
-- [API Documentation](#API documentation)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Command-line](#command-line)
+- [Web UI](#web-ui)
+- [API documentation](#api-documentation)
 - [Limitations](#Limitations)
 - [Performance](#Performance)
 - [Authors](#Authors)
 - [License](#license)
 
+## Installation
 
-### Download Source
+### Installation from source
 
 1. Download source
-   ```bash 
-   $ git clone https://github.com/deepch/RTSPtoWeb  
+   ```bash
+   $ git clone https://github.com/deepch/RTSPtoWeb
    ```
 3. CD to Directory
    ```bash
@@ -32,44 +36,54 @@ RTSP Stream to WebBrowser MSE or WebRTC or HLS, full native! not use ffmpeg or g
     ```bash
     open web browser http://127.0.0.1:8083 work chrome, safari, firefox
     ```
-   
-## Stream mode
-
-on_demand true  - receive video from source only has viewer
-
-on_demand false - receive video from source any time
-
-you can set mode use config "on_demand": true or "on_demand": false
 
 ## Configuration
 
-###Options
+### Server settings
 
-####Server section's
 ```text
 debug         - enable debug output
-log_level     - log level
+log_level     - log level (trace, debug, info, warning, error, fatal, or panic)
+
+http_demo     - serve static files
 http_debug    - debug http api server
 http_login    - http auth login
 http_password - http auth password
 http_port     - http server port
+http_dir      - path to serve static files from
+
+https
+https_auto_tls
+https_auto_tls_name
+https_cert
+https_key
+https_port
+
 rtsp_port     - rtsp server port
 ```
-####Stream section's
+
+### Stream settings
+
 ```text
 name          - stream name
 ```
-####Stream section's
+
+### Channel settings
+
 ```text
 name          - channel name
 url           - channel rtsp url
-on_demand     - stream mode static (run any time) or ondaemand (run only has viewers)
+on_demand     - stream mode static (run any time) or ondemand (run only has viewers)
 debug         - enable debug output (RTSP client)
 status        - default stream status
-
 ```
 
-### example
+#### RTSP pull modes
+
+  * **on demand** (on_demand=true) - only pull video from the source when there's a viewer
+  * **static** (on_demand=false) - pull video from the source constantly
+
+### Example config.json
 
 ```json
 {
@@ -126,15 +140,15 @@ status        - default stream status
 }
 ```
 
-## Command-Line Arguments
+## Command-line
 
-######Use help show arg
+### Use help to show available args
 
 ```bash
 ./RTSPtoWeb --help
 ```
 
-######Response
+#### Response
 
 ```bash
 Usage of ./RTSPtoWeb:
@@ -144,380 +158,32 @@ Usage of ./RTSPtoWeb:
         set debug mode (default true)
 ```
 
-##API documentation
+## Web UI
 
-#### Streams List
-###### Query
-```bash
-GET /streams
+The web UI is available at http://127.0.0.1:8083/.
 
-curl http://demo:demo@127.0.0.1:8083/streams
-```
+### Parameters for full-page multiview
 
-###### Response
-```json
-{
-    "status": 1,
-    "payload": {
-        "demo1": {
-            "name": "test video",
-            "channels": {
-                "0": {
-                    "name": "ch1",
-                    "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-                    "on_demand": true,
-                    "debug": false,
-                    "status": 0
-                },
-                "1": {
-                    "name": "ch2",
-                    "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-                    "on_demand": true,
-                    "debug": false,
-                    "status": 0
-                }
-            }
-        },
-        "demo2": {
-            "name": "test video",
-            "channels": {
-                "0": {
-                    "name": "ch1",
-                    "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-                    "on_demand": true,
-                    "debug": false,
-                    "status": 0
-                },
-                "1": {
-                    "name": "ch2",
-                    "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-                    "on_demand": true,
-                    "debug": false,
-                    "status": 0
-                }
-            }
-        }
-    }
-}
-```
-### Stream Control
-#### Stream Add
-###### Query
-```bash
-POST /stream/{STREAM_ID}/add
-curl --header "Content-Type: application/json" \
-  --request POST \
-  --data '{
-              "name": "test video",
-              "channels": {
-                  "0": {
-                      "name": "ch1",
-                      "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-                      "on_demand": true,
-                      "debug": false,
-                      "status": 0
-                  },
-                  "1": {
-                      "name": "ch2",
-                      "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-                      "on_demand": true,
-                      "debug": false,
-                      "status": 0
-                  }
-              }
-          }' \
-  http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/add
-```
-
-###### Response
-```json
-{
-    "status": 1,
-    "payload": "success"
-}
-```
-#### Stream Edit
-###### Query
-```bash
-POST /stream/{STREAM_ID}/edit
-curl --header "Content-Type: application/json" \
-  --request POST \
-  --data '{
-            "name": "test video",
-            "channels": {
-                "0": {
-                    "name": "ch1",
-                    "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-                    "on_demand": true,
-                    "debug": false,
-                    "status": 0
-                },
-                "1": {
-                    "name": "ch2",
-                    "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-                    "on_demand": true,
-                    "debug": false,
-                    "status": 0
-                }
-            }
-        }' \
-  http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/edit
-```
-
-###### Response
-```json
-{
-    "status": 1,
-    "payload": "success"
-}
-```
-#### Stream Reload
-###### Query
-```bash
-GET /stream/{STREAM_ID}/reload
-curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/reload
-```
-###### Response
-```json
-{
-    "status": 1,
-    "payload": "success"
-}
-```
-#### Stream Channel Reload
-###### Query
-```bash
-GET /stream/{STREAM_ID}/reload
-curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/reload
-```
-
-###### Response
-```json
-{
-    "status": 1,
-    "payload": "success"
-}
-```
-
-#### Stream Info
-###### Query
-```bash
-GET /stream/{STREAM_ID}/info
-curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/info
-```
-
-###### Response
-```json
-{
-    "status": 1,
-    "payload": {
-        "name": "test video",
-        "channels": {
-            "0": {
-                "name": "ch1",
-                "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-                "on_demand": true,
-                "debug": false,
-                "status": 0
-            },
-            "1": {
-                "name": "ch2",
-                "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-                "on_demand": true,
-                "debug": false,
-                "status": 0
-            }
-        }
-    }
-}
-```
-
-#### Stream Delete
-###### Query
-```bash
-GET /stream/{STREAM_ID}/delete
-curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/delete
-```
-
-###### Response
-```json
-{
-    "status": 1,
-    "payload": "success"
-}
-```
-
-### Channel Control
-#### Channel Add
-###### Query
-```bash
-POST /stream/{STREAM_ID}/channel/{CHANNEL_ID}/add
-curl --header "Content-Type: application/json" \
-  --request POST \
-  --data '{
-                      "name": "ch4",
-                      "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-                      "on_demand": false,
-                      "debug": false,
-                      "status": 0
-            }' \
-  http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/add
-```
-
-###### Response
-```json
-{
-    "status": 1,
-    "payload": "success"
-}
-```
-#### Channel Edit
-###### Query
-```bash
-POST /stream/{STREAM_ID}/channel/{CHANNEL_ID}/edit
-curl --header "Content-Type: application/json" \
-  --request POST \
-  --data '{
-                      "name": "ch4",
-                      "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-                      "on_demand": true,
-                      "debug": false,
-                      "status": 0
-            }' \
-  http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/edit
-```
-
-###### Response
-```json
-{
-    "status": 1,
-    "payload": "success"
-}
-```
-#### Channel Reload
-###### Query
-```bash
-GET /stream/{STREAM_ID}/channel/{CHANNEL_ID}/reload
-curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/reload
-```
-###### Response
-```json
-{
-    "status": 1,
-    "payload": "success"
-}
-```
-
-#### Channel Info
-###### Query
-```bash
-GET /stream/{STREAM_ID}/channel/{CHANNEL_ID}/info
-curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/info
-```
-
-###### Response
-```json
-{
-    "status": 1,
-    "payload": {
-        "name": "ch4",
-        "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
-        "on_demand": false,
-        "debug": false,
-        "status": 1
-    }
-}
-```
-
-#### Stream Codec
-###### Query
-```bash
-GET /stream/{STREAM_ID}/{CHANNEL_ID}/codec
-curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/{CHANNEL_ID}/codec
-```
-
-###### Response
-```json
-{
-    "status": 1,
-    "payload": [
-        {
-            "Record": "AU0AFP/hABRnTQAUlahQfoQAAAMABAAAAwCiEAEABGjuPIA=",
-            "RecordInfo": {
-                "AVCProfileIndication": 77,
-                "ProfileCompatibility": 0,
-                "AVCLevelIndication": 20,
-                "LengthSizeMinusOne": 3,
-                "SPS": [
-                    "Z00AFJWoUH6EAAADAAQAAAMAohA="
-                ],
-                "PPS": [
-                    "aO48gA=="
-                ]
-            },
-            "SPSInfo": {
-                "ProfileIdc": 77,
-                "LevelIdc": 20,
-                "MbWidth": 20,
-                "MbHeight": 15,
-                "CropLeft": 0,
-                "CropRight": 0,
-                "CropTop": 0,
-                "CropBottom": 0,
-                "Width": 320,
-                "Height": 240
-            }
-        }
-    ]
-}
-```
-
-#### Channel Delete
-###### Query
-```bash
-GET /stream/{STREAM_ID}/channel/{CHANNEL_ID}/delete
-curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/delete
-```
-
-###### Response
-```json
-{
-    "status": 1,
-    "payload": "success"
-}
-```
-
-#### Channel hls play
-###### Query
-```bash
-GET /stream/{STREAM_ID}/hls/live/index.m3u8
-curl http://127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/hls/live/index.m3u8
-```
-
-###### Response
-```bash
-index.m3u8
-```
-```bash
-ffplay http://127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/hls/live/index.m3u8
-```
-
-#### Stream rtsp play
-###### Query
-
-```bash
-ffplay -rtsp_transport tcp  rtsp://127.0.0.1/{STREAM_ID}/{CHANNEL_ID}
-```
-#### Paramerts full multiview page
-###### Grid size
+#### Grid size
 
 ```
 http://localhost:8083/pages/multiview/full?grid=5
 ```
-###### Show additional control
+
+#### Show additional options
+
+  * Video protocol (MSE, WebRTC, or HLS)
+  * Grid size
+  * Background image
+
 ```
 http://localhost:8083/pages/multiview/full?controls
 ```
+
+## API documentation
+
+See the [API docs](/docs/api.md)
+
 ## Limitations
 
 Video Codecs Supported: H264 all profiles
