@@ -1,3 +1,7 @@
+#!/bin/bash
+
+set -euo pipefail
+
 echo "curl http://demo:demo@127.0.0.1:8083/streams"
 curl http://demo:demo@127.0.0.1:8083/streams
 sleep 1
