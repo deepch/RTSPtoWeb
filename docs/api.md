@@ -418,6 +418,18 @@ curl http://127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/hls/live/inde
 ffplay http://127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/hls/live/index.m3u8
 ```
 
+### HLS-LL
+
+`GET /stream/{STREAM_ID}/channel/{CHANNEL_ID}/hlsll/live/index.m3u8`
+
+```bash
+curl http://127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/hlsll/live/index.m3u8
+```
+
+```bash
+ffplay http://127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/hlsll/live/index.m3u8
+```
+
 ### MSE
 
 `/stream/{STREAM_ID}/channel/{CHANNEL_ID}/mse?uuid={STREAM_ID}&channel={CHANNEL_ID}`
