@@ -2,24 +2,24 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>RTSPtoWeb HLS example</title>
+    <title>RTSPtoWeb HLS-LL example</title>
 
     <style type="text/css">
       video { border: 1px solid black; }
     </style>
   </head>
   <body>
-    <h1>RTSPtoWeb HLS example</h1>
+    <h1>RTSPtoWeb HLS-LL example</h1>
 
-    <input type="hidden" name="hls-url" id="hls-url"
-        value="http://localhost:8083/stream/demo/channel/0/hls/live/index.m3u8">
+    <input type="hidden" name="hlsll-url" id="hlsll-url"
+        value="http://localhost:8083/stream/demo/channel/0/hlsll/live/index.m3u8">
 
-    <video id="hls-video" autoplay muted playsinline width="100%" controls="controls"></video>
+    <video id="hlsll-video" autoplay muted playsinline width="100%" controls="controls"></video>
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-        let videoEl = document.querySelector('#hls-video');
-        let url = document.querySelector('#hls-url').value;
+        let videoEl = document.querySelector('#hlsll-video');
+        let url = document.querySelector('#hlsll-url').value;
 
         videoEl.addEventListener('loadeddata', () => {
           videoEl.play();
