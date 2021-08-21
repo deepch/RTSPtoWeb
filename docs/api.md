@@ -16,6 +16,7 @@
     * [Delete a stream channel](#delete-a-stream-channel)
   * [Video endpoints](#video-endpoints)
     * [HLS](#hls)
+    * [HLS-LL](#hls-ll)
     * [MSE](#mse)
     * [WebRTC](#webrtc)
     * [RTSP](#rtsp)
