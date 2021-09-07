@@ -75,8 +75,16 @@ func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (i
 		Storage.StreamChannelStatus(streamID, channelID, OFFLINE)
 		Storage.StreamHLSFlush(streamID, channelID)
 	}()
-	if len(RTSPClient.CodecData) > 0 {
-		Storage.StreamChannelCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
+	var WaitCodec bool
+	/*
+		Example wait codec
+	*/
+	if RTSPClient.WaitCodec {
+		WaitCodec = true
+	} else {
+		if len(RTSPClient.CodecData) > 0 {
+			Storage.StreamChannelCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
+		}
 	}
 	log.WithFields(logrus.Fields{
 		"module":  "core",
@@ -116,6 +124,7 @@ func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (i
 			switch signals {
 			case rtspv2.SignalCodecUpdate:
 				Storage.StreamChannelCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
+				WaitCodec = false
 			case rtspv2.SignalStreamRTPStop:
 				return 0, ErrorStreamStopRTSPSignal
 			}
@@ -123,6 +132,9 @@ func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (i
 			keyTest.Reset(20 * time.Second)
 			Storage.StreamChannelCastProxy(streamID, channelID, packetRTP)
 		case packetAV := <-RTSPClient.OutgoingPacketQueue:
+			if WaitCodec {
+				continue
+			}
 			if packetAV.IsKeyFrame {
 				keyTest.Reset(20 * time.Second)
 				if preKeyTS > 0 {

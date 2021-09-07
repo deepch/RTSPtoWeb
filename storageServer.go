@@ -70,7 +70,7 @@ func (obj *StorageST) ServerRTSPPort() string {
 	return obj.Server.RTSPPort
 }
 
-//ServerHTTPSPort read HTTPS Port options
+//ServerHTTPS read HTTPS Port options
 func (obj *StorageST) ServerHTTPS() bool {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
@@ -110,4 +110,11 @@ func (obj *StorageST) ServerHTTPSKey() string {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
 	return obj.Server.HTTPSKey
+}
+
+//ServerTokenEnable read HTTPS Key options
+func (obj *StorageST) ServerTokenEnable() bool {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	return obj.Server.Token.Enable
 }

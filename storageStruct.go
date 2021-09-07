@@ -66,6 +66,12 @@ type ServerST struct {
 	HTTPSKey           string       `json:"https_key" groups:"api,config"`
 	HTTPSAutoTLSEnable bool         `json:"https_auto_tls" groups:"api,config"`
 	HTTPSAutoTLSName   string       `json:"https_auto_tls_name" groups:"api,config"`
+	Token              Token        `json:"token,omitempty" groups:"api,config"`
+}
+
+//Token auth
+type Token struct {
+	Enable bool `json:"enable,omitempty" groups:"api,config"`
 }
 
 //ServerST stream storage section
