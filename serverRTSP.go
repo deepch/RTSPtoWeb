@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -168,7 +169,7 @@ func RTSPServer() {
 //RTSPServerClientHandle func
 func RTSPServerClientHandle(conn net.Conn) {
 	buf := make([]byte, 4096)
-	uuid, channel, in, cSEQ := "", "0", 0, 0
+	token, uuid, channel, in, cSEQ := "", "", "0", 0, 0
 	var playStarted bool
 	defer func() {
 		err := conn.Close()
@@ -245,7 +246,7 @@ func RTSPServerClientHandle(conn net.Conn) {
 				}
 				continue
 			}
-			uuid, channel, err = parseStreamChannel(buf[:n])
+			uuid, channel, token, err = parseStreamChannel(buf[:n])
 			if err != nil {
 				log.WithFields(logrus.Fields{
 					"module":  "rtsp_server",
@@ -270,6 +271,22 @@ func RTSPServerClientHandle(conn net.Conn) {
 				}
 				return
 			}
+
+			if !RemoteAuthorization("RTSP", uuid, channel, token, conn.RemoteAddr().String()) {
+				log.WithFields(logrus.Fields{
+					"module":  "rtsp_server",
+					"stream":  uuid,
+					"channel": channel,
+					"func":    "handleRTSPServerRequest",
+					"call":    "StreamChannelExist",
+				}).Errorln(ErrorStreamNotFound.Error())
+				err = RTSPServerClientResponse(uuid, channel, conn, 401, map[string]string{"CSeq": strconv.Itoa(cSEQ)})
+				if err != nil {
+					return
+				}
+				return
+			}
+
 			Storage.StreamChannelRun(uuid, channel)
 			err = RTSPServerClientResponse(uuid, channel, conn, 200, map[string]string{"CSeq": strconv.Itoa(cSEQ), "Public": "DESCRIBE, SETUP, TEARDOWN, PLAY"})
 			if err != nil {
@@ -435,11 +452,22 @@ func parseStage(buf []byte) (string, error) {
 }
 
 //parseStreamChannel func
-func parseStreamChannel(buf []byte) (string, string, error) {
+func parseStreamChannel(buf []byte) (string, string, string, error) {
+
+	var token string
+
 	uri := stringInBetween(string(buf), " ", " ")
-	st := strings.Split(uri, "/")
-	if len(st) >= 5 {
-		return st[3], st[4], nil
+	u, err := url.Parse(uri)
+	if err == nil {
+		token = u.Query().Get("token")
+		uri = u.Path
 	}
-	return "", "0", errors.New("parse stream error " + string(buf))
+
+	st := strings.Split(uri, "/")
+
+	if len(st) >= 3 {
+		return st[1], st[2], token, nil
+	}
+
+	return "", "0", token, errors.New("parse stream error " + string(buf))
 }

@@ -118,3 +118,10 @@ func (obj *StorageST) ServerTokenEnable() bool {
 	defer obj.mutex.RUnlock()
 	return obj.Server.Token.Enable
 }
+
+//ServerTokenBackend read HTTPS Key options
+func (obj *StorageST) ServerTokenBackend() string {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	return obj.Server.Token.Backend
+}

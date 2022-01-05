@@ -12,18 +12,19 @@
     "https": false,
     "https_port": ":443",
     "https_cert": "server.crt",
-    "https_key": "server.key"
-  },
+    "https_key": "server.key",
+    "token": {
+      "enable": false,
+      "backend": "http://127.0.0.1/test.php"
+    }
+},
   "streams": {
     "demo": {
       "channels": {
         "0": {
-          "debug": false,
-          "url": "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"
-        },
-        "1": {
-          "debug": false,
-          "url": "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"
+          "debug": true,
+          "on_demand": false,
+          "url": "rtsp://admin:deep18rwip@176.117.205.3:5541/video1"
         }
       },
       "name": "demo"

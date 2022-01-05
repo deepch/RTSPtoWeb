@@ -23,6 +23,14 @@ func HTTPAPIServerStreamHLSLLInit(c *gin.Context) {
 		}).Errorln(ErrorStreamNotFound.Error())
 		return
 	}
+
+	if !RemoteAuthorization("HLS", c.Param("uuid"), c.Param("channel"), c.Param("token"), c.ClientIP()) {
+		requestLogger.WithFields(logrus.Fields{
+			"call": "RemoteAuthorization",
+		}).Errorln(ErrorStreamNotFound.Error())
+		return
+	}
+
 	c.Header("Content-Type", "application/x-mpegURL")
 	Storage.StreamChannelRun(c.Param("uuid"), c.Param("channel"))
 	codecs, err := Storage.StreamChannelCodecs(c.Param("uuid"), c.Param("channel"))

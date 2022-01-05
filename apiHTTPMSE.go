@@ -30,6 +30,14 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}).Errorln(ErrorStreamNotFound.Error())
 		return
 	}
+
+	if !RemoteAuthorization("WS", ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"), ws.Request().FormValue("token"), ws.Request().RemoteAddr) {
+		requestLogger.WithFields(logrus.Fields{
+			"call": "RemoteAuthorization",
+		}).Errorln(ErrorStreamNotFound.Error())
+		return
+	}
+
 	Storage.StreamChannelRun(ws.Request().FormValue("uuid"), ws.Request().FormValue("channel"))
 	err := ws.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	if err != nil {

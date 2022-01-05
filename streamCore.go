@@ -129,12 +129,13 @@ func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (i
 				return 0, ErrorStreamStopRTSPSignal
 			}
 		case packetRTP := <-RTSPClient.OutgoingProxyQueue:
-			keyTest.Reset(20 * time.Second)
 			Storage.StreamChannelCastProxy(streamID, channelID, packetRTP)
 		case packetAV := <-RTSPClient.OutgoingPacketQueue:
+
 			if WaitCodec {
 				continue
 			}
+
 			if packetAV.IsKeyFrame {
 				keyTest.Reset(20 * time.Second)
 				if preKeyTS > 0 {

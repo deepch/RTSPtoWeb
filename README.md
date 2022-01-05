@@ -78,6 +78,29 @@ debug         - enable debug output (RTSP client)
 status        - default stream status
 ```
 
+#### Authorization play video
+
+1 - enable config
+
+```text
+"token": {
+"enable": true,
+"backend": "http://127.0.0.1/file.php"
+}
+```
+
+2 - try
+
+```text
+rtsp://127.0.0.1:5541/demo/0?token=you_key
+```
+
+file.php need response json
+
+```text
+   status: "1" or "0"
+ ```
+
 #### RTSP pull modes
 
   * **on demand** (on_demand=true) - only pull video from the source when there's a viewer

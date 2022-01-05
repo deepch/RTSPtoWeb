@@ -65,7 +65,7 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 		for {
 			select {
 			case <-noVideo.C:
-				c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNoVideo.Error()})
+				//				c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNoVideo.Error()})
 				requestLogger.WithFields(logrus.Fields{
 					"call": "ErrorStreamNoVideo",
 				}).Errorln(ErrorStreamNoVideo.Error())
