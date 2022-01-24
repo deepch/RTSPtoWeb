@@ -36,7 +36,10 @@ func HTTPAPIServer() {
 
 	public.Use(CrossOrigin())
 	//Add private login password protect methods
-	privat := public.Group("/", gin.BasicAuth(gin.Accounts{Storage.ServerHTTPLogin(): Storage.ServerHTTPPassword()}))
+	privat := public.Group("/")
+	if Storage.ServerHTTPLogin() != "" && Storage.ServerHTTPPassword() != "" {
+		privat.Use(gin.BasicAuth(gin.Accounts{Storage.ServerHTTPLogin(): Storage.ServerHTTPPassword()}))
+	}
 	public.LoadHTMLGlob(Storage.ServerHTTPDir() + "/templates/*")
 
 	/*
