@@ -24,6 +24,7 @@
         "0": {
           "debug": true,
           "on_demand": false,
+          "insecure_skip_verify": true,
           "url": "rtsp://admin:deep18rwip@176.117.205.3:5541/video1"
         }
       },
