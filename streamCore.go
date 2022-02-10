@@ -131,7 +131,6 @@ func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (i
 		case packetRTP := <-RTSPClient.OutgoingProxyQueue:
 			Storage.StreamChannelCastProxy(streamID, channelID, packetRTP)
 		case packetAV := <-RTSPClient.OutgoingPacketQueue:
-
 			if WaitCodec {
 				continue
 			}
