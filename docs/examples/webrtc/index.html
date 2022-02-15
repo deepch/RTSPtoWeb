@@ -3,10 +3,6 @@
   <head>
     <meta charset="utf-8">
     <title>RTSPtoWeb WebRTC example</title>
-
-    <style type="text/css">
-      video { border: 1px solid black; }
-    </style>
   </head>
   <body>
     <h1>RTSPtoWeb WebRTC example</h1>
@@ -14,85 +10,9 @@
     <input type="hidden" name="webrtc-url" id="webrtc-url"
         value="http://localhost:8083/stream/demo/channel/0/webrtc">
 
-    <video id="webrtc-video" autoplay muted playsinline width="100%"></video>
+    <video id="webrtc-video" autoplay muted playsinline controls
+        style="max-width: 100%; max-height: 100%;"></video>
 
-    <script>
-      // Extracted from RTSPtoWeb
-
-      function startPlay() {
-        let videoEl = document.querySelector('#webrtc-video');
-
-        webrtc = new RTCPeerConnection({
-          iceServers: [{
-            urls: ['stun:stun.l.google.com:19302']
-          }],
-          sdpSemantics: 'unified-plan'
-        });
-        webrtc.onnegotiationneeded = handleNegotiationNeeded;
-        webrtc.ontrack = function(event) {
-          console.log(event.streams.length + ' track is delivered');
-          videoEl.srcObject = event.streams[0];
-          videoEl.play();
-        }
-        webrtc.addTransceiver('video', {
-          'direction': 'sendrecv'
-        });
-        webrtcSendChannel = webrtc.createDataChannel('sendchannel');
-        // webrtc.addTransceiver('video', {
-        //   'direction': 'sendrecv'
-        // });
-        webrtcSendChannel.onclose = () => {
-          startPlay();
-          console.log('sendChannel has closed');
-        }
-        webrtcSendChannel.onopen = () => {
-          console.log('sendChannel has opened');
-          webrtcSendChannel.send('ping');
-          webrtcSendChannelInterval = setInterval(() => {
-            webrtcSendChannel.send('ping');
-          }, 1000)
-        }
-
-        webrtcSendChannel.onmessage = e => console.log(e.data);
-      }
-
-      async function handleNegotiationNeeded() {
-        let url = document.querySelector('#webrtc-url').value;
-        let offer = await webrtc.createOffer();
-
-        await webrtc.setLocalDescription(offer);
-
-        fetch(url, {method: 'POST', body: new URLSearchParams({
-          data: btoa(webrtc.localDescription.sdp)
-        })})
-        .then(response => response.text())
-        .then(data => {
-          try {
-            // console.log(data);
-            webrtc.setRemoteDescription(new RTCSessionDescription({
-              type: 'answer',
-              sdp: atob(data)
-            }))
-          } catch (e) {
-            console.warn(e);
-          }
-        })
-      }
-
-      document.addEventListener('DOMContentLoaded', function() {
-        let videoEl = document.querySelector('#webrtc-video');
-
-        videoEl.addEventListener('loadeddata', () => {
-          videoEl.play();
-        });
-
-        videoEl.addEventListener('error', (e) => {
-          console.log('video_error', e)
-        });
-
-        startPlay();
-      });
-    </script>
-
+    <script src="main.js"></script>
   </body>
 </html>
