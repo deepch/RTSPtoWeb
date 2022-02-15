@@ -3,10 +3,6 @@
   <head>
     <meta charset="utf-8">
     <title>RTSPtoWeb HLS-LL example</title>
-
-    <style type="text/css">
-      video { border: 1px solid black; }
-    </style>
   </head>
   <body>
     <h1>RTSPtoWeb HLS-LL example</h1>
@@ -14,43 +10,24 @@
     <input type="hidden" name="hlsll-url" id="hlsll-url"
         value="http://localhost:8083/stream/demo/channel/0/hlsll/live/index.m3u8">
 
-    <video id="hlsll-video" autoplay muted playsinline width="100%" controls="controls"></video>
+    <video id="hlsll-video" autoplay muted playsinline controls
+        style="max-width: 100%; max-height: 100%;"></video>
 
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        let videoEl = document.querySelector('#hlsll-video');
-        let url = document.querySelector('#hlsll-url').value;
+      document.addEventListener('DOMContentLoaded', function () {
+        const videoEl = document.querySelector('#hlsll-video')
+        const hlsllUrl = document.querySelector('#hlsll-url').value
 
-        videoEl.addEventListener('loadeddata', () => {
-          videoEl.play();
-        });
-
-        videoEl.addEventListener('error', (e) => {
-          console.log('video_error', e)
-        });
-
-        if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
-          videoEl.src = url;
-        } else if (Hls.isSupported()) {
-          var hls = new Hls();
-          hls.attachMedia(videoEl);
-          hls.on(Hls.Events.MEDIA_ATTACHED, function () {
-            hls.loadSource(url);
-            hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
-              console.log(
-                'manifest loaded, found ' + data.levels.length + ' quality level'
-              );
-            });
-          });
+        if (Hls.isSupported()) {
+          const hls = new Hls()
+          hls.loadSource(hlsllUrl)
+          hls.attachMedia(videoEl)
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          videoEl.src = hlsllUrl
         }
-      });
+      })
     </script>
 
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.0.7/hls.min.js"
-        integrity="sha512-t2KkWPX3gnw9G4Wx4NYq3XISm5485OOojISxYYIqVXMEpkQy8oBvFBSvLjatPYNxrOcuSrd2Y83y27yEtNYbEw=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   </body>
 </html>
