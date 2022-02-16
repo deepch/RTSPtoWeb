@@ -3,10 +3,6 @@
   <head>
     <meta charset="utf-8">
     <title>RTSPtoWeb MSE example</title>
-
-    <style type="text/css">
-      video { border: 1px solid black; }
-    </style>
   </head>
   <body>
     <h1>RTSPtoWeb MSE example</h1>
@@ -14,102 +10,9 @@
     <input type="hidden" name="mse-url" id="mse-url"
         value="ws://localhost:8083/stream/demo/channel/0/mse?uuid=demo&channel=0">
 
-    <video id="mse-video" autoplay muted playsinline width="100%"></video>
+    <video id="mse-video" autoplay muted playsinline controls
+        style="max-width: 100%; max-height: 100%;"></video>
 
-    <script>
-      // Extracted from RTSPtoWeb
-
-      let mseQueue = [],
-        mseSourceBuffer,
-        mseStreamingStarted = false;
-
-      function startPlay() {
-        let videoEl = document.querySelector('#mse-video');
-        let url = document.querySelector('#mse-url').value;
-
-        location.protocol == 'https:' ? protocol = 'wss' : protocol = 'ws';
-        let mse = new MediaSource();
-        videoEl.src = window.URL.createObjectURL(mse);
-        mse.addEventListener('sourceopen', function() {
-          let ws = new WebSocket(url);
-          ws.binaryType = 'arraybuffer';
-          ws.onopen = function(event) {
-            console.log('Connect to ws');
-          }
-          ws.onmessage = function(event) {
-            let data = new Uint8Array(event.data);
-            if (data[0] == 9) {
-              decoded_arr = data.slice(1);
-              if (window.TextDecoder) {
-                mimeCodec = new TextDecoder('utf-8').decode(decoded_arr);
-              } else {
-                mimeCodec = Utf8ArrayToStr(decoded_arr);
-              }
-              mseSourceBuffer = mse.addSourceBuffer('video/mp4; codecs="' + mimeCodec + '"');
-              mseSourceBuffer.mode = 'segments'
-              mseSourceBuffer.addEventListener('updateend', pushPacket);
-
-            } else {
-              readPacket(event.data);
-            }
-          };
-        }, false);
-
-      }
-
-      function pushPacket() {
-        let videoEl = document.querySelector('#mse-video');
-
-        if (!mseSourceBuffer.updating) {
-          if (mseQueue.length > 0) {
-            packet = mseQueue.shift();
-            mseSourceBuffer.appendBuffer(packet);
-          } else {
-            mseStreamingStarted = false;
-          }
-        }
-        if (videoEl.buffered.length > 0) {
-          if (typeof document.hidden !== 'undefined' && document.hidden) {
-            //no sound, browser paused video without sound in background
-            videoEl.currentTime = videoEl.buffered.end((videoEl.buffered.length - 1)) - 0.5;
-          }
-        }
-      }
-
-      function readPacket(packet) {
-        if (!mseStreamingStarted) {
-          mseSourceBuffer.appendBuffer(packet);
-          mseStreamingStarted = true;
-          return;
-        }
-        mseQueue.push(packet);
-        if (!mseSourceBuffer.updating) {
-          pushPacket();
-        }
-      }
-
-      document.addEventListener('DOMContentLoaded', function() {
-        let videoEl = document.querySelector('#mse-video');
-
-        videoEl.addEventListener('loadeddata', () => {
-          videoEl.play();
-        });
-
-        //fix stalled video in safari
-        videoEl.addEventListener('pause', () => {
-          if (videoEl.currentTime > videoEl.buffered.end(videoEl.buffered.length - 1)) {
-            videoEl.currentTime = videoEl.buffered.end(videoEl.buffered.length - 1) - 0.1;
-            videoEl.play();
-          }
-        });
-
-        videoEl.addEventListener('error', (e) => {
-          console.log('video_error', e)
-        });
-
-        startPlay();
-      });
-    </script>
-
+    <script src="main.js"></script>
   </body>
 </html>
