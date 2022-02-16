@@ -349,7 +349,7 @@ func (obj *StorageST) HlsMuxerSetFPS(uuid string, channelID string, fps int) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if tmp, ok := obj.Streams[uuid]; ok {
-		if channelTmp, ok := tmp.Channels[channelID]; ok {
+		if channelTmp, ok := tmp.Channels[channelID]; ok && channelTmp.hlsMuxer != nil {
 			channelTmp.hlsMuxer.SetFPS(fps)
 			tmp.Channels[channelID] = channelTmp
 			obj.Streams[uuid] = tmp
