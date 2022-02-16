@@ -88,6 +88,7 @@ type ChannelST struct {
 	Debug              bool   `json:"debug,omitempty" groups:"api,config"`
 	Status             int    `json:"status,omitempty" groups:"api"`
 	InsecureSkipVerify bool   `json:"insecure_skip_verify,omitempty" groups:"api,config"`
+	Audio              bool   `json:"audio,omitempty" groups:"api,config"`
 	runLock            bool
 	codecs             []av.CodecData
 	sdp                []byte
