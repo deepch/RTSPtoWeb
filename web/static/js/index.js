@@ -225,7 +225,23 @@ function goRequestHandle(method, response, uuid) {
 
 }
 
+function getImageBase64(videoEl){
+    const canvas = document.createElement("canvas");
+    canvas.width = videoEl.videoWidth;
+    canvas.height = videoEl.videoHeight;
+    canvas.getContext('2d').drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+    const dataURL = canvas.toDataURL();
+    canvas.remove();
+    return dataURL;
+}
 
+function downloadBase64Image(base64Data){
+    const a = document.createElement("a");
+    a.href = base64Data;
+    a.download = "screenshot.png";
+    a.click();
+    a.remove();
+}
 
 
 function makePic(video_element, uuid, chan) {
