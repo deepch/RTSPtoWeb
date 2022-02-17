@@ -75,6 +75,7 @@ name          - channel name
 url           - channel rtsp url
 on_demand     - stream mode static (run any time) or ondemand (run only has viewers)
 debug         - enable debug output (RTSP client)
+audio         - enable audio 
 status        - default stream status
 ```
 
@@ -128,7 +129,8 @@ file.php need response json
           "name": "ch1",
           "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
           "on_demand": true,
-          "debug": false,
+          "debug": false, 
+          "audio": true,
           "status": 0
         },
         "1": {
