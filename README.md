@@ -137,7 +137,8 @@ file.php need response json
           "name": "ch2",
           "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
           "on_demand": true,
-          "debug": false,
+          "debug": false, 
+          "audio": true,
           "status": 0
         }
       }
