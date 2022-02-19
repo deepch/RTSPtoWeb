@@ -24,18 +24,38 @@ without the use of FFmpeg or GStreamer!
    ```bash
    $ git clone https://github.com/deepch/RTSPtoWeb
    ```
-3. CD to Directory
+1. CD to Directory
    ```bash
     $ cd RTSPtoWeb/
    ```
-4. Test Run
+1. Test Run
    ```bash
     $ GO111MODULE=on go run *.go
    ```
-5. Open Browser
+1. Open Browser
     ```bash
     open web browser http://127.0.0.1:8083 work chrome, safari, firefox
     ```
+
+## Installation from docker
+
+1. Run docker container
+    ```bash
+    $ docker run --name rtsp-to-web --network host ghcr.io/deepch/rtsptoweb:latest 
+    ```
+1. Open Browser
+    ```bash
+    open web browser http://127.0.0.1:8083 in chrome, safari, firefox
+    ```
+
+You may override the configuration `/PATH_TO_CONFIG/config.json` and mount as a docker volume:
+
+```bash
+$ docker run --name rtsp-to-web \
+    -v /PATH_TO_CONFIG/config.json:/app/config.json \
+    --network host \
+    ghcr.io/deepch/rtsptoweb:latest 
+```
 
 ## Configuration
 
