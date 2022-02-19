@@ -9,6 +9,8 @@ import (
 
 	"github.com/hashicorp/go-version"
 
+	"github.com/imdario/mergo"
+
 	"github.com/liip/sheriff"
 
 	"github.com/sirupsen/logrus"
@@ -45,11 +47,21 @@ func NewStreamCore() *StorageST {
 	debug = tmp.Server.Debug
 	for i, i2 := range tmp.Streams {
 		for i3, i4 := range i2.Channels {
-			i4.clients = make(map[string]ClientST)
-			i4.ack = time.Now().Add(-255 * time.Hour)
-			i4.hlsSegmentBuffer = make(map[int]SegmentOld)
-			i4.signals = make(chan int, 100)
-			i2.Channels[i3] = i4
+			channel := tmp.ChannelDefaults
+			err = mergo.Merge(&channel, i4)
+			if err != nil {
+				log.WithFields(logrus.Fields{
+					"module": "config",
+					"func":   "NewStreamCore",
+					"call":   "Merge",
+				}).Errorln(err.Error())
+				os.Exit(1)
+			}
+			channel.clients = make(map[string]ClientST)
+			channel.ack = time.Now().Add(-255 * time.Hour)
+			channel.hlsSegmentBuffer = make(map[int]SegmentOld)
+			channel.signals = make(chan int, 100)
+			i2.Channels[i3] = channel
 		}
 		tmp.Streams[i] = i2
 	}

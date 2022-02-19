@@ -44,9 +44,10 @@ var (
 
 //StorageST main storage struct
 type StorageST struct {
-	mutex   sync.RWMutex
-	Server  ServerST            `json:"server" groups:"api,config"`
-	Streams map[string]StreamST `json:"streams,omitempty" groups:"api,config"`
+	mutex           sync.RWMutex
+	Server          ServerST            `json:"server" groups:"api,config"`
+	Streams         map[string]StreamST `json:"streams,omitempty" groups:"api,config"`
+	ChannelDefaults ChannelST           `json:"channel_defaults,omitempty" groups:"api,config"`
 }
 
 //ServerST server storage section

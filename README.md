@@ -162,7 +162,10 @@ file.php need response json
         }
       }
     }
-  }
+  },
+  "channel_defaults": {
+    "on_demand": true,
+  },
 }
 ```
 

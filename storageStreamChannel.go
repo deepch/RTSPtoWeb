@@ -4,20 +4,31 @@ import (
 	"time"
 
 	"github.com/deepch/vdk/av"
+	"github.com/imdario/mergo"
 	"github.com/sirupsen/logrus"
 )
 
 //StreamChannelMake check stream exist
 func (obj *StorageST) StreamChannelMake(val ChannelST) ChannelST {
+	channel := obj.ChannelDefaults
+	if err := mergo.Merge(&channel, val); err != nil {
+		// Just ignore the default values and continue
+		channel = val
+		log.WithFields(logrus.Fields{
+			"module": "storage",
+			"func":   "StreamChannelMake",
+			"call":   "mergo.Merge",
+		}).Errorln(err.Error())
+	}
 	//make client's
-	val.clients = make(map[string]ClientST)
+	channel.clients = make(map[string]ClientST)
 	//make last ack
-	val.ack = time.Now().Add(-255 * time.Hour)
+	channel.ack = time.Now().Add(-255 * time.Hour)
 	//make hls buffer
-	val.hlsSegmentBuffer = make(map[int]SegmentOld)
+	channel.hlsSegmentBuffer = make(map[int]SegmentOld)
 	//make signals buffer chain
-	val.signals = make(chan int, 100)
-	return val
+	channel.signals = make(chan int, 100)
+	return channel
 }
 
 //StreamChannelRunAll run all stream go
