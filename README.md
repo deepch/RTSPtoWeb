@@ -48,7 +48,7 @@ without the use of FFmpeg or GStreamer!
     open web browser http://127.0.0.1:8083 in chrome, safari, firefox
     ```
 
-You may override the <a href="example-configjson">configuration</a> `/PATH_TO_CONFIG/config.json` and mount as a docker volume:
+You may override the <a href="#example-configjson">configuration</a> `/PATH_TO_CONFIG/config.json` and mount as a docker volume:
 
 ```bash
 $ docker run --name rtsp-to-web \
