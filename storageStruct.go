@@ -72,8 +72,8 @@ type ServerST struct {
 
 //Token auth
 type Token struct {
-	Enable  bool   `json:"enable,omitempty" groups:"api,config"`
-	Backend string `json:"backend,omitempty" groups:"api,config"`
+	Enable  bool   `json:"enable" groups:"api,config"`
+	Backend string `json:"backend" groups:"api,config"`
 }
 
 //ServerST stream storage section
