@@ -362,7 +362,7 @@ func (obj *StorageST) HlsMuxerWritePacket(uuid string, channelID string, packet 
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
 	if tmp, ok := obj.Streams[uuid]; ok {
-		if channelTmp, ok := tmp.Channels[channelID]; ok {
+		if channelTmp, ok := tmp.Channels[channelID]; ok && channelTmp.hlsMuxer != nil {
 			channelTmp.hlsMuxer.WritePacket(packet)
 		}
 	}
