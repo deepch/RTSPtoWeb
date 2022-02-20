@@ -16,11 +16,14 @@ FROM alpine:3.15
 
 WORKDIR /app
 
+
 COPY --from=builder /go/src/app/rtsp-to-web /app/
 COPY --from=builder /go/src/app/web /app/web
-COPY --from=builder /go/src/app/config.json /app/
+
+RUN mkdir -p /config
+COPY --from=builder /go/src/app/config.json /config
 
 ENV GO111MODULE="on"
 ENV GIN_MODE="release"
 
-CMD ["./rtsp-to-web"]
+CMD ["./rtsp-to-web", "--config=/config/config.json"]
