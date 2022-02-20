@@ -1,8 +1,4 @@
 <!DOCTYPE html>
-<!--
-This is a starter template page. Use this page to start your new project from
-scratch. This page gets rid of all links and provides the needed markup only.
--->
 <html lang="en">
 
 <head>
@@ -39,12 +35,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <li class="nav-item">
           <a class="nav-link" href="/pages/login" role="button"><i class="fas fa-sign-out-alt"></i> Sign out</a>
         </li>
-        <!-- <li class="nav-item">
-          <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button"><i class="fas fa-cogs"></i></a>
-        </li> -->
-        <!-- <li class="nav-item">
-          <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button"><i class="fas fa-th-large"></i></a>
-        </li> -->
       </ul>
     </nav>
 
@@ -72,42 +62,21 @@ scratch. This page gets rid of all links and provides the needed markup only.
               </a>
             </li>
             <li class="nav-header">NAVIGATION</li>
-
-            <li class="nav-item has-treeview {{ if or (eq .page "add_stream") (eq .page "stream_list")  }}
-              menu-open
-            {{end}}
-            ">
-              <a href="#" class="nav-link {{ if or (eq .page "add_stream") (eq .page "stream_list")  }}
+            <li class="nav-item ">
+              <a href="/pages/stream/list" class="nav-link {{ if  (eq .page "stream_list") }}
                 active
-              {{end}}
-              ">
-                <i class="nav-icon fas fa-clipboard-list"></i>
-                <p>
-                  Streams
-                  <i class="right fas fa-angle-left"></i>
-                  <span class="badge badge-info right" id="stream-counter">{{ len .streams}}</span>
-                </p>
-
+              {{end}}">
+                <i class="fas fa-list-alt nav-icon"></i>
+                <p>Streams list</p>
               </a>
-              <ul class="nav nav-treeview">
-                <li class="nav-item ">
-                  <a href="/pages/stream/list" class="nav-link {{ if  (eq .page "stream_list") }}
-                    active
-                  {{end}}">
-                    <i class="fas fa-list-alt nav-icon"></i>
-                    <p>Streams list</p>
-                  </a>
-                </li>
-
-                <li class="nav-item">
-                  <a href="/pages/stream/add" class="nav-link {{ if  (eq .page "add_stream") }}
-                    active
-                  {{end}}">
-                    <i class="fas fa-plus-square nav-icon"></i>
-                    <p>Add stream</p>
-                  </a>
-                </li>
-              </ul>
+            </li>
+            <li class="nav-item">
+              <a href="/pages/stream/add" class="nav-link {{ if  (eq .page "add_stream") }}
+                active
+              {{end}}">
+                <i class="fas fa-plus-square nav-icon"></i>
+                <p>Add stream</p>
+              </a>
             </li>
 
             <li class="nav-item ">
