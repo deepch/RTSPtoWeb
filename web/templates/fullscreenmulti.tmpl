@@ -30,7 +30,6 @@
 
         <div class="collapse navbar-collapse order-3" id="navbarCollapse">
           <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
-            <input type="hidden" id="defaultPlayer" value="mse" />
             {{ if .query.controls}}
             <li class="nav-item dropdown">
               <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><i class="fas fa-photo-video"></i></a>
@@ -89,7 +88,7 @@
               </ul>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/pages/login" role="button"><i class="fas fa-sign-out-alt"></i> Exit</a>
+              <a class="nav-link" href="/" role="button"><i class="fas fa-times"></i> Close</a>
             </li>
             {{end}}
           </ul>
