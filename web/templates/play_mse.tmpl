@@ -51,7 +51,6 @@
           }
           if(mimeCodec.indexOf(',')>0){
             videoSound=true;
-            console.log(mimeCodec);
           }
           mseSourceBuffer = mse.addSourceBuffer('video/mp4; codecs="' + mimeCodec + '"');
           mseSourceBuffer.mode = "segments"

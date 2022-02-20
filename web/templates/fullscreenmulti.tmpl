@@ -591,6 +591,9 @@
             } else {
               mimeCodec = Utf8ArrayToStr(decoded_arr);
             }
+            if(mimeCodec.indexOf(',')>0){
+              _this.sound=true;
+            }
             logger(videoPlayerVar.index(),
               uuid,
               channel,
@@ -718,7 +721,7 @@
           if (typeof document.hidden !== "undefined" && document.hidden) {
             if(!_this.sound){
               _this.video.currentTime = _this.video.buffered.end((_this.video.buffered.length - 1)) - 0.5;
-            }            
+            }
           } else {
             if ((_this.video.buffered.end((_this.video.buffered.length - 1)) - _this.video.currentTime) > 60) {
               _this.video.currentTime = _this.video.buffered.end((_this.video.buffered.length - 1)) - 0.5;
