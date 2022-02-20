@@ -9,7 +9,6 @@ without the use of FFmpeg or GStreamer!
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Command-line](#command-line)
-- [Web UI](#web-ui)
 - [API documentation](#api-documentation)
 - [Limitations](#Limitations)
 - [Performance](#Performance)
@@ -75,7 +74,7 @@ name          - channel name
 url           - channel rtsp url
 on_demand     - stream mode static (run any time) or ondemand (run only has viewers)
 debug         - enable debug output (RTSP client)
-audio         - enable audio 
+audio         - enable audio
 status        - default stream status
 ```
 
@@ -129,7 +128,7 @@ file.php need response json
           "name": "ch1",
           "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
           "on_demand": true,
-          "debug": false, 
+          "debug": false,
           "audio": true,
           "status": 0
         },
@@ -137,7 +136,7 @@ file.php need response json
           "name": "ch2",
           "url": "rtsp://admin:admin@YOU_CAMERA_IP/uri",
           "on_demand": true,
-          "debug": false, 
+          "debug": false,
           "audio": true,
           "status": 0
         }
@@ -182,28 +181,6 @@ Usage of ./RTSPtoWeb:
         config patch (/etc/server/config.json or config.json) (default "config.json")
   -debug
         set debug mode (default true)
-```
-
-## Web UI
-
-The web UI is available at http://127.0.0.1:8083/.
-
-### Parameters for full-page multiview
-
-#### Grid size
-
-```
-http://localhost:8083/pages/multiview/full?grid=5
-```
-
-#### Show additional options
-
-  * Video protocol (MSE, WebRTC, or HLS)
-  * Grid size
-  * Background image
-
-```
-http://localhost:8083/pages/multiview/full?controls
 ```
 
 ## API documentation
