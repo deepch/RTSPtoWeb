@@ -507,6 +507,7 @@
   function msePlayer(uuid, videoPlayerVar, channel) {
     this.ws = null,
       this.video = videoPlayerVar.find('video')[0],
+      this.sound=false,
       this.mseSourceBuffer = null,
       this.mse = null,
       this.mseQueue = [],
@@ -715,7 +716,9 @@
         }
         if (_this.video.buffered.length > 0) {
           if (typeof document.hidden !== "undefined" && document.hidden) {
-            _this.video.currentTime = _this.video.buffered.end((_this.video.buffered.length - 1)) - 0.5;
+            if(!_this.sound){
+              _this.video.currentTime = _this.video.buffered.end((_this.video.buffered.length - 1)) - 0.5;
+            }            
           } else {
             if ((_this.video.buffered.end((_this.video.buffered.length - 1)) - _this.video.currentTime) > 60) {
               _this.video.currentTime = _this.video.buffered.end((_this.video.buffered.length - 1)) - 0.5;

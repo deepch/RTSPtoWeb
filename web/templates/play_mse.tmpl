@@ -25,7 +25,7 @@
   });
 
   let mseQueue = [],
-    mseSourceBuffer, mseStreamingStarted = false;
+    mseSourceBuffer, mseStreamingStarted = false, videoSound=false;
 
   function startPlay() {
     let uuid = $('#uuid').val();
@@ -49,6 +49,10 @@
           } else {
             mimeCodec = Utf8ArrayToStr(decoded_arr);
           }
+          if(mimeCodec.indexOf(',')>0){
+            videoSound=true;
+            console.log(mimeCodec);
+          }
           mseSourceBuffer = mse.addSourceBuffer('video/mp4; codecs="' + mimeCodec + '"');
           mseSourceBuffer.mode = "segments"
           mseSourceBuffer.addEventListener("updateend", pushPacket);
@@ -71,7 +75,7 @@
       }
     }
     if ($("#videoPlayer")[0].buffered.length > 0) {
-      if (typeof document.hidden !== "undefined" && document.hidden) {
+      if (typeof document.hidden !== "undefined" && document.hidden && !videoSound) {
         //no sound, browser paused video without sound in background
         $("#videoPlayer")[0].currentTime = $("#videoPlayer")[0].buffered.end(($("#videoPlayer")[0].buffered.length - 1)) - 0.5;
       }
