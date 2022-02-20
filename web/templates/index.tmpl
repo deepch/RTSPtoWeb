@@ -17,95 +17,9 @@
 <!-- Main content -->
 <div class="content">
   <div class="container-fluid">
-    <h5 class="mt-4 mb-2">System information</h5>
     <div class="row">
-      <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box">
-          <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cog"></i></span>
-
-          <div class="info-box-content">
-            <span class="info-box-text">CPU</span>
-            <span class="info-box-number">
-              <label>0</label>
-              <small>%</small>
-            </span>
-          </div>
-          <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-      </div>
-      <!-- /.col -->
-      <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box mb-3">
-          <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-chart-line"></i></span>
-
-          <div class="info-box-content">
-            <span class="info-box-text">Bitrate</span>
-            <span class="info-box-number">
-              <label>0</label>
-              <small>kbps</small>
-            </span>
-          </div>
-          <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-      </div>
-      <!-- /.col -->
-
-      <!-- fix for small devices only -->
-      <div class="clearfix hidden-md-up"></div>
-
-      <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box mb-3">
-          <span class="info-box-icon bg-success elevation-1"><i class="fas fa-photo-video"></i></span>
-
-          <div class="info-box-content">
-            <span class="info-box-text">Streams</span>
-            <span class="info-box-number">
-              <label>{{ len .streams}}</label>
-              <small>st.</small>
-            </span>
-          </div>
-          <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-      </div>
-      <!-- /.col -->
-      <div class="col-12 col-sm-6 col-md-3">
-        <div class="info-box mb-3">
-          <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
-
-          <div class="info-box-content">
-            <span class="info-box-text">Viewers</span>
-            <span class="info-box-number">
-              <label>0</label>
-              <small>man</small>
-            </span>
-          </div>
-          <!-- /.info-box-content -->
-        </div>
-        <!-- /.info-box -->
-      </div>
-      <!-- /.col -->
-    </div>
-
-
-    <div class="row">
-      <div class="col-6">
-        <h5 class="mt-4 mb-2">Streams</h5>
-      </div>
-      <div class="col-6">
-
-        <div class="input-group-prepend float-right mt-3">
-          <a class="btn" data-toggle="dropdown" style="padding-right: 0;">
-            <i class="fas fa-lg fa-sort"></i>
-          </a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="#">Name <i class="fas fa-sort-alpha-down float-right"></i> </a>
-            <a class="dropdown-item" href="#">Name <i class="fas fa-sort-alpha-up float-right"></i></a>
-          </div>
-        </div>
-
+      <div class="col-12">
+        <h5 class="mt-4 mb-2">Streams ({{ len .streams}})</h5>
       </div>
     </div>
 
