@@ -52,7 +52,7 @@ You may override the <a href="#example-configjson">configuration</a> `/PATH_TO_C
 
 ```bash
 $ docker run --name rtsp-to-web \
-    -v /PATH_TO_CONFIG/config.json:/app/config.json \
+    -v /PATH_TO_CONFIG/config.json:/config/config.json \
     --network host \
     ghcr.io/deepch/rtsptoweb:latest 
 ```
