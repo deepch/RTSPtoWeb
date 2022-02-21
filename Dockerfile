@@ -1,21 +1,22 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.18rc1-alpine3.15 AS builder
+FROM --platform=${BUILDPLATFORM} golang:1.18rc1-alpine3.15 AS builder
 
 RUN apk add git
 
 WORKDIR /go/src/app
 COPY . .
 
+ARG TARGETOS TARGETARCH TARGETVARIANT
+
 ENV CGO_ENABLED=0
 RUN go get \
     && go mod download \
-    && go build -a -o rtsp-to-web
+    && GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#"v"} go build -a -o rtsp-to-web
 
 FROM alpine:3.15
 
 WORKDIR /app
-
 
 COPY --from=builder /go/src/app/rtsp-to-web /app/
 COPY --from=builder /go/src/app/web /app/web
