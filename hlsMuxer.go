@@ -48,6 +48,11 @@ func (element *MuxerHLS) WritePacket(packet *av.Packet) {
 	element.mutex.Lock()
 	defer element.mutex.Unlock()
 	//TODO delete packet.IsKeyFrame if need no EXT-X-INDEPENDENT-SEGMENTS
+
+	if !packet.IsKeyFrame && element.CurrentSegment == nil {
+		// Wait for the first keyframe before initializing
+		return
+	}
 	if packet.IsKeyFrame && (element.CurrentSegment == nil || element.CurrentSegment.GetDuration().Seconds() >= 4) {
 		if element.CurrentSegment != nil {
 			element.CurrentSegment.Close()
