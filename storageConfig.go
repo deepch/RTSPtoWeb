@@ -16,17 +16,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//debug global
+// Command line flag global variables
 var debug bool
+var configFile string
 
 //NewStreamCore do load config file
 func NewStreamCore() *StorageST {
-	argConfigPatch := flag.String("config", "config.json", "config patch (/etc/server/config.json or config.json)")
-	argDebug := flag.Bool("debug", true, "set debug mode")
-	debug = *argDebug
+	flag.BoolVar(&debug, "debug", true, "set debug mode")
+	flag.StringVar(&configFile, "config", "config.json", "config patch (/etc/server/config.json or config.json)")
 	flag.Parse()
+
 	var tmp StorageST
-	data, err := ioutil.ReadFile(*argConfigPatch)
+	data, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"module": "config",
@@ -70,6 +71,10 @@ func NewStreamCore() *StorageST {
 
 //ClientDelete Delete Client
 func (obj *StorageST) SaveConfig() error {
+	log.WithFields(logrus.Fields{
+		"module": "config",
+		"func":   "NewStreamCore",
+	}).Debugln("Saving configuration to", configFile)
 	v2, err := version.NewVersion("2.0.0")
 	if err != nil {
 		return err
@@ -85,8 +90,13 @@ func (obj *StorageST) SaveConfig() error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile("config.json", res, 0644)
+	err = ioutil.WriteFile(configFile, res, 0644)
 	if err != nil {
+		log.WithFields(logrus.Fields{
+			"module": "config",
+			"func":   "SaveConfig",
+			"call":   "WriteFile",
+		}).Errorln(err.Error())
 		return err
 	}
 	return nil
