@@ -3,7 +3,7 @@ module github.com/deepch/RTSPtoWeb
 go 1.16
 
 require (
-	github.com/deepch/vdk v0.0.0-20220210205025-4054700600bf
+	github.com/deepch/vdk v0.0.0-20220309163430-c6529706436c
 	github.com/gin-gonic/autotls v0.0.3
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
@@ -14,7 +14,7 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/ugorji/go v1.2.6 // indirect
-	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
+	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
