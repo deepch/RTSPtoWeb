@@ -7,28 +7,31 @@
     "http_login": "demo",
     "http_password": "demo",
     "http_port": ":8083",
-    "log_level": "debug",
-    "rtsp_port": ":5541",
     "https": false,
-    "https_port": ":443",
+    "https_auto_tls": false,
+    "https_auto_tls_name": "",
     "https_cert": "server.crt",
     "https_key": "server.key",
+    "https_port": ":443",
+    "log_level": "debug",
+    "rtsp_port": ":5541",
     "token": {
-      "enable": false,
       "backend": "http://127.0.0.1/test.php"
+    },
+    "defaults": {
+      "audio": true
     }
-},
+  },
   "streams": {
-    "demo": {
+    "27aec28e-6181-4753-9acd-0456a75f0289": {
       "channels": {
         "0": {
-          "debug": true,
-          "on_demand": false,
-          "insecure_skip_verify": true,
-          "url": "rtsp://admin:deep18rwip@176.117.205.3:5541/video1"
+          "url": "rtmp://171.25.232.10/12d525bc9f014e209c1280bc0d46a87e",
+          "debug": false,
+          "audio": true
         }
       },
-      "name": "demo"
+      "name": "111111111"
     }
   }
 }
