@@ -11,6 +11,8 @@ github.com/deepch/vdk v0.0.0-20220210205025-4054700600bf h1:w0GXbCCdxwXeeBXTXUJ3
 github.com/deepch/vdk v0.0.0-20220210205025-4054700600bf/go.mod h1:bZpGRyu6rdPHp17ck2/34Ae0LTBzyDQl9bkxtIK3qII=
 github.com/deepch/vdk v0.0.0-20220309163430-c6529706436c h1:ElPbczQd4gu6bAiBYdffk4d2KoGG1qolXVfDJkijpok=
 github.com/deepch/vdk v0.0.0-20220309163430-c6529706436c/go.mod h1:9rAZ6GWQMM5y9J58Efr1uh+YYTuzojAnvUH1XxS8OJ8=
+github.com/deepch/vdk v0.0.0-20220313191818-4a535c529692 h1:MINxrhwlPZfvaZJBDakt5PB6iVF0qrmiUqmChPgJoRQ=
+github.com/deepch/vdk v0.0.0-20220313191818-4a535c529692/go.mod h1:9rAZ6GWQMM5y9J58Efr1uh+YYTuzojAnvUH1XxS8OJ8=
 github.com/deepch/vdk v0.0.0-20220313205151-c9ede83713b6 h1:XwxJdhXpeWdoh/DH//Wz5lOYXAxNi5VYUgE8X+x1RLg=
 github.com/deepch/vdk v0.0.0-20220313205151-c9ede83713b6/go.mod h1:9rAZ6GWQMM5y9J58Efr1uh+YYTuzojAnvUH1XxS8OJ8=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
