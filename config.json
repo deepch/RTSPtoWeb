@@ -13,6 +13,7 @@
     "https_cert": "server.crt",
     "https_key": "server.key",
     "https_port": ":443",
+    "ice_servers": ["stun:stun.l.google.com:19302"],
     "log_level": "debug",
     "rtsp_port": ":5541",
     "token": {
