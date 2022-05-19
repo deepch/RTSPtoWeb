@@ -21,12 +21,15 @@
 </div>
 <script>
   let webrtc, webrtcSendChannel;
+  let mediaStream;
 
   $(document).ready(() => {
     startPlay();
   });
 
-  function startPlay() {
+  async function startPlay() {
+    mediaStream = new MediaStream();
+    $("#videoPlayer")[0].srcObject =  mediaStream;
     webrtc = new RTCPeerConnection({
       iceServers: [{
         urls: ["stun:stun.l.google.com:19302"]
@@ -34,33 +37,63 @@
       sdpSemantics: "unified-plan"
     });
     webrtc.onnegotiationneeded = handleNegotiationNeeded;
-    webrtc.ontrack = function(event) {
-      console.log(event.streams.length + ' track is delivered');
-      $("#videoPlayer")[0].srcObject = event.streams[0];
-      $("#videoPlayer")[0].play();
-    }
-    webrtc.addTransceiver('video', {
-      'direction': 'sendrecv'
-    });
-    webrtcSendChannel = webrtc.createDataChannel('foo');
-    // webrtc.addTransceiver('video', {
-    //   'direction': 'sendrecv'
-    // });
-    webrtcSendChannel.onclose = () => {
-      startPlay();
-      console.log('sendChannel has closed');
-    }
-    webrtcSendChannel.onopen = () => {
-      console.log('sendChannel has opened');
-      webrtcSendChannel.send('ping');
-      webrtcSendChannelInterval = setInterval(() => {
-        webrtcSendChannel.send('ping');
-      }, 1000)
-    }
+    webrtc.onsignalingstatechange = signalingstatechange;
 
-    webrtcSendChannel.onmessage = e => console.log(e.data);
-
+    webrtc.ontrack = ontrack
+    let offer = await webrtc.createOffer({
+            //iceRestart:true,
+            offerToReceiveAudio:true,
+            offerToReceiveVideo:true
+        });
+        await webrtc.setLocalDescription(offer);
   }
+
+  function ontrack (event){
+    console.log(event.streams.length + ' track is delivered');
+    mediaStream.addTrack(event.track);
+  }
+
+  async function signalingstatechange (){
+        switch (webrtc.signalingState){
+            case 'have-local-offer':
+            let uuid = $('#uuid').val();
+            let channel = $('#channel').val();
+            let url = "/stream/" + uuid + "/channel/" + channel + "/webrtc?uuid=" + uuid + '&channel=' + channel;
+            $.post(url, {
+              data: btoa(webrtc.localDescription.sdp)
+            }, function(data) {
+              try {
+                console.log(data);
+                webrtc.setRemoteDescription(new RTCSessionDescription({
+                  type: 'answer',
+                  sdp: atob(data)
+                }))
+              } catch (e) {
+                console.warn(e);
+              }
+
+            });
+                break;
+            case 'stable':
+                /*
+                * There is no ongoing exchange of offer and answer underway.
+                * This may mean that the RTCPeerConnection object is new, in which case both the localDescription and remoteDescription are null;
+                * it may also mean that negotiation is complete and a connection has been established.
+                */
+                break;
+
+            case 'closed':
+                /*
+                 * The RTCPeerConnection has been closed.
+                 */
+                break;
+
+            default:
+                console.log(`unhandled signalingState is ${webrtc.signalingState}`);
+                break;
+        }
+    }
+
   async function handleNegotiationNeeded() {
     let uuid = $('#uuid').val();
     let channel = $('#channel').val();
