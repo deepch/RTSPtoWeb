@@ -1,11 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
-	"time"
+	"net/url"
 )
 
 type AuthorizationReq struct {
@@ -26,25 +25,7 @@ func RemoteAuthorization(proto string, stream string, channel string, token stri
 		return true
 	}
 
-	buf, err := json.Marshal(&AuthorizationReq{proto, stream, channel, token, ip})
-
-	if err != nil {
-		return false
-	}
-
-	request, err := http.NewRequest("POST", Storage.ServerTokenBackend(), bytes.NewBuffer(buf))
-
-	if err != nil {
-		return false
-	}
-
-	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
-
-	client := &http.Client{
-		Timeout: 1 * time.Second,
-	}
-
-	response, err := client.Do(request)
+	response, err := http.PostForm(Storage.ServerTokenBackend(), url.Values{"proto": {proto}, "stream": {stream}, "channel": {channel}, "token": {token}, "ip":{ip}})
 
 	if err != nil {
 		return false
@@ -53,6 +34,11 @@ func RemoteAuthorization(proto string, stream string, channel string, token stri
 	defer response.Body.Close()
 
 	bodyBytes, err := io.ReadAll(response.Body)
+
+	// debug
+	// Convert the body to type string
+	// sb := string(bodyBytes)
+	// log.Printf(sb)
 
 	if err != nil {
 		return false

@@ -1,7 +1,8 @@
 {
+  "channel_defaults": {},
   "server": {
     "debug": true,
-    "http_debug": false,
+    "http_debug": true,
     "http_demo": true,
     "http_dir": "web",
     "http_login": "demo",
@@ -13,26 +14,29 @@
     "https_cert": "server.crt",
     "https_key": "server.key",
     "https_port": ":443",
-    "ice_servers": ["stun:stun.l.google.com:19302"],
+    "ice_credential": "",
+    "ice_servers": [
+      "stun:stun.l.google.com:19302"
+    ],
+    "ice_username": "",
     "log_level": "debug",
     "rtsp_port": ":5541",
     "token": {
-      "backend": "http://127.0.0.1/test.php"
+      "backend": "http://127.0.0.1/cam/auth.php",
+      "enable": true
     },
-    "defaults": {
-      "audio": true
-    }
+    "webrtc_port_max": 0,
+    "webrtc_port_min": 0
   },
   "streams": {
-    "27aec28e-6181-4753-9acd-0456a75f0289": {
+    "vlad": {
       "channels": {
         "0": {
-          "url": "rtmp://171.25.232.10/12d525bc9f014e209c1280bc0d46a87e",
-          "debug": false,
-          "audio": true
+          "debug": true,
+          "url": "rtsp://admin:q1w2e3r4t5y6@192.168.10.4/Streaming/channels/1"
         }
       },
-      "name": "111111111"
+      "name": "Cam 1"
     }
   }
 }
