@@ -80,6 +80,7 @@
             </li>
               {{ if .query.controls}}
             <li class="nav-item dropdown">
+              <input type="hidden" id="defaultPlayer" value="mse" />
               <a id="defaultPlayerMenu" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">MSE</a>
               <ul aria-labelledby="defaultPlayerMenu" class="dropdown-menu  custom-dropdown">
                 <li><a href="#" class="dropdown-item" onclick="defaultPlayer('mse',this)">MSE</a></li>
