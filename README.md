@@ -61,15 +61,20 @@ $ docker run --name rtsp-to-web \
 ### Server settings
 
 ```text
-debug         - enable debug output
-log_level     - log level (trace, debug, info, warning, error, fatal, or panic)
+debug           - enable debug output
+log_level       - log level (trace, debug, info, warning, error, fatal, or panic)
 
-http_demo     - serve static files
-http_debug    - debug http api server
-http_login    - http auth login
-http_password - http auth password
-http_port     - http server port
-http_dir      - path to serve static files from
+http_demo       - serve static files
+http_debug      - debug http api server
+http_login      - http auth login
+http_password   - http auth password
+http_port       - http server port
+http_dir        - path to serve static files from
+ice_servers     - array of servers to use for STUN/TURN
+ice_username    - username to use for STUN/TURN
+ice_credential  - credential to use for STUN/TURN
+webrtc_port_min - minimum WebRTC port to use (UDP)
+webrtc_port_max - maximum WebRTC port to use (UDP)
 
 https
 https_auto_tls
@@ -78,24 +83,24 @@ https_cert
 https_key
 https_port
 
-rtsp_port     - rtsp server port
+rtsp_port       - rtsp server port
 ```
 
 ### Stream settings
 
 ```text
-name          - stream name
+name            - stream name
 ```
 
 ### Channel settings
 
 ```text
-name          - channel name
-url           - channel rtsp url
-on_demand     - stream mode static (run any time) or ondemand (run only has viewers)
-debug         - enable debug output (RTSP client)
-audio         - enable audio
-status        - default stream status
+name            - channel name
+url             - channel rtsp url
+on_demand       - stream mode static (run any time) or ondemand (run only has viewers)
+debug           - enable debug output (RTSP client)
+audio           - enable audio
+status          - default stream status
 ```
 
 #### Authorization play video
@@ -138,6 +143,7 @@ file.php need response json
     "http_login": "demo",
     "http_password": "demo",
     "http_port": ":8083",
+    "ice_servers": ["stun:stun.l.google.com:19302"],
     "rtsp_port": ":5541"
   },
   "streams": {
