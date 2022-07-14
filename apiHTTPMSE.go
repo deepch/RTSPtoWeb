@@ -102,8 +102,20 @@ func HTTPAPIServerStreamMSE(ws *websocket.Conn) {
 		}
 	}()
 	noVideo := time.NewTimer(10 * time.Second)
+	pingTicker := time.NewTicker(500 * time.Millisecond)
+	defer pingTicker.Stop()
 	for {
 		select {
+		case <-pingTicker.C:
+			ws.PayloadType = websocket.PingFrame
+			err = ws.SetWriteDeadline(time.Now().Add(3 * time.Second))
+			if err != nil {
+				return
+			}
+			_, err = ws.Write(nil)
+			if err != nil {
+				return
+			}
 		case <-controlExit:
 			requestLogger.WithFields(logrus.Fields{
 				"call": "controlExit",
