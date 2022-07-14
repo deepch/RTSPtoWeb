@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/net/websocket"
 )
 
 //Message resp struct
@@ -101,10 +100,7 @@ func HTTPAPIServer() {
 	public.GET("/stream/:uuid/channel/:channel/hlsll/live/segment/:segment/:any", HTTPAPIServerStreamHLSLLM4Segment)
 	public.GET("/stream/:uuid/channel/:channel/hlsll/live/fragment/:segment/:fragment/:any", HTTPAPIServerStreamHLSLLM4Fragment)
 	//MSE
-	public.GET("/stream/:uuid/channel/:channel/mse", func(c *gin.Context) {
-		handler := websocket.Handler(HTTPAPIServerStreamMSE)
-		handler.ServeHTTP(c.Writer, c.Request)
-	})
+	public.GET("/stream/:uuid/channel/:channel/mse", HTTPAPIServerStreamMSE)
 	public.POST("/stream/:uuid/channel/:channel/webrtc", HTTPAPIServerStreamWebRTC)
 	/*
 		Static HTML Files Demo Mode
