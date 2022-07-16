@@ -3,7 +3,7 @@ module github.com/deepch/RTSPtoWeb
 go 1.18
 
 require (
-	github.com/deepch/vdk v0.0.18
+	github.com/deepch/vdk v0.0.19
 	github.com/gin-gonic/autotls v0.0.3
 	github.com/gin-gonic/gin v1.7.7
 	github.com/gobwas/ws v1.1.0
