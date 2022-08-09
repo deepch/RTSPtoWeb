@@ -39,13 +39,13 @@ func HTTPAPIServer() {
 	if Storage.ServerHTTPLogin() != "" && Storage.ServerHTTPPassword() != "" {
 		privat.Use(gin.BasicAuth(gin.Accounts{Storage.ServerHTTPLogin(): Storage.ServerHTTPPassword()}))
 	}
-	public.LoadHTMLGlob(Storage.ServerHTTPDir() + "/templates/*")
 
 	/*
 		Html template
 	*/
 
 	if Storage.ServerHTTPDemo() {
+		public.LoadHTMLGlob(Storage.ServerHTTPDir() + "/templates/*")
 		public.GET("/", HTTPAPIServerIndex)
 		public.GET("/pages/stream/list", HTTPAPIStreamList)
 		public.GET("/pages/stream/add", HTTPAPIAddStream)
