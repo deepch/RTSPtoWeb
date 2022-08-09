@@ -41,7 +41,7 @@ func HTTPAPIServer() {
 	}
 
 	/*
-		Html template
+		Static HTML Files Demo Mode
 	*/
 
 	if Storage.ServerHTTPDemo() {
@@ -57,6 +57,7 @@ func HTTPAPIServer() {
 		public.Any("/pages/multiview/full", HTTPAPIFullScreenMultiView)
 		public.GET("/pages/documentation", HTTPAPIServerDocumentation)
 		public.GET("/pages/player/all/:uuid/:channel", HTTPAPIPlayAll)
+		public.StaticFS("/static", http.Dir(Storage.ServerHTTPDir()+"/static"))
 	}
 
 	/*
@@ -102,12 +103,7 @@ func HTTPAPIServer() {
 	//MSE
 	public.GET("/stream/:uuid/channel/:channel/mse", HTTPAPIServerStreamMSE)
 	public.POST("/stream/:uuid/channel/:channel/webrtc", HTTPAPIServerStreamWebRTC)
-	/*
-		Static HTML Files Demo Mode
-	*/
-	if Storage.ServerHTTPDemo() {
-		public.StaticFS("/static", http.Dir(Storage.ServerHTTPDir()+"/static"))
-	}
+
 	/*
 		HTTPS Mode Cert
 		# Key considerations for algorithm "RSA" ≥ 2048-bit
