@@ -11,7 +11,7 @@ require (
 	github.com/imdario/mergo v0.3.13
 	github.com/liip/sheriff v0.11.1
 	github.com/sirupsen/logrus v1.8.1
-	golang.org/x/net v0.0.0-20220726230323-06994584191e
+	golang.org/x/net v0.0.0-20220907135653-1e95f45603a7
 )
 
 require (
@@ -49,7 +49,7 @@ require (
 	github.com/pion/webrtc/v3 v3.1.42 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	golang.org/x/crypto v0.0.0-20220516162934-403b01795ae8 // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
+	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
