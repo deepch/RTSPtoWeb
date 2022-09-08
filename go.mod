@@ -10,7 +10,7 @@ require (
 	github.com/hashicorp/go-version v1.6.0
 	github.com/imdario/mergo v0.3.13
 	github.com/liip/sheriff v0.11.1
-	github.com/sirupsen/logrus v1.8.1
+	github.com/sirupsen/logrus v1.9.0
 	golang.org/x/net v0.0.0-20220907135653-1e95f45603a7
 )
 
