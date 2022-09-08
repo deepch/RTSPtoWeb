@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/deepch/vdk v0.0.19
-	github.com/gin-gonic/autotls v0.0.3
+	github.com/gin-gonic/autotls v0.0.5
 	github.com/gin-gonic/gin v1.8.1
 	github.com/gobwas/ws v1.1.0
 	github.com/hashicorp/go-version v1.6.0
@@ -48,7 +48,8 @@ require (
 	github.com/pion/udp v0.1.1 // indirect
 	github.com/pion/webrtc/v3 v3.1.42 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
-	golang.org/x/crypto v0.0.0-20220516162934-403b01795ae8 // indirect
+	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
+	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde // indirect
 	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
