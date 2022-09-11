@@ -451,7 +451,7 @@ http://127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/webrtc
 
 #### Request
 
-The request is an HTTP `POST` with a parameter `data` that is a base64 encoded SDP offer (e.g. `v=0...`) from a WebRTC client.
+The request is an HTTP `POST` with a FormData parameter `data` that is a base64 encoded SDP offer (e.g. `v=0...`) from a WebRTC client.
 
 #### Response
 
