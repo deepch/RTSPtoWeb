@@ -11,7 +11,7 @@ require (
 	github.com/imdario/mergo v0.3.13
 	github.com/liip/sheriff v0.11.1
 	github.com/sirupsen/logrus v1.9.0
-	golang.org/x/net v0.0.0-20220921203646-d300de134e69
+	golang.org/x/net v0.0.0-20221002022538-bcab6841153b
 )
 
 require (
