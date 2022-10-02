@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM --platform=${BUILDPLATFORM} golang:1.18-alpine3.15 AS builder
+FROM --platform=${BUILDPLATFORM} golang:1.19-alpine3.15 AS builder
 
 RUN apk add git
 
