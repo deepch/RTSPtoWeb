@@ -1,6 +1,7 @@
 # supervisor
 
 https://codesahara.com/blog/how-to-deploy-golang-with-supervisor/
+
 ```
 apt-get install supervisor
 sudo service supervisor reload
@@ -17,23 +18,6 @@ stderr_logfile=/var/log/RTSPtoWeb.err
 stdout_logfile=/var/log/RTSPtoWeb.log
 
 ```
-
-# RTSPtoWeb share you ip camera to world!
-
-RTSPtoWeb converts your RTSP streams to formats consumable in a web browser
-like MSE (Media Source Extensions), WebRTC, or HLS. It's fully native Golang
-without the use of FFmpeg or GStreamer!
-
-## Table of Contents
-
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Command-line](#command-line)
-- [API documentation](#api-documentation)
-- [Limitations](#Limitations)
-- [Performance](#Performance)
-- [Authors](#Authors)
-- [License](#license)
 
 ## Installation
 
@@ -52,33 +36,38 @@ without the use of FFmpeg or GStreamer!
     $ GO111MODULE=on go run *.go
    ```
 1. Open Browser
-    ```bash
-    open web browser http://127.0.0.1:8083 work chrome, safari, firefox
-    ```
-
-## Installation from docker
-
-1. Run docker container
-    ```bash
-    $ docker run --name rtsp-to-web --network host ghcr.io/deepch/rtsptoweb:latest 
-    ```
-1. Open Browser
-    ```bash
-    open web browser http://127.0.0.1:8083 in chrome, safari, firefox
-    ```
-
-You may override the <a href="#example-configjson">configuration</a> `/PATH_TO_CONFIG/config.json` and mount as a docker volume:
-
-```bash
-$ docker run --name rtsp-to-web \
-    -v /PATH_TO_CONFIG/config.json:/config/config.json \
-    --network host \
-    ghcr.io/deepch/rtsptoweb:latest 
-```
+   ```bash
+   open web browser http://127.0.0.1:8083 work chrome, safari, firefox
+   ```
 
 ## Configuration
 
 ### Server settings
+
+Install go lang > v1.3
+
+```
+sudo add-apt-repository ppa:longsleep/golang-backports
+sudo apt-get update
+sudo apt-get install golang-go
+```
+
+proxy pass web UI with authentication
+
+```
+location /streams/ {
+    auth_basic           "Administrator’s Area";
+    auth_basic_user_file /etc/apache2/.htpasswd;
+    proxy_pass http://172.16.20.242:8083/;
+}
+
+location /static/ {
+    proxy_pass http://172.16.20.242:8083/static/;
+}
+
+```
+
+### App settings
 
 ```text
 debug           - enable debug output
@@ -144,12 +133,12 @@ file.php need response json
 
 ```text
    status: "1" or "0"
- ```
+```
 
 #### RTSP pull modes
 
-  * **on demand** (on_demand=true) - only pull video from the source when there's a viewer
-  * **static** (on_demand=false) - pull video from the source constantly
+- **on demand** (on_demand=true) - only pull video from the source when there's a viewer
+- **static** (on_demand=false) - pull video from the source constantly
 
 ### Example config.json
 
@@ -209,8 +198,8 @@ file.php need response json
     }
   },
   "channel_defaults": {
-    "on_demand": true,
-  },
+    "on_demand": true
+  }
 }
 ```
 
@@ -250,8 +239,8 @@ CPU usage ≈0.2%-1% one (thread) core cpu intel core i7 per stream
 
 ## Authors
 
-* **Andrey Semochkin** - *Initial work video* - [deepch](https://github.com/deepch)
-* **Dmitriy Vladykin** - *Initial work web UI* - [vdalex25](https://github.com/vdalex25)
+- **Andrey Semochkin** - _Initial work video_ - [deepch](https://github.com/deepch)
+- **Dmitriy Vladykin** - _Initial work web UI_ - [vdalex25](https://github.com/vdalex25)
 
 See also the list of [contributors](https://github.com/deepch/RTSPtoWeb/contributors) who participated in this project.
 
