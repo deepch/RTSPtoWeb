@@ -22,8 +22,8 @@
     "log_level": "debug",
     "rtsp_port": ":5541",
     "token": {
-      "backend": "http://127.0.0.1/cam/auth.php",
-      "enable": true
+      "backend": "http://192.168.10.8/cam/auth.php",
+      "enable": false
     },
     "webrtc_port_max": 0,
     "webrtc_port_min": 0

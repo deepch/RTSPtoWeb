@@ -1,3 +1,23 @@
+# supervisor
+
+https://codesahara.com/blog/how-to-deploy-golang-with-supervisor/
+```
+apt-get install supervisor
+sudo service supervisor reload
+supervisorctl status
+```
+
+```
+[program:RTSPtoWeb]
+directory=/home/rocoders/RTSPtoWeb
+command=/home/rocoders/RTSPtoWeb/bin/RTSPtoWeb
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/RTSPtoWeb.err
+stdout_logfile=/var/log/RTSPtoWeb.log
+
+```
+
 # RTSPtoWeb share you ip camera to world!
 
 RTSPtoWeb converts your RTSP streams to formats consumable in a web browser
