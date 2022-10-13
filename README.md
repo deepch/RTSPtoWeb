@@ -55,7 +55,7 @@ sudo apt-get install golang-go
 proxy pass web UI with authentication
 
 ```
-location /streams/ {
+location /webui/ {
     auth_basic           "Administrator’s Area";
     auth_basic_user_file /etc/apache2/.htpasswd;
     proxy_pass http://172.16.20.242:8083/;
@@ -64,7 +64,89 @@ location /streams/ {
 location /static/ {
     proxy_pass http://172.16.20.242:8083/static/;
 }
+location /stream/ {
+    proxy_pass http://172.16.20.242:8083/stream/;
+}
+location /streams/ {
+    proxy_pass http://172.16.20.242:8083/streams/;
+}
+location /pages/ {
+    proxy_pass http://172.16.20.242:8083/pages/;
+}
 
+location /live1/ {
+    proxy_pass http://172.16.20.242:85/;
+}
+
+location /live2/ {
+    proxy_pass http://172.16.20.242:86/;
+}
+
+location /live1stream/ {
+  proxy_pass http://172.16.20.242:8083/stream/2299d8fb-39de-4d04-931a-7a2af1faac8a/channel/1/webrtc?uuid=2299d8fb-39de-4d04-931a-7a2af1faac8a&channel=1&token=98nf438fr43;
+}
+
+location /live2stream/ {
+  proxy_pass http://172.16.20.242:8083/stream/4d22a1a9-768c-4d5d-99bf-eef246f4c2cb/channel/1/webrtc?uuid=4d22a1a9-768c-4d5d-99bf-eef246f4c2cb&channel=1&token=98nf438fr43;
+}
+
+location /live3stream/ {
+  proxy_pass http://172.16.20.242:8083/stream/4d22a1a9-768c-4d5d-99bf-eef246f4c2cb/channel/1/webrtc?uuid=4d22a1a9-768c-4d5d-99bf-eef246f4c2cb&channel=1&token=98nf438fr43;
+}
+
+```
+
+PTZ server
+
+```
+server {
+    listen 85;
+    server_name 172.16.20.242;
+
+    root /var/www/ptz1/public_html;
+
+    index index.html index.htm index.php;
+
+    error_log  /var/log/nginx/ptz1.error.log;
+    access_log /var/log/nginx/ptz1.access.log;
+
+    location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+    }
+}
+
+server {
+    listen 86;
+    server_name 172.16.20.242;
+
+    root /var/www/ptz2/public_html;
+
+    index index.html index.htm index.php;
+
+    error_log  /var/log/nginx/ptz2.error.log;
+    access_log /var/log/nginx/ptz2.access.log;
+
+    location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+    }
+}
+
+```
+
+If ufw is enabled, need to allow ports from config
+
+```
+ufw allow 61000:61000/upd
 ```
 
 ### App settings

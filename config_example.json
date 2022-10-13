@@ -23,8 +23,8 @@
       "backend": "http://192.168.10.8/cam/auth.php",
       "enable": false
     },
-    "webrtc_port_max": 0,
-    "webrtc_port_min": 0
+    "webrtc_port_max": 61000,
+    "webrtc_port_min": 60000
   },
   "streams": {
     "vlad": {
