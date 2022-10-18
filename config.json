@@ -7,7 +7,7 @@
     "http_dir": "web",
     "http_login": "demo",
     "http_password": "demo",
-    "http_port": ":8083",
+    "http_port": ":8085",
     "https": false,
     "https_auto_tls": false,
     "https_auto_tls_name": "",
@@ -20,7 +20,7 @@
     "log_level": "debug",
     "rtsp_port": ":5541",
     "token": {
-      "backend": "http://192.168.10.8/cam/auth.php",
+      "backend": "http://webcam.bm.test/cam/auth.php",
       "enable": false
     },
     "webrtc_port_max": 61000,
@@ -34,7 +34,7 @@
           "url": "rtsp://admin:q1w2e3r4t5y6@192.168.10.4/Streaming/channels/1"
         }
       },
-      "name": "Cam 1"
+      "name": "Birou"
     }
   }
 }

@@ -1,9 +1,23 @@
 {{template "head.tmpl" .}}
+{{ $stream:= (index .streams .uuid)}}
+{{ $mainChannel := (index $stream.Channels "0") }}
 <div class="content-header">
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
         <h1 class="m-0 text-dark">Play webrtc video</h1>
+        <div>
+          <div>Input stream (rtsp source): <span class="text-primary">{{$mainChannel.URL}}</span></div>
+          <div>
+            Output stream (webrtc): 
+            <span class="text-danger">
+              /stream/{{ .uuid }}/channel/0/webrtc?uuid={{ .uuid }}&channel={{ .channel }}
+            </span>
+            <div class="text-info">
+              POST /stream/:uuid/channel/:channel/webrtc
+            </div>
+          </div>
+        </div>
       </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">

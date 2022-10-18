@@ -1,24 +1,3 @@
-# supervisor
-
-https://codesahara.com/blog/how-to-deploy-golang-with-supervisor/
-
-```
-apt-get install supervisor
-sudo service supervisor reload
-supervisorctl status
-```
-
-```
-[program:RTSPtoWeb]
-directory=/home/rocoders/RTSPtoWeb
-command=/home/rocoders/RTSPtoWeb/bin/RTSPtoWeb
-autostart=true
-autorestart=true
-stderr_logfile=/var/log/RTSPtoWeb.err
-stdout_logfile=/var/log/RTSPtoWeb.log
-
-```
-
 ## Installation
 
 ### Installation from source
@@ -52,63 +31,23 @@ sudo apt-get update
 sudo apt-get install golang-go
 ```
 
-proxy pass web UI with authentication
+### Web server settings (nginx)
 
-```
-location /webui/ {
-    auth_basic           "Administrator’s Area";
-    auth_basic_user_file /etc/apache2/.htpasswd;
-    proxy_pass http://172.16.20.242:8083/;
-}
-
-location /static/ {
-    proxy_pass http://172.16.20.242:8083/static/;
-}
-location /stream/ {
-    proxy_pass http://172.16.20.242:8083/stream/;
-}
-location /streams/ {
-    proxy_pass http://172.16.20.242:8083/streams/;
-}
-location /pages/ {
-    proxy_pass http://172.16.20.242:8083/pages/;
-}
-
-location /live1/ {
-    proxy_pass http://172.16.20.242:85/;
-}
-
-location /live2/ {
-    proxy_pass http://172.16.20.242:86/;
-}
-
-location /live1stream/ {
-  proxy_pass http://172.16.20.242:8083/stream/2299d8fb-39de-4d04-931a-7a2af1faac8a/channel/1/webrtc?uuid=2299d8fb-39de-4d04-931a-7a2af1faac8a&channel=1&token=98nf438fr43;
-}
-
-location /live2stream/ {
-  proxy_pass http://172.16.20.242:8083/stream/4d22a1a9-768c-4d5d-99bf-eef246f4c2cb/channel/1/webrtc?uuid=4d22a1a9-768c-4d5d-99bf-eef246f4c2cb&channel=1&token=98nf438fr43;
-}
-
-location /live3stream/ {
-  proxy_pass http://172.16.20.242:8083/stream/4d22a1a9-768c-4d5d-99bf-eef246f4c2cb/channel/1/webrtc?uuid=4d22a1a9-768c-4d5d-99bf-eef246f4c2cb&channel=1&token=98nf438fr43;
-}
-
-```
-
-PTZ server
+The main server will be for PTZ commands, and handle all requests.
 
 ```
 server {
-    listen 85;
-    server_name 172.16.20.242;
+    listen 80;
 
-    root /var/www/ptz1/public_html;
+    server_name streaming.acsdns.co.uk;
+
+    root /var/www/ptz/public_html;
 
     index index.html index.htm index.php;
 
-    error_log  /var/log/nginx/ptz1.error.log;
-    access_log /var/log/nginx/ptz1.access.log;
+    error_log  /var/log/nginx/streaming.error.log;
+    access_log /var/log/nginx/streaming.access.log;
+
 
     location / {
         try_files $uri $uri/ /index.php$is_args$args;
@@ -118,30 +57,16 @@ server {
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
     }
-}
 
-server {
-    listen 86;
-    server_name 172.16.20.242;
-
-    root /var/www/ptz2/public_html;
-
-    index index.html index.htm index.php;
-
-    error_log  /var/log/nginx/ptz2.error.log;
-    access_log /var/log/nginx/ptz2.access.log;
-
-    location / {
-        try_files $uri $uri/ /index.php$is_args$args;
-    }
-
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+    location /webui/ {
+        auth_basic           "Administrator’s Area";
+        auth_basic_user_file /etc/apache2/.htpasswd;
+        proxy_pass http://172.16.20.242:8083/;
     }
 }
-
 ```
+
+# MISC
 
 If ufw is enabled, need to allow ports from config
 
@@ -285,64 +210,31 @@ file.php need response json
 }
 ```
 
-## Command-line
+# supervisor
 
-### Use help to show available args
+https://codesahara.com/blog/how-to-deploy-golang-with-supervisor/
 
-```bash
-./RTSPtoWeb --help
+```
+apt-get install supervisor
+sudo service supervisor reload
+supervisorctl status
 ```
 
-#### Response
-
-```bash
-Usage of ./RTSPtoWeb:
-  -config string
-        config patch (/etc/server/config.json or config.json) (default "config.json")
-  -debug
-        set debug mode (default true)
 ```
+ /etc/supervisor/conf.d/rtsptoweb.conf
 
-## API documentation
+[program:RTSPtoWeb]
+directory=/home/cywareadmin/RTSPtoWeb
+command=/home/cywareadmin/RTSPtoWeb/bin/RTSPtoWeb
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/RTSPtoWeb.err
+stdout_logfile=/var/log/RTSPtoWeb.log
 
-See the [API docs](/docs/api.md)
-
-## Limitations
-
-Video Codecs Supported: H264 all profiles
-
-Audio Codecs Supported: no
+```
 
 ## Performance
 
 ```bash
 CPU usage ≈0.2%-1% one (thread) core cpu intel core i7 per stream
 ```
-
-## Authors
-
-- **Andrey Semochkin** - _Initial work video_ - [deepch](https://github.com/deepch)
-- **Dmitriy Vladykin** - _Initial work web UI_ - [vdalex25](https://github.com/vdalex25)
-
-See also the list of [contributors](https://github.com/deepch/RTSPtoWeb/contributors) who participated in this project.
-
-## License
-
-This project licensed. License - see the [LICENSE.md](LICENSE.md) file for details
-
-[webrtc](https://github.com/pion/webrtc) follows license MIT [license](https://raw.githubusercontent.com/pion/webrtc/master/LICENSE).
-
-[joy4](https://github.com/nareix/joy4) follows license MIT [license](https://raw.githubusercontent.com/nareix/joy4/master/LICENSE).
-
-## Other Example
-
-Examples of working with video on golang
-
-- [RTSPtoWeb](https://github.com/deepch/RTSPtoWeb)
-- [RTSPtoWebRTC](https://github.com/deepch/RTSPtoWebRTC)
-- [RTSPtoWSMP4f](https://github.com/deepch/RTSPtoWSMP4f)
-- [RTSPtoImage](https://github.com/deepch/RTSPtoImage)
-- [RTSPtoHLS](https://github.com/deepch/RTSPtoHLS)
-- [RTSPtoHLSLL](https://github.com/deepch/RTSPtoHLSLL)
-
-[![paypal.me/AndreySemochkin](https://ionicabizau.github.io/badges/paypal.svg)](https://www.paypal.me/AndreySemochkin) - You can make one-time donations via PayPal. I'll probably buy a ~~coffee~~ tea. :tea:
