@@ -61,7 +61,8 @@ server {
     location /webui/ {
         auth_basic           "Administrator’s Area";
         auth_basic_user_file /etc/apache2/.htpasswd;
-        proxy_pass http://172.16.20.242:8083/;
+        # proxy_pass http://172.16.20.242:8083/;
+        proxy_pass http://10.0.100.3:8083/;
     }
 }
 ```
