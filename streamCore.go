@@ -261,7 +261,6 @@ func StreamServerRunStreamRTMP(streamID string, channelID string, opt *ChannelST
 		case <-Signals:
 			return 0, ErrorStreamStopRTSPSignal
 		case packetAV := <-OutgoingPacketQueue:
-
 			if preDur[packetAV.Idx] != 0 {
 				packetAV.Duration = packetAV.Time - preDur[packetAV.Idx]
 			}

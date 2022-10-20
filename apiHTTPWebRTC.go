@@ -27,7 +27,6 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 		return
 	}
 
-
 	if !RemoteAuthorization("WebRTC", c.Param("uuid"), c.Param("channel"), c.Query("token"), c.ClientIP()) {
 		requestLogger.WithFields(logrus.Fields{
 		"call": "RemoteAuthorization",
