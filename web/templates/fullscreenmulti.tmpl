@@ -52,6 +52,9 @@
             <li class="nav-item dropdown">
               <a id="defaultGrid" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><i class="fas fa-th-large"></i></a>
               <div aria-labelledby="defaultGrid" class="dropdown-menu dropdown-menu-right custom-dropdown">
+                <div class="custom-dropdown-item grid-maker" grid="1" onclick="gridMaker(1)">
+                  1 x 1
+	        </div>
                 <div class="custom-dropdown-item grid-maker" grid="4" onclick="gridMaker(4)">
                   2 x 2
                 </div>
@@ -214,11 +217,14 @@
   }
 
   function gridMaker(col = 4) {
-    let grid_sizes=[4,6,9,12,16,25,36,49];
+    let grid_sizes=[1,4,6,9,12,16,25,36,49];
     col = parseInt(col);
     col=grid_sizes.filter(v => v >= col)[0]||4;
     let colW;
     switch (col) {
+      case 1:
+        colW = 'grid-1';
+        break;
       case 6:
         colW = 'grid-6';
         break;
