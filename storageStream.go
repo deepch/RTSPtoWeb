@@ -1,14 +1,18 @@
 package main
 
-//StreamsList list all stream
-func (obj *StorageST) StreamsList() map[string]StreamST {
+import "github.com/liip/sheriff"
+
+//MarshalledStreamsList lists all streams and includes only fields which are safe to serialize.
+func (obj *StorageST) MarshalledStreamsList() (interface{}, error) {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
-	tmp := make(map[string]StreamST)
-	for i, i2 := range obj.Streams {
-		tmp[i] = i2
+	val, err := sheriff.Marshal(&sheriff.Options{
+		Groups: []string{"api"},
+	}, obj.Streams)
+	if err != nil {
+		return nil, err
 	}
-	return tmp
+	return val, nil
 }
 
 //StreamAdd add stream
