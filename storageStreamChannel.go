@@ -131,20 +131,24 @@ func (obj *StorageST) StreamChannelInfo(uuid string, channelID string) (*Channel
 // StreamChannelCodecs get stream codec storage or wait
 func (obj *StorageST) StreamChannelCodecs(streamID string, channelID string) ([]av.CodecData, error) {
 	for i := 0; i < 100; i++ {
-		obj.mutex.RLock()
-		tmp, ok := obj.Streams[streamID]
-		obj.mutex.RUnlock()
-		if !ok {
-			return nil, ErrorStreamNotFound
-		}
-		channelTmp, ok := tmp.Channels[channelID]
-		if !ok {
-			return nil, ErrorStreamChannelNotFound
+		ret, err := (func() ([]av.CodecData, error) {
+			obj.mutex.RLock()
+			defer obj.mutex.RUnlock()
+			tmp, ok := obj.Streams[streamID]
+			if !ok {
+				return nil, ErrorStreamNotFound
+			}
+			channelTmp, ok := tmp.Channels[channelID]
+			if !ok {
+				return nil, ErrorStreamChannelNotFound
+			}
+			return channelTmp.codecs, nil
+		})()
+
+		if ret != nil || err != nil {
+			return ret, err
 		}
 
-		if channelTmp.codecs != nil {
-			return channelTmp.codecs, nil
-		}
 		time.Sleep(50 * time.Millisecond)
 	}
 	return nil, ErrorStreamChannelCodecNotFound
