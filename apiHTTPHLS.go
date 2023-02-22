@@ -29,7 +29,7 @@ func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
 	if !RemoteAuthorization("HLS", c.Param("uuid"), c.Param("channel"), c.Param("token"), c.ClientIP()) {
 		requestLogger.WithFields(logrus.Fields{
 			"call": "RemoteAuthorization",
-		}).Errorln(ErrorStreamNotFound.Error())
+		}).Errorln(ErrorStreamUnauthorized.Error())
 		return
 	}
 
