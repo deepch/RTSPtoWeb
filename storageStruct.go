@@ -40,6 +40,7 @@ var (
 	ErrorStreamChannelNotFound      = errors.New("stream channel not found")
 	ErrorStreamChannelCodecNotFound = errors.New("stream channel codec not ready, possible stream offline")
 	ErrorStreamsLen0                = errors.New("streams len zero")
+	ErrorStreamUnauthorized         = errors.New("stream request unauthorized")
 )
 
 //StorageST main storage struct
