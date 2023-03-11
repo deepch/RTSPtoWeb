@@ -2,8 +2,6 @@ module github.com/deepch/RTSPtoWeb
 
 go 1.19
 
-replace github.com/deepch/vdk => /Users/deepweb/Desktop/work/src/github.com/deepch/vdk
-
 require (
 	github.com/deepch/vdk v0.0.20
 	github.com/gin-gonic/autotls v0.0.5
