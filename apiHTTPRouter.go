@@ -10,13 +10,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//Message resp struct
+// Message resp struct
 type Message struct {
 	Status  int         `json:"status"`
 	Payload interface{} `json:"payload"`
 }
 
-//HTTPAPIServer start http server routes
+// HTTPAPIServer start http server routes
 func HTTPAPIServer() {
 	//Set HTTP API mode
 	log.WithFields(logrus.Fields{
@@ -95,6 +95,9 @@ func HTTPAPIServer() {
 	//HLS
 	public.GET("/stream/:uuid/channel/:channel/hls/live/index.m3u8", HTTPAPIServerStreamHLSM3U8)
 	public.GET("/stream/:uuid/channel/:channel/hls/live/segment/:seq/file.ts", HTTPAPIServerStreamHLSTS)
+	//HLS remote record
+	//public.GET("/stream/:uuid/channel/:channel/hls/rr/:s/:e/index.m3u8", HTTPAPIServerStreamRRM3U8)
+	//public.GET("/stream/:uuid/channel/:channel/hls/rr/:s/:e/:seq/file.ts", HTTPAPIServerStreamRRTS)
 	//HLS LL
 	public.GET("/stream/:uuid/channel/:channel/hlsll/live/index.m3u8", HTTPAPIServerStreamHLSLLM3U8)
 	public.GET("/stream/:uuid/channel/:channel/hlsll/live/init.mp4", HTTPAPIServerStreamHLSLLInit)
@@ -103,7 +106,8 @@ func HTTPAPIServer() {
 	//MSE
 	public.GET("/stream/:uuid/channel/:channel/mse", HTTPAPIServerStreamMSE)
 	public.POST("/stream/:uuid/channel/:channel/webrtc", HTTPAPIServerStreamWebRTC)
-
+	//Save fragment to mp4
+	public.GET("/stream/:uuid/channel/:channel/save/mp4/fragment/:duration", HTTPAPIServerStreamSaveToMP4)
 	/*
 		HTTPS Mode Cert
 		# Key considerations for algorithm "RSA" ≥ 2048-bit
@@ -150,7 +154,7 @@ func HTTPAPIServer() {
 
 }
 
-//HTTPAPIServerIndex index file
+// HTTPAPIServerIndex index file
 func HTTPAPIServerIndex(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"port":    Storage.ServerHTTPPort(),
@@ -282,7 +286,7 @@ func HTTPAPIFullScreenMultiView(c *gin.Context) {
 	})
 }
 
-//CrossOrigin Access-Control-Allow-Origin any methods
+// CrossOrigin Access-Control-Allow-Origin any methods
 func CrossOrigin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
