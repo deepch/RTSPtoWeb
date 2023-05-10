@@ -14,7 +14,7 @@ RUN go get \
     && go mod download \
     && GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#"v"} go build -a -o rtsp-to-web
 
-FROM alpine:3.17
+FROM alpine:3.18
 
 WORKDIR /app
 
