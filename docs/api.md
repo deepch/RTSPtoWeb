@@ -345,10 +345,10 @@ curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/inf
 ### Get stream channel codec
 
 #### Request
-`GET /stream/{STREAM_ID}/{CHANNEL_ID}/codec`
+`GET /stream/{STREAM_ID}/channel/{CHANNEL_ID}/codec`
 
 ```bash
-curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/{CHANNEL_ID}/codec
+curl http://demo:demo@127.0.0.1:8083/stream/{STREAM_ID}/channel/{CHANNEL_ID}/codec
 ```
 
 #### Response
