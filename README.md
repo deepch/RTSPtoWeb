@@ -10,9 +10,9 @@ without the use of FFmpeg or GStreamer!
 - [Configuration](#configuration)
 - [Command-line](#command-line)
 - [API documentation](#api-documentation)
-- [Limitations](#Limitations)
-- [Performance](#Performance)
-- [Authors](#Authors)
+- [Limitations](#limitations)
+- [Performance](#performance)
+- [Authors](#authors)
 - [License](#license)
 
 ## Installation
