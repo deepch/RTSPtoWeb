@@ -4,8 +4,9 @@ import (
 	"time"
 
 	"github.com/deepch/vdk/av"
-	"github.com/imdario/mergo"
 	"github.com/sirupsen/logrus"
+
+	"dario.cat/mergo"
 )
 
 // StreamChannelMake check stream exist
