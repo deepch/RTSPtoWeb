@@ -83,26 +83,6 @@ func StreamServerRunStream(streamID string, channelID string, stream *StreamST, 
 		Storage.StreamHLSFlush(streamID, channelID)
 	}()
 	var WaitCodec bool
-	/*
-		Example wait codec
-	*/
-	if RTSPClient.WaitCodec {
-		WaitCodec = true
-	} else {
-		if len(RTSPClient.CodecData) > 0 {
-			Storage.StreamChannelCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
-		}
-	}
-	log.WithFields(logrus.Fields{
-		"module":  "core",
-		"stream":  streamID,
-		"channel": channelID,
-		"func":    "StreamServerRunStream",
-		"call":    "Start",
-	}).Infoln("Success connection RTSP")
-	var ProbeCount int
-	var ProbeFrame int
-	var ProbePTS time.Duration
 	var nvrMuxer *nvr.Muxer
 	if channel.Record.Enable {
 		if nvrMuxer, err = nvr.NewMuxer(
@@ -117,9 +97,29 @@ func StreamServerRunStream(streamID string, channelID string, stream *StreamST, 
 			return 0, err
 		}
 	}
-	if err = nvrMuxer.WriteHeader(RTSPClient.CodecData); err != nil {
-		return 0, err
+	/*
+		Example wait codec
+	*/
+	if RTSPClient.WaitCodec {
+		WaitCodec = true
+	} else {
+		if len(RTSPClient.CodecData) > 0 {
+			Storage.StreamChannelCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
+			if err = nvrMuxer.WriteHeader(RTSPClient.CodecData); err != nil {
+				return 0, err
+			}
+		}
 	}
+	log.WithFields(logrus.Fields{
+		"module":  "core",
+		"stream":  streamID,
+		"channel": channelID,
+		"func":    "StreamServerRunStream",
+		"call":    "Start",
+	}).Infoln("Success connection RTSP")
+	var ProbeCount int
+	var ProbeFrame int
+	var ProbePTS time.Duration
 
 	Storage.NewHLSMuxer(streamID, channelID)
 	defer Storage.HLSMuxerClose(streamID, channelID)
@@ -149,6 +149,9 @@ func StreamServerRunStream(streamID string, channelID string, stream *StreamST, 
 			switch signals {
 			case rtspv2.SignalCodecUpdate:
 				Storage.StreamChannelCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
+				if err = nvrMuxer.WriteHeader(RTSPClient.CodecData); err != nil {
+					return 0, err
+				}
 				WaitCodec = false
 			case rtspv2.SignalStreamRTPStop:
 				return 0, ErrorStreamStopRTSPSignal
