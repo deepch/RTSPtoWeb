@@ -96,6 +96,7 @@ func StreamServerRunStream(streamID string, channelID string, stream *StreamST, 
 			channel.Record.MaxFileDurationSecond); err != nil {
 			return 0, err
 		}
+		defer nvrMuxer.WriteTrailer()
 	}
 	/*
 		Example wait codec
