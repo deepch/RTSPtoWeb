@@ -105,8 +105,10 @@ func StreamServerRunStream(streamID string, channelID string, stream *StreamST, 
 	} else {
 		if len(RTSPClient.CodecData) > 0 {
 			Storage.StreamChannelCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
-			if err = nvrMuxer.WriteHeader(RTSPClient.CodecData); err != nil {
-				return 0, err
+			if nvrMuxer != nil {
+				if err = nvrMuxer.WriteHeader(RTSPClient.CodecData); err != nil {
+					return 0, err
+				}
 			}
 		}
 	}
@@ -149,8 +151,10 @@ func StreamServerRunStream(streamID string, channelID string, stream *StreamST, 
 			switch signals {
 			case rtspv2.SignalCodecUpdate:
 				Storage.StreamChannelCodecsUpdate(streamID, channelID, RTSPClient.CodecData, RTSPClient.SDPRaw)
-				if err = nvrMuxer.WriteHeader(RTSPClient.CodecData); err != nil {
-					return 0, err
+				if nvrMuxer != nil {
+					if err = nvrMuxer.WriteHeader(RTSPClient.CodecData); err != nil {
+						return 0, err
+					}
 				}
 				WaitCodec = false
 			case rtspv2.SignalStreamRTPStop:
