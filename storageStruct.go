@@ -12,20 +12,20 @@ import (
 
 var Storage = NewStreamCore()
 
-//Default stream  type
+// Default stream  type
 const (
 	MSE = iota
 	WEBRTC
 	RTSP
 )
 
-//Default stream status type
+// Default stream status type
 const (
 	OFFLINE = iota
 	ONLINE
 )
 
-//Default stream errors
+// Default stream errors
 var (
 	Success                         = "success"
 	ErrorStreamNotFound             = errors.New("stream not found")
@@ -43,7 +43,7 @@ var (
 	ErrorStreamUnauthorized         = errors.New("stream request unauthorized")
 )
 
-//StorageST main storage struct
+// StorageST main storage struct
 type StorageST struct {
 	mutex           sync.RWMutex
 	Server          ServerST            `json:"server" groups:"api,config"`
@@ -51,9 +51,10 @@ type StorageST struct {
 	ChannelDefaults ChannelST           `json:"channel_defaults,omitempty" groups:"api,config"`
 }
 
-//ServerST server storage section
+// ServerST server storage section
 type ServerST struct {
 	Debug              bool         `json:"debug" groups:"api,config"`
+	ServerID           string       `json:"server_id" groups:"api,config"`
 	LogLevel           logrus.Level `json:"log_level" groups:"api,config"`
 	HTTPDemo           bool         `json:"http_demo" groups:"api,config"`
 	HTTPDebug          bool         `json:"http_debug" groups:"api,config"`
@@ -74,28 +75,34 @@ type ServerST struct {
 	Token              Token        `json:"token,omitempty" groups:"api,config"`
 	WebRTCPortMin      uint16       `json:"webrtc_port_min" groups:"api,config"`
 	WebRTCPortMax      uint16       `json:"webrtc_port_max" groups:"api,config"`
+	Record             Record       `json:"record" groups:"api,config"`
 }
 
-//Token auth
+type Record struct {
+	PathPattern string `json:"path_pattern,omitempty"`
+}
+
+// Token auth
 type Token struct {
 	Enable  bool   `json:"enable" groups:"api,config"`
 	Backend string `json:"backend" groups:"api,config"`
 }
 
-//ServerST stream storage section
+// ServerST stream storage section
 type StreamST struct {
 	Name     string               `json:"name,omitempty" groups:"api,config"`
 	Channels map[string]ChannelST `json:"channels,omitempty" groups:"api,config"`
 }
 
 type ChannelST struct {
-	Name               string `json:"name,omitempty" groups:"api,config"`
-	URL                string `json:"url,omitempty" groups:"api,config"`
-	OnDemand           bool   `json:"on_demand,omitempty" groups:"api,config"`
-	Debug              bool   `json:"debug,omitempty" groups:"api,config"`
-	Status             int    `json:"status,omitempty" groups:"api"`
-	InsecureSkipVerify bool   `json:"insecure_skip_verify,omitempty" groups:"api,config"`
-	Audio              bool   `json:"audio,omitempty" groups:"api,config"`
+	Name               string   `json:"name,omitempty" groups:"api,config"`
+	URL                string   `json:"url,omitempty" groups:"api,config"`
+	OnDemand           bool     `json:"on_demand,omitempty" groups:"api,config"`
+	Debug              bool     `json:"debug,omitempty" groups:"api,config"`
+	Status             int      `json:"status,omitempty" groups:"api"`
+	InsecureSkipVerify bool     `json:"insecure_skip_verify,omitempty" groups:"api,config"`
+	Audio              bool     `json:"audio,omitempty" groups:"api,config"`
+	Record             RecordST `json:"record,omitempty" groups:"api,config"`
 	runLock            bool
 	codecs             []av.CodecData
 	sdp                []byte
@@ -107,7 +114,14 @@ type ChannelST struct {
 	hlsMuxer           *MuxerHLS `json:"-"`
 }
 
-//ClientST client storage section
+// RecordST struct
+type RecordST struct {
+	Enable                bool   `json:"enable,omitempty"`
+	FileFormat            string `json:"file_format,omitempty"`
+	MaxFileDurationSecond int    `json:"max_file_duration_second,omitempty"`
+}
+
+// ClientST client storage section
 type ClientST struct {
 	mode              int
 	signals           chan int
@@ -116,7 +130,7 @@ type ClientST struct {
 	socket            net.Conn
 }
 
-//SegmentOld HLS cache section
+// SegmentOld HLS cache section
 type SegmentOld struct {
 	dur  time.Duration
 	data []*av.Packet

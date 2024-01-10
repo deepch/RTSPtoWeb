@@ -77,15 +77,15 @@ func (obj *StorageST) StreamChannelUnlock(streamID string, channelID string) {
 }
 
 // StreamChannelControl get stream
-func (obj *StorageST) StreamChannelControl(key string, channelID string) (*ChannelST, error) {
+func (obj *StorageST) StreamChannelControl(key string, channelID string) (*StreamST, *ChannelST, error) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
 	if streamTmp, ok := obj.Streams[key]; ok {
 		if channelTmp, ok := streamTmp.Channels[channelID]; ok {
-			return &channelTmp, nil
+			return &streamTmp, &channelTmp, nil
 		}
 	}
-	return nil, ErrorStreamNotFound
+	return nil, nil, ErrorStreamNotFound
 }
 
 // StreamChannelExist check stream exist

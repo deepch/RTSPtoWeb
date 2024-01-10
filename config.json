@@ -1,38 +1,53 @@
 {
-  "server": {
-    "debug": true,
-    "http_debug": false,
-    "http_demo": true,
-    "http_dir": "web",
-    "http_login": "demo",
-    "http_password": "demo",
-    "http_port": ":8083",
-    "https": false,
-    "https_auto_tls": false,
-    "https_auto_tls_name": "",
-    "https_cert": "server.crt",
-    "https_key": "server.key",
-    "https_port": ":443",
-    "ice_servers": ["stun:stun.l.google.com:19302"],
-    "log_level": "debug",
-    "rtsp_port": ":5541",
-    "token": {
-      "backend": "http://127.0.0.1/test.php"
+  "server":{
+    "server_id":"test",
+    "debug":true,
+    "http_debug":true,
+    "http_demo":true,
+    "http_dir":"web",
+    "http_login":"demo",
+    "http_password":"demo",
+    "http_port":":8083",
+    "https":false,
+    "https_auto_tls":false,
+    "https_auto_tls_name":"",
+    "https_cert":"server.crt",
+    "https_key":"server.key",
+    "https_port":":443",
+    "ice_servers":[
+      "stun:stun.l.google.com:19302"
+    ],
+    "log_level":"debug",
+    "rtsp_port":":5541",
+    "record":{
+      "path_pattern":"record/{host_name}/{stream_name}/{channel_name}/{stream_id}/{channel_id}/{start_year}/{start_month}/{start_day}/{end_millisecond}_{duration_second}.mp4"
     },
-    "defaults": {
-      "audio": true
+    "token":{
+      "backend":"http://127.0.0.1/test.php"
     }
   },
-  "streams": {
-    "27aec28e-6181-4753-9acd-0456a75f0289": {
-      "channels": {
-        "0": {
-          "url": "rtmp://171.25.232.10/12d525bc9f014e209c1280bc0d46a87e",
-          "debug": false,
-          "audio": true
+  "channel_defaults":{
+    "audio":true,
+    "record":{
+      "enable":false,
+      "file_format":"mp4",
+      "max_file_duration_second":10
+    }
+  },
+  "streams":{
+    "27aec28e-6181-4753-9acd-0456a75f0289":{
+      "channels":{
+        "0":{
+          "name":"test_ch_name",
+          "url":"rtsp://171.25.235.253/9ba7c5c359614d9394bace7c7947cea1",
+          "debug":true,
+          "on_demand":false,
+          "record":{
+            "enable":true
+          }
         }
       },
-      "name": "111111111"
+      "name":"test_st_name"
     }
   }
 }

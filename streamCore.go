@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/deepch/vdk/format/nvr"
 	"math"
 	"net/url"
 	"strings"
@@ -13,7 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//StreamServerRunStreamDo stream run do mux
+// StreamServerRunStreamDo stream run do mux
 func StreamServerRunStreamDo(streamID string, channelID string) {
 	var status int
 	defer func() {
@@ -31,20 +32,20 @@ func StreamServerRunStreamDo(streamID string, channelID string) {
 		})
 
 		baseLogger.WithFields(logrus.Fields{"call": "Run"}).Infoln("Run stream")
-		opt, err := Storage.StreamChannelControl(streamID, channelID)
+		stream, channel, err := Storage.StreamChannelControl(streamID, channelID)
 		if err != nil {
 			baseLogger.WithFields(logrus.Fields{
 				"call": "StreamChannelControl",
 			}).Infoln("Exit", err)
 			return
 		}
-		if opt.OnDemand && !Storage.ClientHas(streamID, channelID) {
+		if channel.OnDemand && !Storage.ClientHas(streamID, channelID) {
 			baseLogger.WithFields(logrus.Fields{
 				"call": "ClientHas",
 			}).Infoln("Stop stream no client")
 			return
 		}
-		status, err = StreamServerRunStream(streamID, channelID, opt)
+		status, err = StreamServerRunStream(streamID, channelID, stream, channel)
 		if status > 0 {
 			baseLogger.WithFields(logrus.Fields{
 				"call": "StreamServerRunStream",
@@ -57,14 +58,13 @@ func StreamServerRunStreamDo(streamID string, channelID string) {
 			}).Errorln("Stream error restart stream", err)
 		}
 		time.Sleep(2 * time.Second)
-
 	}
 }
 
-//StreamServerRunStream core stream
-func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (int, error) {
-	if url, err := url.Parse(opt.URL); err == nil && strings.ToLower(url.Scheme) == "rtmp" {
-		return StreamServerRunStreamRTMP(streamID, channelID, opt)
+// StreamServerRunStream core stream
+func StreamServerRunStream(streamID string, channelID string, stream *StreamST, channel *ChannelST) (int, error) {
+	if url, err := url.Parse(channel.URL); err == nil && strings.ToLower(url.Scheme) == "rtmp" {
+		return StreamServerRunStreamRTMP(streamID, channelID, channel)
 	}
 	keyTest := time.NewTimer(20 * time.Second)
 	checkClients := time.NewTimer(20 * time.Second)
@@ -72,7 +72,7 @@ func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (i
 	var fps int
 	var preKeyTS = time.Duration(0)
 	var Seq []*av.Packet
-	RTSPClient, err := rtspv2.Dial(rtspv2.RTSPClientOptions{URL: opt.URL, InsecureSkipVerify: opt.InsecureSkipVerify, DisableAudio: !opt.Audio, DialTimeout: 3 * time.Second, ReadWriteTimeout: 5 * time.Second, Debug: opt.Debug, OutgoingProxy: true})
+	RTSPClient, err := rtspv2.Dial(rtspv2.RTSPClientOptions{URL: channel.URL, InsecureSkipVerify: channel.InsecureSkipVerify, DisableAudio: !channel.Audio, DialTimeout: 3 * time.Second, ReadWriteTimeout: 5 * time.Second, Debug: channel.Debug, OutgoingProxy: true})
 	if err != nil {
 		return 0, err
 	}
@@ -103,13 +103,31 @@ func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (i
 	var ProbeCount int
 	var ProbeFrame int
 	var ProbePTS time.Duration
+	var nvrMuxer *nvr.Muxer
+	if channel.Record.Enable {
+		if nvrMuxer, err = nvr.NewMuxer(
+			Storage.Server.ServerID,
+			stream.Name,
+			channel.Name,
+			streamID,
+			channelID,
+			Storage.Server.Record.PathPattern,
+			channel.Record.FileFormat,
+			channel.Record.MaxFileDurationSecond); err != nil {
+			return 0, err
+		}
+	}
+	if err = nvrMuxer.WriteHeader(RTSPClient.CodecData); err != nil {
+		return 0, err
+	}
+
 	Storage.NewHLSMuxer(streamID, channelID)
 	defer Storage.HLSMuxerClose(streamID, channelID)
 	for {
 		select {
 		//Check stream have clients
 		case <-checkClients.C:
-			if opt.OnDemand && !Storage.ClientHas(streamID, channelID) {
+			if channel.OnDemand && !Storage.ClientHas(streamID, channelID) {
 				return 1, ErrorStreamNoClients
 			}
 			checkClients.Reset(20 * time.Second)
@@ -117,7 +135,7 @@ func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (i
 		case <-keyTest.C:
 			return 0, ErrorStreamNoVideo
 		//Read core signals
-		case signals := <-opt.signals:
+		case signals := <-channel.signals:
 			switch signals {
 			case SignalStreamStop:
 				return 2, ErrorStreamStopCoreSignal
@@ -178,6 +196,11 @@ func StreamServerRunStream(streamID string, channelID string, opt *ChannelST) (i
 				packetAV.Duration = time.Duration((float32(1000)/float32(fps))*1000*1000) * time.Nanosecond
 				Storage.HlsMuxerSetFPS(streamID, channelID, fps)
 				Storage.HlsMuxerWritePacket(streamID, channelID, packetAV)
+				if channel.Record.Enable {
+					if err = nvrMuxer.WritePacket(*packetAV); err != nil {
+						return 0, err
+					}
+				}
 			}
 		}
 	}
