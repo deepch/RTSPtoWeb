@@ -20,6 +20,9 @@
     "log_level":"debug",
     "rtsp_port":":5541",
     "record":{
+      "file_duration": 300,
+      "format": "mp4",
+      "storages": ["/mnt/1", "/mnt/1"],
       "path_pattern":"record/{host_name}/{stream_name}/{channel_name}/{stream_id}/{channel_id}/{start_year}/{start_month}/{start_day}/{end_millisecond}_{duration_second}.mp4"
     },
     "token":{
@@ -29,17 +32,15 @@
   "channel_defaults":{
     "audio":true,
     "record":{
-      "enable":false,
-      "file_format":"mp4",
-      "max_file_duration_second":10
-    }
+      "enable":false
+     }
   },
   "streams":{
     "27aec28e-6181-4753-9acd-0456a75f0289":{
       "channels":{
         "0":{
           "name":"test_ch_name",
-          "url":"rtsp://171.25.235.253/9ba7c5c359614d9394bace7c7947cea1",
+          "url":"rtsp://171.25.232.147/d4ee855e40874ef7b7149357a42f18f0",
           "debug":true,
           "on_demand":false,
           "record":{

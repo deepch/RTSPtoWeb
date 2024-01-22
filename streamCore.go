@@ -91,9 +91,10 @@ func StreamServerRunStream(streamID string, channelID string, stream *StreamST, 
 			channel.Name,
 			streamID,
 			channelID,
+			Storage.Server.Record.Storages,
 			Storage.Server.Record.PathPattern,
-			channel.Record.FileFormat,
-			channel.Record.MaxFileDurationSecond); err != nil {
+			Storage.Server.Record.Format,
+			Storage.Server.Record.FileDuration); err != nil {
 			return 0, err
 		}
 		defer nvrMuxer.WriteTrailer()

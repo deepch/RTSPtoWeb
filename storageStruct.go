@@ -79,7 +79,10 @@ type ServerST struct {
 }
 
 type Record struct {
-	PathPattern string `json:"path_pattern,omitempty"`
+	PathPattern  string   `json:"path_pattern,omitempty"`
+	Format       string   `json:"format,omitempty"`
+	FileDuration int      `json:"file_duration,omitempty"`
+	Storages     []string `json:"storages,omitempty"`
 }
 
 // Token auth
@@ -116,9 +119,7 @@ type ChannelST struct {
 
 // RecordST struct
 type RecordST struct {
-	Enable                bool   `json:"enable,omitempty"`
-	FileFormat            string `json:"file_format,omitempty"`
-	MaxFileDurationSecond int    `json:"max_file_duration_second,omitempty"`
+	Enable bool `json:"enable,omitempty"`
 }
 
 // ClientST client storage section
