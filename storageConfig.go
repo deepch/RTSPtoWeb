@@ -20,9 +20,9 @@ import (
 var debug bool
 var configFile string
 
-//NewStreamCore do load config file
+// NewStreamCore do load config file
 func NewStreamCore() *StorageST {
-	flag.BoolVar(&debug, "debug", true, "set debug mode")
+	flag.BoolVar(&debug, "debug", false, "set debug mode")
 	flag.StringVar(&configFile, "config", "config.json", "config patch (/etc/server/config.json or config.json)")
 	flag.Parse()
 
@@ -69,7 +69,7 @@ func NewStreamCore() *StorageST {
 	return &tmp
 }
 
-//ClientDelete Delete Client
+// ClientDelete Delete Client
 func (obj *StorageST) SaveConfig() error {
 	log.WithFields(logrus.Fields{
 		"module": "config",
