@@ -8,12 +8,10 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-version"
-
-	"github.com/imdario/mergo"
-
 	"github.com/liip/sheriff"
-
 	"github.com/sirupsen/logrus"
+
+	"dario.cat/mergo"
 )
 
 // Command line flag global variables
