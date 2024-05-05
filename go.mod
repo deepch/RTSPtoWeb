@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/deepch/vdk v0.0.27
-	github.com/gin-gonic/autotls v0.0.5
+	github.com/gin-gonic/autotls v1.0.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/gobwas/ws v1.4.0
 	github.com/hashicorp/go-version v1.6.0
@@ -56,7 +56,7 @@ require (
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/net v0.23.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
