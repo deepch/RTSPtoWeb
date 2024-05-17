@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//HTTPAPIServerStreamHLSM3U8 send client m3u8 play list
+// HTTPAPIServerStreamHLSM3U8 send client m3u8 play list
 func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
 	requestLogger := log.WithFields(logrus.Fields{
 		"module":  "http_hls",
@@ -33,7 +33,7 @@ func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
 		return
 	}
 
-	c.Header("Content-Type", "application/x-mpegURL")
+	c.Header("Content-Type", "application/vnd.apple.mpegurl")
 	Storage.StreamChannelRun(c.Param("uuid"), c.Param("channel"))
 	//If stream mode on_demand need wait ready segment's
 	for i := 0; i < 40; i++ {
@@ -45,7 +45,7 @@ func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
 			}).Errorln(err.Error())
 			return
 		}
-		if seq >= 6 {
+		if seq >= 5 {
 			_, err := c.Writer.Write([]byte(index))
 			if err != nil {
 				c.IndentedJSON(400, Message{Status: 0, Payload: err.Error()})
@@ -60,7 +60,7 @@ func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
 	}
 }
 
-//HTTPAPIServerStreamHLSTS send client ts segment
+// HTTPAPIServerStreamHLSTS send client ts segment
 func HTTPAPIServerStreamHLSTS(c *gin.Context) {
 	requestLogger := log.WithFields(logrus.Fields{
 		"module":  "http_hls",
@@ -84,6 +84,7 @@ func HTTPAPIServerStreamHLSTS(c *gin.Context) {
 		}).Errorln(err.Error())
 		return
 	}
+	c.Header("Content-Type", "video/MP2T")
 	outfile := bytes.NewBuffer([]byte{})
 	Muxer := ts.NewMuxer(outfile)
 	Muxer.PaddingToMakeCounterCont = true

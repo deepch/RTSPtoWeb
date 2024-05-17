@@ -8,7 +8,7 @@ import (
 	"github.com/deepch/vdk/av"
 )
 
-//StreamHLSAdd add hls seq to buffer
+// StreamHLSAdd add hls seq to buffer
 func (obj *StorageST) StreamHLSAdd(uuid string, channelID string, val []*av.Packet, dur time.Duration) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
@@ -16,8 +16,10 @@ func (obj *StorageST) StreamHLSAdd(uuid string, channelID string, val []*av.Pack
 		if channelTmp, ok := tmp.Channels[channelID]; ok {
 			channelTmp.hlsSegmentNumber++
 			channelTmp.hlsSegmentBuffer[channelTmp.hlsSegmentNumber] = SegmentOld{data: val, dur: dur}
+			channelTmp.hlsLastDur = int(dur.Seconds())
 			if len(channelTmp.hlsSegmentBuffer) >= 6 {
-				delete(channelTmp.hlsSegmentBuffer, channelTmp.hlsSegmentNumber-6-1)
+				delete(channelTmp.hlsSegmentBuffer, channelTmp.hlsSegmentNumber-5)
+				channelTmp.hlsSequence++
 			}
 			tmp.Channels[channelID] = channelTmp
 			obj.Streams[uuid] = tmp
@@ -25,7 +27,7 @@ func (obj *StorageST) StreamHLSAdd(uuid string, channelID string, val []*av.Pack
 	}
 }
 
-//StreamHLSm3u8 get hls m3u8 list
+// StreamHLSm3u8 get hls m3u8 list
 func (obj *StorageST) StreamHLSm3u8(uuid string, channelID string) (string, int, error) {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
@@ -33,7 +35,7 @@ func (obj *StorageST) StreamHLSm3u8(uuid string, channelID string) (string, int,
 		if channelTmp, ok := tmp.Channels[channelID]; ok {
 			var out string
 			//TODO fix  it
-			out += "#EXTM3U\r\n#EXT-X-TARGETDURATION:4\r\n#EXT-X-VERSION:4\r\n#EXT-X-MEDIA-SEQUENCE:" + strconv.Itoa(channelTmp.hlsSegmentNumber) + "\r\n"
+			out += "#EXTM3U\r\n#EXT-X-TARGETDURATION:" + strconv.Itoa(channelTmp.hlsLastDur) + "\r\n#EXT-X-VERSION:4\r\n#EXT-X-MEDIA-SEQUENCE:" + strconv.Itoa(channelTmp.hlsSequence) + "\r\n"
 			var keys []int
 			for k := range channelTmp.hlsSegmentBuffer {
 				keys = append(keys, k)
@@ -41,9 +43,11 @@ func (obj *StorageST) StreamHLSm3u8(uuid string, channelID string) (string, int,
 			sort.Ints(keys)
 			var count int
 			for _, i := range keys {
+				if i == 2 {
+					out += "#EXT-X-DISCONTINUITY\r\n"
+				}
 				count++
 				out += "#EXTINF:" + strconv.FormatFloat(channelTmp.hlsSegmentBuffer[i].dur.Seconds(), 'f', 1, 64) + ",\r\nsegment/" + strconv.Itoa(i) + "/file.ts\r\n"
-
 			}
 			return out, count, nil
 		}
@@ -51,7 +55,7 @@ func (obj *StorageST) StreamHLSm3u8(uuid string, channelID string) (string, int,
 	return "", 0, ErrorStreamNotFound
 }
 
-//StreamHLSTS send hls segment buffer to clients
+// StreamHLSTS send hls segment buffer to clients
 func (obj *StorageST) StreamHLSTS(uuid string, channelID string, seq int) ([]*av.Packet, error) {
 	obj.mutex.RLock()
 	defer obj.mutex.RUnlock()
@@ -65,7 +69,7 @@ func (obj *StorageST) StreamHLSTS(uuid string, channelID string, seq int) ([]*av
 	return nil, ErrorStreamNotFound
 }
 
-//StreamHLSFlush delete hls cache
+// StreamHLSFlush delete hls cache
 func (obj *StorageST) StreamHLSFlush(uuid string, channelID string) {
 	obj.mutex.Lock()
 	defer obj.mutex.Unlock()
@@ -73,6 +77,7 @@ func (obj *StorageST) StreamHLSFlush(uuid string, channelID string) {
 		if channelTmp, ok := tmp.Channels[channelID]; ok {
 			channelTmp.hlsSegmentBuffer = make(map[int]SegmentOld)
 			channelTmp.hlsSegmentNumber = 0
+			channelTmp.hlsSequence = 0
 			tmp.Channels[channelID] = channelTmp
 			obj.Streams[uuid] = tmp
 		}
