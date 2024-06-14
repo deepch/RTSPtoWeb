@@ -27,6 +27,7 @@ func HTTPAPIServerStreamHLSM3U8(c *gin.Context) {
 	}
 
 	if !RemoteAuthorization("HLS", c.Param("uuid"), c.Param("channel"), c.Query("token"), c.ClientIP()) {
+		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamUnauthorized.Error()})
 		requestLogger.WithFields(logrus.Fields{
 			"call": "RemoteAuthorization",
 		}).Errorln(ErrorStreamUnauthorized.Error())
