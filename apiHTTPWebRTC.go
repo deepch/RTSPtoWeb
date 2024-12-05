@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//HTTPAPIServerStreamWebRTC stream video over WebRTC
+// HTTPAPIServerStreamWebRTC stream video over WebRTC
 func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 	requestLogger := log.WithFields(logrus.Fields{
 		"module":  "http_webrtc",
@@ -58,8 +58,12 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 		}).Errorln(err.Error())
 		return
 	}
+
+	uuid := c.Param("uuid")
+	channel := c.Param("channel")
+
 	go func() {
-		cid, ch, _, err := Storage.ClientAdd(c.Param("uuid"), c.Param("channel"), WEBRTC)
+		cid, ch, _, err := Storage.ClientAdd(uuid, channel, WEBRTC)
 		if err != nil {
 			c.IndentedJSON(400, Message{Status: 0, Payload: err.Error()})
 			requestLogger.WithFields(logrus.Fields{
@@ -67,7 +71,7 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 			}).Errorln(err.Error())
 			return
 		}
-		defer Storage.ClientDelete(c.Param("uuid"), cid, c.Param("channel"))
+		defer Storage.ClientDelete(uuid, cid, channel)
 		var videoStart bool
 		noVideo := time.NewTimer(10 * time.Second)
 		for {
