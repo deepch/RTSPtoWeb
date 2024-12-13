@@ -61,20 +61,21 @@ $ docker run --name rtsp-to-web \
 ### Server settings
 
 ```text
-debug           - enable debug output
-log_level       - log level (trace, debug, info, warning, error, fatal, or panic)
+debug              - enable debug output
+log_level          - log level (trace, debug, info, warning, error, fatal, or panic)
 
-http_demo       - serve static files
-http_debug      - debug http api server
-http_login      - http auth login
-http_password   - http auth password
-http_port       - http server port
-http_dir        - path to serve static files from
-ice_servers     - array of servers to use for STUN/TURN
-ice_username    - username to use for STUN/TURN
-ice_credential  - credential to use for STUN/TURN
-webrtc_port_min - minimum WebRTC port to use (UDP)
-webrtc_port_max - maximum WebRTC port to use (UDP)
+http_demo          - serve static files
+http_debug         - debug http api server
+http_login         - http auth login
+http_password      - http auth password
+http_port          - http server port
+http_dir           - path to serve static files from
+ice_servers        - array of servers to use for STUN/TURN
+ice_username       - username to use for STUN/TURN
+ice_credential     - credential to use for STUN/TURN
+ice_candidates     - manually set ice candidates
+webrtc_port_min    - minimum WebRTC port to use (UDP)
+webrtc_port_max    - maximum WebRTC port to use (UDP)
 
 https
 https_auto_tls
