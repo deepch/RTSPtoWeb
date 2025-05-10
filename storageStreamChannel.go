@@ -260,11 +260,16 @@ func (obj *StorageST) StreamChannelAdd(uuid string, channelID string, val Channe
 	if _, ok := obj.Streams[uuid]; !ok {
 		return ErrorStreamNotFound
 	}
+	stream := obj.Streams[uuid]
+	if stream.Channels == nil {
+		stream.Channels = make(map[string]ChannelST)
+	}
 	if _, ok := obj.Streams[uuid].Channels[channelID]; ok {
 		return ErrorStreamChannelAlreadyExists
 	}
 	val = obj.StreamChannelMake(val)
-	obj.Streams[uuid].Channels[channelID] = val
+	stream.Channels[channelID] = val
+	obj.Streams[uuid] = stream
 	if !val.OnDemand {
 		val.runLock = true
 		go StreamServerRunStreamDo(uuid, channelID)
