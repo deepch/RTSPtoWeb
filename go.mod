@@ -7,7 +7,7 @@ toolchain go1.24.3
 require (
 	github.com/deepch/vdk v0.0.27
 	github.com/gin-gonic/autotls v1.1.2
-	github.com/gin-gonic/gin v1.10.0
+	github.com/gin-gonic/gin v1.10.1
 	github.com/gobwas/ws v1.4.0
 	github.com/hashicorp/go-version v1.7.0
 	github.com/imdario/mergo v0.3.16
