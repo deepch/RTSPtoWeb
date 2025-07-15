@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/deepch/vdk/format/mp4"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"os"
-	"time"
 )
 
 // HTTPAPIServerStreamSaveToMP4 func
@@ -36,6 +37,7 @@ func HTTPAPIServerStreamSaveToMP4(c *gin.Context) {
 	}
 
 	if !RemoteAuthorization("save", c.Param("uuid"), c.Param("channel"), c.Query("token"), c.ClientIP()) {
+		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamUnauthorized.Error()})
 		requestLogger.WithFields(logrus.Fields{
 			"call": "RemoteAuthorization",
 		}).Errorln(ErrorStreamUnauthorized.Error())
