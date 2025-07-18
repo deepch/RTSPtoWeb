@@ -10,14 +10,15 @@ import (
 
 // HTTPAPIServerStreamWebRTC stream video over WebRTC
 func HTTPAPIServerStreamWebRTC(c *gin.Context) {
+	safeContext := c.Copy()
 	requestLogger := log.WithFields(logrus.Fields{
 		"module":  "http_webrtc",
-		"stream":  c.Param("uuid"),
-		"channel": c.Param("channel"),
+		"stream":  safeContext.Param("uuid"),
+		"channel": safeContext.Param("channel"),
 		"func":    "HTTPAPIServerStreamWebRTC",
 	})
 
-	if !Storage.StreamChannelExist(c.Param("uuid"), c.Param("channel")) {
+	if !Storage.StreamChannelExist(safeContext.Param("uuid"), safeContext.Param("channel")) {
 		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		requestLogger.WithFields(logrus.Fields{
 			"call": "StreamChannelExist",
@@ -25,15 +26,15 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 		return
 	}
 
-	if !RemoteAuthorization("WebRTC", c.Param("uuid"), c.Param("channel"), c.Query("token"), c.ClientIP()) {
+	if !RemoteAuthorization("WebRTC", safeContext.Param("uuid"), safeContext.Param("channel"), safeContext.Query("token"), safeContext.ClientIP()) {
 		requestLogger.WithFields(logrus.Fields{
 			"call": "RemoteAuthorization",
 		}).Errorln(ErrorStreamUnauthorized.Error())
 		return
 	}
 
-	Storage.StreamChannelRun(c.Param("uuid"), c.Param("channel"))
-	codecs, err := Storage.StreamChannelCodecs(c.Param("uuid"), c.Param("channel"))
+	Storage.StreamChannelRun(safeContext.Param("uuid"), safeContext.Param("channel"))
+	codecs, err := Storage.StreamChannelCodecs(safeContext.Param("uuid"), safeContext.Param("channel"))
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		requestLogger.WithFields(logrus.Fields{
@@ -59,11 +60,8 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 		return
 	}
 
-	uuid := c.Param("uuid")
-	channel := c.Param("channel")
-
 	go func() {
-		cid, ch, _, err := Storage.ClientAdd(uuid, channel, WEBRTC)
+		cid, ch, _, err := Storage.ClientAdd(safeContext.Param("uuid"), safeContext.Param("channel"), WEBRTC)
 		if err != nil {
 			c.IndentedJSON(400, Message{Status: 0, Payload: err.Error()})
 			requestLogger.WithFields(logrus.Fields{
@@ -71,7 +69,7 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 			}).Errorln(err.Error())
 			return
 		}
-		defer Storage.ClientDelete(uuid, cid, channel)
+		defer Storage.ClientDelete(safeContext.Param("uuid"), cid, safeContext.Param("channel"))
 		var videoStart bool
 		noVideo := time.NewTimer(10 * time.Second)
 		for {

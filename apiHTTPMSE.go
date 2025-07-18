@@ -19,11 +19,12 @@ func HTTPAPIServerStreamMSE(c *gin.Context) {
 	if err != nil {
 		return
 	}
+	safeContext := c.Copy()
 
 	requestLogger := log.WithFields(logrus.Fields{
 		"module":  "http_mse",
-		"stream":  c.Param("uuid"),
-		"channel": c.Param("channel"),
+		"stream":  safeContext.Param("uuid"),
+		"channel": safeContext.Param("channel"),
 		"func":    "HTTPAPIServerStreamMSE",
 	})
 
@@ -34,21 +35,21 @@ func HTTPAPIServerStreamMSE(c *gin.Context) {
 		}).Errorln(err)
 		log.Println("Client Full Exit")
 	}()
-	if !Storage.StreamChannelExist(c.Param("uuid"), c.Param("channel")) {
+	if !Storage.StreamChannelExist(safeContext.Param("uuid"), safeContext.Param("channel")) {
 		requestLogger.WithFields(logrus.Fields{
 			"call": "StreamChannelExist",
 		}).Errorln(ErrorStreamNotFound.Error())
 		return
 	}
 
-	if !RemoteAuthorization("WS", c.Param("uuid"), c.Param("channel"), c.Query("token"), c.ClientIP()) {
+	if !RemoteAuthorization("WS", safeContext.Param("uuid"), safeContext.Param("channel"), safeContext.Query("token"), safeContext.ClientIP()) {
 		requestLogger.WithFields(logrus.Fields{
 			"call": "RemoteAuthorization",
 		}).Errorln(ErrorStreamUnauthorized.Error())
 		return
 	}
 
-	Storage.StreamChannelRun(c.Param("uuid"), c.Param("channel"))
+	Storage.StreamChannelRun(safeContext.Param("uuid"), safeContext.Param("channel"))
 	err = conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	if err != nil {
 		requestLogger.WithFields(logrus.Fields{
@@ -56,15 +57,15 @@ func HTTPAPIServerStreamMSE(c *gin.Context) {
 		}).Errorln(err.Error())
 		return
 	}
-	cid, ch, _, err := Storage.ClientAdd(c.Param("uuid"), c.Param("channel"), MSE)
+	cid, ch, _, err := Storage.ClientAdd(safeContext.Param("uuid"), safeContext.Param("channel"), MSE)
 	if err != nil {
 		requestLogger.WithFields(logrus.Fields{
 			"call": "ClientAdd",
 		}).Errorln(err.Error())
 		return
 	}
-	defer Storage.ClientDelete(c.Param("uuid"), cid, c.Param("channel"))
-	codecs, err := Storage.StreamChannelCodecs(c.Param("uuid"), c.Param("channel"))
+	defer Storage.ClientDelete(safeContext.Param("uuid"), cid, safeContext.Param("channel"))
+	codecs, err := Storage.StreamChannelCodecs(safeContext.Param("uuid"), safeContext.Param("channel"))
 	if err != nil {
 		requestLogger.WithFields(logrus.Fields{
 			"call": "StreamCodecs",
