@@ -9,14 +9,15 @@ import (
 
 //HTTPAPIServerStreamHLSLLInit send client ts segment
 func HTTPAPIServerStreamHLSLLInit(c *gin.Context) {
+	safeContext := c.Copy()
 	requestLogger := log.WithFields(logrus.Fields{
 		"module":  "http_hlsll",
-		"stream":  c.Param("uuid"),
-		"channel": c.Param("channel"),
+		"stream":  safeContext.Param("uuid"),
+		"channel": safeContext.Param("channel"),
 		"func":    "HTTPAPIServerStreamHLSLLInit",
 	})
 
-	if !Storage.StreamChannelExist(c.Param("uuid"), c.Param("channel")) {
+	if !Storage.StreamChannelExist(safeContext.Param("uuid"), safeContext.Param("channel")) {
 		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		requestLogger.WithFields(logrus.Fields{
 			"call": "StreamChannelExist",
@@ -24,7 +25,7 @@ func HTTPAPIServerStreamHLSLLInit(c *gin.Context) {
 		return
 	}
 
-	if !RemoteAuthorization("HLS", c.Param("uuid"), c.Param("channel"), c.Query("token"), c.ClientIP()) {
+	if !RemoteAuthorization("HLS", safeContext.Param("uuid"), safeContext.Param("channel"), safeContext.Query("token"), safeContext.ClientIP()) {
 		requestLogger.WithFields(logrus.Fields{
 			"call": "RemoteAuthorization",
 		}).Errorln(ErrorStreamUnauthorized.Error())
@@ -32,8 +33,8 @@ func HTTPAPIServerStreamHLSLLInit(c *gin.Context) {
 	}
 
 	c.Header("Content-Type", "application/x-mpegURL")
-	Storage.StreamChannelRun(c.Param("uuid"), c.Param("channel"))
-	codecs, err := Storage.StreamChannelCodecs(c.Param("uuid"), c.Param("channel"))
+	Storage.StreamChannelRun(safeContext.Param("uuid"), safeContext.Param("channel"))
+	codecs, err := Storage.StreamChannelCodecs(safeContext.Param("uuid"), safeContext.Param("channel"))
 	if err != nil {
 		c.IndentedJSON(500, Message{Status: 0, Payload: err.Error()})
 		requestLogger.WithFields(logrus.Fields{
@@ -64,14 +65,15 @@ func HTTPAPIServerStreamHLSLLInit(c *gin.Context) {
 
 //HTTPAPIServerStreamHLSLLM3U8 send client m3u8 play list
 func HTTPAPIServerStreamHLSLLM3U8(c *gin.Context) {
+	safeContext := c.Copy()
 	requestLogger := log.WithFields(logrus.Fields{
 		"module":  "http_hlsll",
-		"stream":  c.Param("uuid"),
-		"channel": c.Param("channel"),
+		"stream":  safeContext.Param("uuid"),
+		"channel": safeContext.Param("channel"),
 		"func":    "HTTPAPIServerStreamHLSLLM3U8",
 	})
 
-	if !Storage.StreamChannelExist(c.Param("uuid"), c.Param("channel")) {
+	if !Storage.StreamChannelExist(safeContext.Param("uuid"), safeContext.Param("channel")) {
 		c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNotFound.Error()})
 		requestLogger.WithFields(logrus.Fields{
 			"call": "StreamChannelExist",
@@ -79,8 +81,8 @@ func HTTPAPIServerStreamHLSLLM3U8(c *gin.Context) {
 		return
 	}
 	c.Header("Content-Type", "application/x-mpegURL")
-	Storage.StreamChannelRun(c.Param("uuid"), c.Param("channel"))
-	index, err := Storage.HLSMuxerM3U8(c.Param("uuid"), c.Param("channel"), stringToInt(c.DefaultQuery("_HLS_msn", "-1")), stringToInt(c.DefaultQuery("_HLS_part", "-1")))
+	Storage.StreamChannelRun(safeContext.Param("uuid"), safeContext.Param("channel"))
+	index, err := Storage.HLSMuxerM3U8(safeContext.Param("uuid"), safeContext.Param("channel"), stringToInt(safeContext.DefaultQuery("_HLS_msn", "-1")), stringToInt(safeContext.DefaultQuery("_HLS_part", "-1")))
 	if err != nil {
 		requestLogger.WithFields(logrus.Fields{
 			"call": "HLSMuxerM3U8",
