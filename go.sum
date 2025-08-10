@@ -108,6 +108,7 @@ github.com/leodido/go-urn v1.4.0 h1:WT9HwE9SGECu3lg4d/dIA+jxlljEa1/ffXKmRjqdmIQ=
 github.com/leodido/go-urn v1.4.0/go.mod h1:bvxc+MVxLKB4z00jd1z+Dvzr47oO32F/QSNjSBOlFxI=
 github.com/liip/sheriff v0.12.0 h1:/deCBoWPcsG5rN/NlHIwNjnj8/U4bN99NdWY8OmQ6RA=
 github.com/liip/sheriff v0.12.0/go.mod h1:TgdKuCGI/1qkwBjm96/hEN+gD2FEHf8is9YaqGq96o8=
+github.com/liip/sheriff/v2 v2.0.1/go.mod h1:VbMWjKxVL/QaFtPYNLmhEDNS7kgfTSiRH4puy6p48nk=
 github.com/mattn/go-isatty v0.0.19 h1:JITubQf0MOLdlGRuRq+jtsDlekdYPia9ZFsB8h/APPA=
 github.com/mattn/go-isatty v0.0.19/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
