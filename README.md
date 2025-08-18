@@ -66,7 +66,7 @@ log_level       - log level (trace, debug, info, warning, error, fatal, or panic
 
 http_demo       - serve static files
 http_debug      - debug http api server
-http_auth       - enable or disable HTTP Basic Auth login
+http_auth       - enable or disable HTTP Basic Auth for the HTTP Demo GUI
 http_login      - http auth login
 http_password   - http auth password
 http_port       - http server port
