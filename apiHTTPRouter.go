@@ -46,17 +46,31 @@ func HTTPAPIServer() {
 
 	if Storage.ServerHTTPDemo() {
 		public.LoadHTMLGlob(Storage.ServerHTTPDir() + "/templates/*")
-		privat.GET("/", HTTPAPIServerIndex)
-		privat.GET("/pages/stream/list", HTTPAPIStreamList)
-		privat.GET("/pages/stream/add", HTTPAPIAddStream)
-		privat.GET("/pages/stream/edit/:uuid", HTTPAPIEditStream)
-		privat.GET("/pages/player/hls/:uuid/:channel", HTTPAPIPlayHls)
-		privat.GET("/pages/player/mse/:uuid/:channel", HTTPAPIPlayMse)
-		privat.GET("/pages/player/webrtc/:uuid/:channel", HTTPAPIPlayWebrtc)
-		privat.GET("/pages/multiview", HTTPAPIMultiview)
-		privat.Any("/pages/multiview/full", HTTPAPIFullScreenMultiView)
-		privat.GET("/pages/documentation", HTTPAPIServerDocumentation)
-		privat.GET("/pages/player/all/:uuid/:channel", HTTPAPIPlayAll)
+		if Storage.ServerHTTPAuth() {
+			privat.GET("/", HTTPAPIServerIndex)
+			privat.GET("/pages/stream/list", HTTPAPIStreamList)
+			privat.GET("/pages/stream/add", HTTPAPIAddStream)
+			privat.GET("/pages/stream/edit/:uuid", HTTPAPIEditStream)
+			privat.GET("/pages/player/hls/:uuid/:channel", HTTPAPIPlayHls)
+			privat.GET("/pages/player/mse/:uuid/:channel", HTTPAPIPlayMse)
+			privat.GET("/pages/player/webrtc/:uuid/:channel", HTTPAPIPlayWebrtc)
+			privat.GET("/pages/multiview", HTTPAPIMultiview)
+			privat.Any("/pages/multiview/full", HTTPAPIFullScreenMultiView)
+			privat.GET("/pages/documentation", HTTPAPIServerDocumentation)
+			privat.GET("/pages/player/all/:uuid/:channel", HTTPAPIPlayAll)
+		} else {
+			public.GET("/", HTTPAPIServerIndex)
+			public.GET("/pages/stream/list", HTTPAPIStreamList)
+			public.GET("/pages/stream/add", HTTPAPIAddStream)
+			public.GET("/pages/stream/edit/:uuid", HTTPAPIEditStream)
+			public.GET("/pages/player/hls/:uuid/:channel", HTTPAPIPlayHls)
+			public.GET("/pages/player/mse/:uuid/:channel", HTTPAPIPlayMse)
+			public.GET("/pages/player/webrtc/:uuid/:channel", HTTPAPIPlayWebrtc)
+			public.GET("/pages/multiview", HTTPAPIMultiview)
+			public.Any("/pages/multiview/full", HTTPAPIFullScreenMultiView)
+			public.GET("/pages/documentation", HTTPAPIServerDocumentation)
+			public.GET("/pages/player/all/:uuid/:channel", HTTPAPIPlayAll)
+		}
 		public.StaticFS("/static", http.Dir(Storage.ServerHTTPDir()+"/static"))
 	}
 
