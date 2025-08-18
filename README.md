@@ -141,6 +141,7 @@ file.php need response json
     "log_level": "info",
     "http_demo": true,
     "http_debug": false,
+    "http_auth": true,
     "http_login": "demo",
     "http_password": "demo",
     "http_port": ":8083",
