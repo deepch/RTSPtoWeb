@@ -42,6 +42,13 @@ func (obj *StorageST) ServerHTTPDemo() bool {
 	return obj.Server.HTTPDemo
 }
 
+//ServerHTTPAuth read Auth options
+func (obj *StorageST) ServerHTTPAuth() bool {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	return obj.Server.HTTPAuth
+}
+
 //ServerHTTPLogin read Login options
 func (obj *StorageST) ServerHTTPLogin() string {
 	obj.mutex.RLock()

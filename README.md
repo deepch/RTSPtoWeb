@@ -66,6 +66,7 @@ log_level       - log level (trace, debug, info, warning, error, fatal, or panic
 
 http_demo       - serve static files
 http_debug      - debug http api server
+http_auth       - enable or disable HTTP Basic Auth for the HTTP Demo GUI
 http_login      - http auth login
 http_password   - http auth password
 http_port       - http server port
@@ -140,6 +141,7 @@ file.php need response json
     "log_level": "info",
     "http_demo": true,
     "http_debug": false,
+    "http_auth": true,
     "http_login": "demo",
     "http_password": "demo",
     "http_port": ":8083",
