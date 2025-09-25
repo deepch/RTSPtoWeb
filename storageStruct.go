@@ -59,6 +59,7 @@ type ServerST struct {
 	HTTPDebug          bool         `json:"http_debug" groups:"api,config"`
 	HTTPLogin          string       `json:"http_login" groups:"api,config"`
 	HTTPPassword       string       `json:"http_password" groups:"api,config"`
+	HTTPAuth           bool         `json:"http_auth" groups:"api,config"`
 	HTTPDir            string       `json:"http_dir" groups:"api,config"`
 	HTTPPort           string       `json:"http_port" groups:"api,config"`
 	RTSPPort           string       `json:"rtsp_port" groups:"api,config"`
@@ -71,6 +72,7 @@ type ServerST struct {
 	ICEServers         []string     `json:"ice_servers" groups:"api,config"`
 	ICEUsername        string       `json:"ice_username" groups:"api,config"`
 	ICECredential      string       `json:"ice_credential" groups:"api,config"`
+	ICECandidates      []string     `json:"ice_candidates" groups:"api,config"`
 	Token              Token        `json:"token,omitempty" groups:"api,config"`
 	WebRTCPortMin      uint16       `json:"webrtc_port_min" groups:"api,config"`
 	WebRTCPortMax      uint16       `json:"webrtc_port_max" groups:"api,config"`

@@ -42,6 +42,13 @@ func (obj *StorageST) ServerHTTPDemo() bool {
 	return obj.Server.HTTPDemo
 }
 
+//ServerHTTPAuth read Auth options
+func (obj *StorageST) ServerHTTPAuth() bool {
+	obj.mutex.RLock()
+	defer obj.mutex.RUnlock()
+	return obj.Server.HTTPAuth
+}
+
 //ServerHTTPLogin read Login options
 func (obj *StorageST) ServerHTTPLogin() string {
 	obj.mutex.RLock()
@@ -160,3 +167,11 @@ func (obj *StorageST) ServerWebRTCPortMax() uint16 {
 	defer obj.mutex.Unlock()
 	return obj.Server.WebRTCPortMax
 }
+
+// ServerIceCandidates returns the configured IceCandidates.
+func (obj *StorageST) ServerICECandidates() []string {
+    obj.mutex.Lock()
+    defer obj.mutex.Unlock()
+    return obj.Server.ICECandidates
+}
+
