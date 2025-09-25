@@ -167,3 +167,11 @@ func (obj *StorageST) ServerWebRTCPortMax() uint16 {
 	defer obj.mutex.Unlock()
 	return obj.Server.WebRTCPortMax
 }
+
+// ServerIceCandidates returns the configured IceCandidates.
+func (obj *StorageST) ServerICECandidates() []string {
+    obj.mutex.Lock()
+    defer obj.mutex.Unlock()
+    return obj.Server.ICECandidates
+}
+

@@ -74,6 +74,7 @@ http_dir        - path to serve static files from
 ice_servers     - array of servers to use for STUN/TURN
 ice_username    - username to use for STUN/TURN
 ice_credential  - credential to use for STUN/TURN
+ice_candidates  - manually set ice candidates
 webrtc_port_min - minimum WebRTC port to use (UDP)
 webrtc_port_max - maximum WebRTC port to use (UDP)
 
