@@ -85,17 +85,27 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 			return
 		}
 		defer Storage.ClientDelete(safeContext.Param("uuid"), cid, safeContext.Param("channel"))
+		defer muxerWebRTC.Close() // Close the WebRTC session when done
 		var videoStart bool
 		noVideo := time.NewTimer(10 * time.Second)
 		for {
 			select {
 			case <-noVideo.C:
-				//				c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNoVideo.Error()})
+				c.IndentedJSON(500, Message{Status: 0, Payload: ErrorStreamNoVideo.Error()})
 				requestLogger.WithFields(logrus.Fields{
 					"call": "ErrorStreamNoVideo",
 				}).Errorln(ErrorStreamNoVideo.Error())
 				return
-			case pck := <-ch:
+			case pck, ok := <-ch:
+				if !ok {
+					// Channel closed, likely due to camera disconnection
+					c.IndentedJSON(500, Message{Status: 0, Payload: "Camera disconnected"})
+					requestLogger.WithFields(logrus.Fields{
+						"call": "CameraDisconnected",
+					}).Errorln("Camera disconnected")
+					return
+				}
+
 				if pck.IsKeyFrame {
 					noVideo.Reset(10 * time.Second)
 					videoStart = true
