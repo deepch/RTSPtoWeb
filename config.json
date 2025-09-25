@@ -6,6 +6,7 @@
     "http_dir": "web",
     "http_login": "demo",
     "http_password": "demo",
+    "http_auth": false,
     "http_port": ":8083",
     "https": false,
     "https_auto_tls": false,
