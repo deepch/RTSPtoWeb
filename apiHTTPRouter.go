@@ -56,7 +56,7 @@ func HTTPAPIServer() {
 			privat.GET("/pages/player/webrtc/:uuid/:channel", HTTPAPIPlayWebrtc)
 			privat.GET("/pages/multiview", HTTPAPIMultiview)
 			privat.Any("/pages/multiview/full", HTTPAPIFullScreenMultiView)
-			privat.GET("/pages/documentation", HTTPAPIServerDocumentation)
+
 			privat.GET("/pages/player/all/:uuid/:channel", HTTPAPIPlayAll)
 		} else {
 			public.GET("/", HTTPAPIServerIndex)
@@ -68,7 +68,7 @@ func HTTPAPIServer() {
 			public.GET("/pages/player/webrtc/:uuid/:channel", HTTPAPIPlayWebrtc)
 			public.GET("/pages/multiview", HTTPAPIMultiview)
 			public.Any("/pages/multiview/full", HTTPAPIFullScreenMultiView)
-			public.GET("/pages/documentation", HTTPAPIServerDocumentation)
+
 			public.GET("/pages/player/all/:uuid/:channel", HTTPAPIPlayAll)
 		}
 		public.StaticFS("/static", http.Dir(Storage.ServerHTTPDir()+"/static"))
@@ -179,14 +179,7 @@ func HTTPAPIServerIndex(c *gin.Context) {
 
 }
 
-func HTTPAPIServerDocumentation(c *gin.Context) {
-	c.HTML(http.StatusOK, "documentation.tmpl", gin.H{
-		"port":    Storage.ServerHTTPPort(),
-		"streams": Storage.Streams,
-		"version": time.Now().String(),
-		"page":    "documentation",
-	})
-}
+
 
 func HTTPAPIStreamList(c *gin.Context) {
 	c.HTML(http.StatusOK, "stream_list.tmpl", gin.H{
