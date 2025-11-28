@@ -31,7 +31,7 @@ func HTTPAPIServerStreamsMultiControlAdd(c *gin.Context) {
 		}).Errorln(err.Error())
 		return
 	}
-	if payload.Streams == nil || len(payload.Streams) < 1 {
+	if len(payload.Streams) < 1 {
 		c.IndentedJSON(400, Message{Status: 0, Payload: ErrorStreamsLen0.Error()})
 		requestLogger.WithFields(logrus.Fields{
 			"call": "len(payload)",

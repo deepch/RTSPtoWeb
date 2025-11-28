@@ -3,12 +3,12 @@
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Edit stream</h1>
+        <h1 class="m-0 text-dark">Editar transmisión</h1>
       </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-          <li class="breadcrumb-item"><a href="/">Home</a></li>
-          <li class="breadcrumb-item active">Edit stream</li>
+          <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+          <li class="breadcrumb-item active">Editar transmisión</li>
         </ol>
       </div>
     </div>
@@ -23,42 +23,42 @@
         <div class="col-md-12">
           <div class="card card-primary">
             <div class="card-header">
-              <h3 class="card-title">Parameters<small> main</small></h3>
+              <h3 class="card-title">Parámetros principales</h3>
             </div>
             <form class="stream-form main-form">
               <div class="card-body">
                 <div class="form-group">
-                  <label for="exampleInputEmail1">Stream name</label>
-                  <input type="text" class="form-control" name="stream-name" placeholder="Enter stream name" value="{{$stream.Name}}" id="stream-name">
-                  <small  class="form-text text-muted">You can choose any name for the stream, for example "My room" or  "Happy sausage"</small>
+                  <label for="exampleInputEmail1">Nombre de la transmisión</label>
+                  <input type="text" class="form-control" name="stream-name" placeholder="Ingrese el nombre de la transmisión" value="{{$stream.Name}}" id="stream-name">
+                  <small  class="form-text text-muted">Puede elegir cualquier nombre para la transmisión, por ejemplo "Mi habitación" o "Salchicha feliz"</small>
                 </div>
                 <div class="form-group">
-                  <label for="exampleInputPassword1">Stream url</label>
-                  <input type="text" name="stream-url" class="form-control"  placeholder="Enter stream url" value="{{$mainChannel.URL}}">
-                  <small  class="form-text text-muted">Enter rtsp address as instructed by your camera. Look like <code>rtsp://&lt;ip&gt;:&lt;port&gt;/path </code></small>
+                  <label for="exampleInputPassword1">URL de la transmisión</label>
+                  <input type="text" name="stream-url" class="form-control"  placeholder="Ingrese la URL de la transmisión" value="{{$mainChannel.URL}}">
+                  <small  class="form-text text-muted">Ingrese la dirección RTSP según las instrucciones de su cámara. Se ve como <code>rtsp://&lt;ip&gt;:&lt;port&gt;/path </code></small>
                 </div>
                 <div class="form-group">
-                  <label for="inputStatus">Stream type</label>
+                  <label for="inputStatus">Tipo de transmisión</label>
                   <select class="form-control custom-select" name="stream-ondemand">
-                    <option selected disabled><small>Select One</small></option>
+                    <option selected disabled><small>Seleccione uno</small></option>
                     <option value="1"
                     {{ if eq $mainChannel.OnDemand true}}
                       selected
-                    {{ end }}>On demand only</option>
+                    {{ end }}>Solo bajo demanda</option>
                     <option value="0" {{ if eq $mainChannel.OnDemand false}}
                       selected
-                    {{ end }}>Persistent connection</option>
+                    {{ end }}>Conexión persistente</option>
                   </select>
-                  <small  class="form-text text-muted">On persistent connection, the server get data from the camera continuously. On demand, the server get data from the camera only when you click play button </small>
+                  <small  class="form-text text-muted">En conexión persistente, el servidor obtiene datos de la cámara continuamente. Bajo demanda, el servidor obtiene datos solo cuando hace clic en el botón de reproducción </small>
                 </div>
                 <div class="form-group">
                   <div class="custom-control custom-switch">
                     <input type="checkbox" class="custom-control-input" name="debug" id="debug-switch" {{ if eq $mainChannel.Debug true}}
                       checked
                     {{ end }}>
-                    <label class="custom-control-label" for="debug-switch">Enable debug</label>
+                    <label class="custom-control-label" for="debug-switch">Habilitar depuración</label>
                   </div>
-                  <small  class="form-text text-muted">Select this options if you want get more data about the stream </small>
+                  <small  class="form-text text-muted">Seleccione esta opción si desea obtener más datos sobre la transmisión </small>
                 </div>
               </div>
             </form>
@@ -70,7 +70,7 @@
                 <div class="col-12">
                   <div class="card card-secondary">
                     <div class="card-header">
-                      <h3 class="card-title">Sub channel<small> parameters</small></h3>
+                      <h3 class="card-title">Parámetros del subcanal</h3>
                       <div class="card-tools">
                       <button type="button" class="btn btn-tool" onclick="removeChannelDiv(this)"><i class="fas fa-times"></i></button>
                       </div>
@@ -78,34 +78,34 @@
                       <div class="card-body">
                       <form class="stream-form">
                         <div class="form-group">
-                          <label for="exampleInputPassword1">Substream url</label>
-                          <input type="text" name="stream-url" class="form-control"  placeholder="Enter stream url" value="{{$value.URL}}" >
-                          <small  class="form-text text-muted">Enter rtsp address as instructed by your camera. Look like <code>rtsp://&lt;ip&gt;:&lt;port&gt;/path </code> </small>
+                          <label for="exampleInputPassword1">URL de la subtransmisión</label>
+                          <input type="text" name="stream-url" class="form-control"  placeholder="Ingrese la URL de la transmisión" value="{{$value.URL}}" >
+                          <small  class="form-text text-muted">Ingrese la dirección RTSP según las instrucciones de su cámara. Se ve como <code>rtsp://&lt;ip&gt;:&lt;port&gt;/path </code> </small>
                         </div>
                         <div class="form-group">
 
-                          <label for="inputStatus">Substream type</label>
+                          <label for="inputStatus">Tipo de subtransmisión</label>
                           <select class="form-control custom-select" name="stream-ondemand">
-                          <option selected disabled><small>Select One</small></option>
+                          <option selected disabled><small>Seleccione uno</small></option>
                           <option value="1"
                           {{ if eq $value.OnDemand true}}
                             selected
-                          {{ end }}>On demand only</option>
+                          {{ end }}>Solo bajo demanda</option>
                           <option value="0"
                           {{ if eq $value.OnDemand false}}
                             selected
-                          {{ end }}>Persistent connection</option>
+                          {{ end }}>Conexión persistente</option>
                         </select>
-                          <small  class="form-text text-muted">On persistent connection, the server get data from the camera continuously. On demand, the server get data from the camera only when you click play button </small>
+                          <small  class="form-text text-muted">En conexión persistente, el servidor obtiene datos de la cámara continuamente. Bajo demanda, el servidor obtiene datos solo cuando hace clic en el botón de reproducción </small>
                         </div>
                         <div class="form-group">
                           <div class="custom-control custom-switch">
                             <input type="checkbox" class="custom-control-input" name="debug" id="substream-debug-switch-{{$key}}" {{ if eq $value.Debug true}}
                               checked
                             {{ end }}>
-                            <label class="custom-control-label" for="substream-debug-switch-{{$key}}">Enable debug</label>
+                            <label class="custom-control-label" for="substream-debug-switch-{{$key}}">Habilitar depuración</label>
                           </div>
-                          <small  class="form-text text-muted">Select this options if you want get more data about the stream </small>
+                          <small  class="form-text text-muted">Seleccione esta opción si desea obtener más datos sobre la transmisión </small>
                         </div>
                           </form>
                       </div>
@@ -117,8 +117,8 @@
         </div>
         <div class="row  mb-3">
             <div class="col-12">
-              <button type="button" onclick="addChannel()" class="btn btn-secondary">Add channel</button>
-              <button type="button" onclick="editStreamSubmit()" class="btn btn-primary">Save stream</button>
+              <button type="button" onclick="addChannel()" class="btn btn-secondary">Agregar canal</button>
+              <button type="button" onclick="editStreamSubmit()" class="btn btn-primary">Guardar transmisión</button>
             </div>
         </div>
 

@@ -415,7 +415,7 @@ func RTSPServerClientResponse(uuid string, channel string, conn net.Conn, status
 		}
 		builder.WriteString(fmt.Sprintf("%s: %s\r\n", k, v))
 	}
-	builder.WriteString(fmt.Sprintf("\r\n"))
+	builder.WriteString("\r\n")
 	builder.WriteString(sdp)
 	log.WithFields(logrus.Fields{
 		"module":  "rtsp_server",

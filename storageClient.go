@@ -55,7 +55,7 @@ func (obj *StorageST) ClientHas(streamID string, channelID string) bool {
 	if !ok {
 		return false
 	}
-	if time.Now().Sub(channelTmp.ack).Seconds() > 30 {
+	if time.Since(channelTmp.ack).Seconds() > 30 {
 		return false
 	}
 	return true

@@ -3,12 +3,12 @@
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Multiview</h1>
+        <h1 class="m-0 text-dark">Multivista</h1>
       </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-          <li class="breadcrumb-item"><a href="/">Home</a></li>
-          <li class="breadcrumb-item active">Multiview</li>
+          <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+          <li class="breadcrumb-item active">Multivista</li>
         </ol>
       </div>
     </div>
@@ -19,7 +19,7 @@
     <div class="col-md-12">
       <div class="card">
         <div class="card-header">
-          <h5 class="card-title">Grid</h5>
+          <h5 class="card-title">Cuadrícula</h5>
 
           <div class="card-tools">
             <button type="button" onclick="expand()" class="btn btn-tool">
@@ -30,8 +30,8 @@
                 <i class="fas fa-th-large"></i>
               </button>
               <div class="dropdown-menu dropdown-menu-right" role="menu">
-                <a href="#" class="dropdown-item" onclick="gridMaker(4)"><i class="fas fa-th-large"></i> four players</a>
-                <a href="#" class="dropdown-item" onclick="gridMaker(6)"><i class="fas fa-grip-horizontal"></i> six players</a>
+                <a href="#" class="dropdown-item" onclick="gridMaker(4)"><i class="fas fa-th-large"></i> cuatro reproductores</a>
+                <a href="#" class="dropdown-item" onclick="gridMaker(6)"><i class="fas fa-grip-horizontal"></i> seis reproductores</a>
 
               </div>
             </div>
@@ -67,7 +67,7 @@
             <div class="modal-dialog modal-lg">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Click on stream to play</h5>
+                  <h5 class="modal-title" id="exampleModalLabel">Haga clic en la transmisión para reproducir</h5>
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
@@ -90,18 +90,18 @@
                               <a onclick="play('{{ $key }}',null,{{$k}})" href="#"><img class="d-block w-100 stream-img" channel="{{$k}}" src="/../static/img/noimage.svg"></a>
                               <div class="carousel-caption d-none d-md-block">
                                 <h5>{{$value.Name}}</h5>
-                                <p>Channel: {{$k}}</p>
+                                <p>Canal: {{$k}}</p>
                               </div>
                             </div>
                             {{end}}
                           </div>
                           <a class="carousel-control-prev" href="#carousel_{{$key}}" role="button" data-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Previous</span>
+                            <span class="sr-only">Anterior</span>
                           </a>
                           <a class="carousel-control-next" href="#carousel_{{$key}}" role="button" data-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Next</span>
+                            <span class="sr-only">Siguiente</span>
                           </a>
                         </div>
 
@@ -164,9 +164,9 @@
         <div class="play-info"></div>
         <video autoplay muted></video>
         <div class="control">
-          <a href="#" class="btn  btn-success btn-xs" onclick="openChoise(this)"><i class="fas fa-plus"></i> Add</a>
-                <a href="#" class="btn  btn-info btn-xs btn-play-main"  onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expand</a>
-                <a href="#" class="btn  btn-danger btn-xs"  onclick="destoyPlayer(` + i + `)"><i class="fas fa-times"></i> Delete</a>
+          <a href="#" class="btn  btn-success btn-xs" onclick="openChoise(this)"><i class="fas fa-plus"></i> Agregar</a>
+                <a href="#" class="btn  btn-info btn-xs btn-play-main"  onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expandir</a>
+                <a href="#" class="btn  btn-danger btn-xs"  onclick="destoyPlayer(` + i + `)"><i class="fas fa-times"></i> Eliminar</a>
         </div>
         </div>`);
     }

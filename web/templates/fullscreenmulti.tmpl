@@ -93,7 +93,7 @@
               </ul>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/" role="button"><i class="fas fa-times"></i> Close</a>
+              <a class="nav-link" href="/" role="button"><i class="fas fa-times"></i> Cerrar</a>
             </li>
             {{end}}
           </ul>
@@ -133,7 +133,7 @@
         <a class="control-sidebar-close-btn pull-right" href="#" onclick="$('.control-sidebar').ControlSidebar('collapse')"><i class="fas fa-times"></i></a>
       </p>
 
-      <h5>Available streams:</h5>
+      <h5>Transmisiones disponibles:</h5>
       <input type="hidden" id="player-index" value="0" />
       <div class="row">
         {{ range $key, $value := .streams }}
@@ -261,8 +261,8 @@
               <video class="video-class empty" autoplay muted playsinline></video>
             ` +
         `<a class="remove-btn" onclick="destoyPlayer(` + i + `)"><i class="fas fa-times"></i></a>` +
-        `<a class="add-stream-btn" onclick="openChoise(this)"><i class="fas fa-plus"></i><br />Click to select stream</a>` +
-        `<a href="#" class="btn  btn-info btn-xs btn-play-main d-none"  onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expand</a>` +
+        `<a class="add-stream-btn" onclick="openChoise(this)"><i class="fas fa-plus"></i><br />Haga clic para seleccionar transmisión</a>` +
+        `<a href="#" class="btn  btn-info btn-xs btn-play-main d-none"  onclick="playMainStream(this)"><i class="fas fa-expand"></i> Expandir</a>` +
         `<img class="loader d-none" src="/../static/img/loader.svg" />` +
         `</div>`);
     }

@@ -14,10 +14,10 @@ function showAddStream(streamName, streamUrl) {
   streamName = streamName || '';
   streamUrl = streamUrl || '';
   Swal.fire({
-    title: 'Add stream',
+    title: 'Agregar transmisión',
     html: '<form class="text-left"> ' +
       '<div class="form-group">' +
-      '<label>Name</label>' +
+      '<label>Nombre</label>' +
       '<input type="text" class="form-control" id="stream-name">' +
       '<small class="form-text text-muted"></small>' +
       '</div>' +
@@ -27,7 +27,7 @@ function showAddStream(streamName, streamUrl) {
       '  </div>' +
       '<div class="form-group form-check">' +
       '<input type="checkbox" class="form-check-input" id="stream-ondemand">' +
-      '<label class="form-check-label">ondemand</label>' +
+      '<label class="form-check-label">bajo demanda</label>' +
       '</div>' +
       '</form>',
     focusConfirm: true,
@@ -40,9 +40,9 @@ function showAddStream(streamName, streamUrl) {
       if (!validURL(url)) {
         Swal.fire({
           icon: 'error',
-          title: 'Oops...',
-          text: 'wrong url',
-          confirmButtonText: 'return back',
+          title: 'Vaya...',
+          text: 'URL incorrecta',
+          confirmButtonText: 'volver',
           preConfirm: () => {
             showAddStream(name, url)
           }
@@ -68,13 +68,13 @@ function showEditStream(uuid) {
 function deleteStream(uuid) {
   activeStream = uuid;
   Swal.fire({
-    title: 'Are you sure?',
-    text: "Do you want delete stream " + streams[uuid].name + " ?",
+    title: '¿Estás seguro?',
+    text: "¿Quieres eliminar la transmisión " + streams[uuid].name + " ?",
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
+    confirmButtonText: '¡Sí, eliminarla!'
   }).then((result) => {
     if (result.value) {
       goRequest('delete', uuid)
@@ -120,9 +120,9 @@ function goRequest(method, uuid, data) {
   if (path == '') {
     Swal.fire({
       icon: 'error',
-      title: 'Oops...',
-      text: 'It`s goRequest function mistake',
-      confirmButtonText: 'Close',
+      title: 'Vaya...',
+      text: 'Es un error de la función goRequest',
+      confirmButtonText: 'Cerrar',
 
     })
     return;
@@ -154,16 +154,16 @@ function goRequestHandle(method, response, uuid) {
       if (response.status == 1) {
         renewStreamlist();
         Swal.fire(
-          'Added!',
-          'Your stream has been Added.',
+          '¡Agregado!',
+          'Tu transmisión ha sido agregada.',
           'success'
         );
 
       } else {
         Swal.fire({
           icon: 'error',
-          title: 'Oops...',
-          text: 'Same mistake issset',
+          title: 'Vaya...',
+          text: 'Ocurrió un error',
         })
       }
 
@@ -172,15 +172,15 @@ function goRequestHandle(method, response, uuid) {
       if (response.status == 1) {
         renewStreamlist();
         Swal.fire(
-          'Success!',
-          'Your stream has been modified.',
+          '¡Éxito!',
+          'Tu transmisión ha sido modificada.',
           'success'
         );
       } else {
         Swal.fire({
           icon: 'error',
-          title: 'Oops...',
-          text: 'Same mistake issset',
+          title: 'Vaya...',
+          text: 'Ocurrió un error',
         })
       }
       break;
@@ -191,8 +191,8 @@ function goRequestHandle(method, response, uuid) {
         delete(streams[uuid]);
         $('#stream-counter').html(Object.keys(streams).length);
         Swal.fire(
-          'Deleted!',
-          'Your stream has been deleted.',
+          '¡Eliminado!',
+          'Tu transmisión ha sido eliminada.',
           'success'
         )
       }
@@ -311,8 +311,8 @@ function streamHtmlTemplate(uuid, name) {
     '<a class="dropdown-item" onclick="rtspPlayer.livePlayer(\'mse\', \'' + uuid + '\')" href="#">Play MSE</a>' +
     '<a class="dropdown-item" onclick="rtspPlayer.livePlayer(\'webrtc\', \'' + uuid + '\')" href="#">Play WebRTC</a>' +
     '<div class="dropdown-divider"></div>' +
-    '<a class="dropdown-item" onclick="showEditStream(\'' + uuid + '\')" href="#">Edit</a>' +
-    '<a class="dropdown-item" onclick="deleteStream(\'' + uuid + '\')" href="#">Delete</a>' +
+    '<a class="dropdown-item" onclick="showEditStream(\'' + uuid + '\')" href="#">Editar</a>' +
+    '<a class="dropdown-item" onclick="deleteStream(\'' + uuid + '\')" href="#">Eliminar</a>' +
     '</div>' +
     '</div>' +
     '</div>' +
@@ -466,7 +466,7 @@ function chanellTemplate() {
     <div class="col-12">
       <div class="card card-secondary">
         <div class="card-header">
-          <h3 class="card-title">Sub channel<small> parameters</small></h3>
+          <h3 class="card-title">Parámetros del subcanal</h3>
           <div class="card-tools">
           <button type="button" class="btn btn-tool" onclick="removeChannelDiv(this)"><i class="fas fa-times"></i></button>
           </div>
@@ -474,25 +474,25 @@ function chanellTemplate() {
           <div class="card-body">
           <form class="stream-form">
             <div class="form-group">
-              <label for="exampleInputPassword1">Substream url</label>
-              <input type="text" name="stream-url" class="form-control"  placeholder="Enter stream url" >
-              <small  class="form-text text-muted">Enter rtsp address as instructed by your camera. Look like <code>rtsp://&lt;ip&gt;:&lt;port&gt;/path </code> </small>
+              <label for="exampleInputPassword1">URL de la subtransmisión</label>
+              <input type="text" name="stream-url" class="form-control"  placeholder="Ingrese la URL de la transmisión" >
+              <small  class="form-text text-muted">Ingrese la dirección RTSP según las instrucciones de su cámara. Se ve como <code>rtsp://&lt;ip&gt;:&lt;port&gt;/path </code> </small>
             </div>
             <div class="form-group">
-              <label for="inputStatus">Substream type</label>
+              <label for="inputStatus">Tipo de subtransmisión</label>
               <select class="form-control custom-select" name="stream-ondemand" >
-                <option selected disabled><small>Select One</small></option>
-                <option value="1">On demand only</option>
-                <option value="0">Persistent connection</option>
+                <option selected disabled><small>Seleccione uno</small></option>
+                <option value="1">Solo bajo demanda</option>
+                <option value="0">Conexión persistente</option>
               </select>
-              <small  class="form-text text-muted">On persistent connection, the server get data from the camera continuously. On demand, the server get data from the camera only when you click play button </small>
+              <small  class="form-text text-muted">En conexión persistente, el servidor obtiene datos de la cámara continuamente. Bajo demanda, el servidor obtiene datos solo cuando hace clic en el botón de reproducción </small>
             </div>
             <div class="form-group">
               <div class="custom-control custom-switch">
                 <input type="checkbox" class="custom-control-input" name="debug" id="substream-debug-switch-` + random + `" >
-                <label class="custom-control-label" for="substream-debug-switch-` + random + `">Enable debug</label>
+                <label class="custom-control-label" for="substream-debug-switch-` + random + `">Habilitar depuración</label>
               </div>
-              <small  class="form-text text-muted">Select this options if you want get more data about the stream </small>
+              <small  class="form-text text-muted">Seleccione esta opción si desea obtener más datos sobre la transmisión </small>
             </div>
               </form>
           </div>
