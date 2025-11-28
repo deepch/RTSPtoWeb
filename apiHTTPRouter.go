@@ -48,7 +48,7 @@ func HTTPAPIServer() {
 		public.LoadHTMLGlob(Storage.ServerHTTPDir() + "/templates/*")
 		if Storage.ServerHTTPAuth() {
 			privat.GET("/", HTTPAPIServerIndex)
-			privat.GET("/pages/stream/list", HTTPAPIStreamList)
+
 			privat.GET("/pages/stream/add", HTTPAPIAddStream)
 			privat.GET("/pages/stream/edit/:uuid", HTTPAPIEditStream)
 			privat.GET("/pages/player/hls/:uuid/:channel", HTTPAPIPlayHls)
@@ -60,7 +60,7 @@ func HTTPAPIServer() {
 			privat.GET("/pages/player/all/:uuid/:channel", HTTPAPIPlayAll)
 		} else {
 			public.GET("/", HTTPAPIServerIndex)
-			public.GET("/pages/stream/list", HTTPAPIStreamList)
+
 			public.GET("/pages/stream/add", HTTPAPIAddStream)
 			public.GET("/pages/stream/edit/:uuid", HTTPAPIEditStream)
 			public.GET("/pages/player/hls/:uuid/:channel", HTTPAPIPlayHls)
@@ -181,14 +181,7 @@ func HTTPAPIServerIndex(c *gin.Context) {
 
 
 
-func HTTPAPIStreamList(c *gin.Context) {
-	c.HTML(http.StatusOK, "stream_list.tmpl", gin.H{
-		"port":    Storage.ServerHTTPPort(),
-		"streams": Storage.Streams,
-		"version": time.Now().String(),
-		"page":    "stream_list",
-	})
-}
+
 
 func HTTPAPIPlayHls(c *gin.Context) {
 	c.HTML(http.StatusOK, "play_hls.tmpl", gin.H{
