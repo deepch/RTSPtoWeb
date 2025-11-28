@@ -29,11 +29,6 @@
           <a href="/" class="nav-link">Inicio</a>
         </li>
       </ul>
-      <ul class="navbar-nav ml-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="/pages/stream/add" role="button"><i class="fas fa-plus-square"></i> Agregar transmisión</a>
-        </li>
-      </ul>
     </nav>
 
 
@@ -41,12 +36,13 @@
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
       <a href="/" class="brand-link">
         <img src="/static/img/pic.svg" alt="AdminLTE Logo" class="brand-image img-circle" style="opacity: .8">
-        <span class="brand-text font-weight-light">RTSPtoWEB</span>
+        <span class="brand-text font-weight-light">WebRTSP</span>
       </a>
 
       <div class="sidebar">
         <nav class="mt-2">
           <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
             <li class="nav-item">
               <a href="/" class="nav-link
               {{ if eq .page "index"}}
@@ -59,16 +55,6 @@
                 </p>
               </a>
             </li>
-            <li class="nav-header">NAVEGACIÓN</li>
-
-            <li class="nav-item">
-              <a href="/pages/stream/add" class="nav-link {{ if  (eq .page "add_stream") }}
-                active
-              {{end}}">
-                <i class="fas fa-plus-square nav-icon"></i>
-                <p>Agregar transmisión</p>
-              </a>
-            </li>
 
             <li class="nav-item ">
               <a href="/pages/multiview/full?controls" class="nav-link {{ if  (eq .page "fullscreenmulti") }}
@@ -77,6 +63,15 @@
                 <i class="fas fa-th-large nav-icon"></i>
                 <p>Multivista completa</p>
               </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="/pages/stream/add" class="nav-link {{ if  (eq .page "add_stream") }}
+                active
+              {{end}}">
+                <i class="fas fa-plus-square nav-icon"></i>
+                <p>Agregar transmisión</p>
+              </a>`
             </li>
 
           </ul>
