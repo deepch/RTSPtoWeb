@@ -55,7 +55,7 @@ video.background{
   background: transparent;
 }
 .img-background .main-header{
-  background:
+  background: transparent;
 }
 .grid-wrapper .player {
 
@@ -160,4 +160,24 @@ video.background{
 .custom-dropdown-item.with-img img{
   width: 100%;
   height: auto;
+}
+
+@media (max-width: 768px) {
+  .grid-wrapper {
+    height: auto !important;
+    overflow-y: auto !important;
+    display: block !important;
+  }
+
+  .grid-wrapper .player {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9 !important;
+    margin-bottom: 10px;
+  }
+
+  /* Ensure controls are visible/usable on mobile */
+  .grid-wrapper .player .add-stream-btn {
+    font-size: 4vw; /* Increase font size for better visibility */
+  }
 }

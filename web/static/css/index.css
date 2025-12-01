@@ -221,3 +221,31 @@
   object-fit: fill;
   aspect-ratio: 16/9;
 }
+
+@media (max-width: 768px) {
+  .grid-wrapper {
+    height: auto !important;
+    overflow-y: auto !important;
+    display: block !important;
+  }
+
+  .grid-wrapper .player {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9 !important;
+    margin-bottom: 10px;
+  }
+
+  /* Override specific grid classes */
+  .grid-wrapper .player.grid-1,
+  .grid-wrapper .player.grid-6,
+  .grid-wrapper .player.grid-9,
+  .grid-wrapper .player.grid-12,
+  .grid-wrapper .player.grid-16,
+  .grid-wrapper .player.grid-25,
+  .grid-wrapper .player.grid-36,
+  .grid-wrapper .player.grid-49 {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
