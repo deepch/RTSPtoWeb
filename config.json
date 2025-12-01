@@ -1,12 +1,13 @@
 {
+  "channel_defaults": {},
   "server": {
     "debug": true,
+    "http_auth": false,
     "http_debug": false,
     "http_demo": true,
     "http_dir": "web",
     "http_login": "demo",
     "http_password": "demo",
-    "http_auth": false,
     "http_port": ":8083",
     "https": false,
     "https_auto_tls": false,
@@ -14,26 +15,39 @@
     "https_cert": "server.crt",
     "https_key": "server.key",
     "https_port": ":443",
-    "ice_servers": ["stun:stun.l.google.com:19302"],
+    "ice_candidates": [],
+    "ice_credential": "",
+    "ice_servers": [],
+    "ice_username": "",
     "log_level": "debug",
-    "rtsp_port": ":5541",
+    "rtsp_port": ":554",
+    "sessions": null,
     "token": {
-      "backend": "http://127.0.0.1/test.php"
+      "backend": "http://127.0.0.1/test.php",
+      "enable": false
     },
-    "defaults": {
-      "audio": true
-    }
+    "users": {
+      "admin": {
+        "password": "admin",
+        "role": "admin"
+      },
+      "guest": {
+        "password": "guest",
+        "role": "user"
+      }
+    },
+    "webrtc_port_max": 0,
+    "webrtc_port_min": 0
   },
   "streams": {
     "27aec28e-6181-4753-9acd-0456a75f0289": {
       "channels": {
         "0": {
-          "url": "rtmp://171.25.232.10/12d525bc9f014e209c1280bc0d46a87e",
-          "debug": false,
-          "audio": true
+          "on_demand": true,
+          "url": "rtsp://admin:JCGXFW@10.10.0.102:554/"
         }
       },
-      "name": "111111111"
+      "name": "Cam1"
     }
   }
 }

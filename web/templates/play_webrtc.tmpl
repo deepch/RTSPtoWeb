@@ -26,7 +26,7 @@
 
   async function startPlay() {
     mediaStream = new MediaStream();
-    $("#videoPlayer")[0].srcObject =  mediaStream;
+    $("#videoPlayer")[0].srcObject = mediaStream;
     webrtc = new RTCPeerConnection({
       iceServers: [{
         urls: ["stun:stun.l.google.com:19302"]
@@ -34,84 +34,57 @@
       sdpSemantics: "unified-plan"
     });
     webrtc.onnegotiationneeded = handleNegotiationNeeded;
-    webrtc.onsignalingstatechange = signalingstatechange;
+    webrtc.ontrack = ontrack;
 
-    webrtc.ontrack = ontrack
-    let offer = await webrtc.createOffer({
-            //iceRestart:true,
-            offerToReceiveAudio:true,
-            offerToReceiveVideo:true
-        });
-        await webrtc.setLocalDescription(offer);
+    // Use addTransceiver instead of legacy offerToReceiveVideo
+    webrtc.addTransceiver('video', {
+      direction: 'sendrecv'
+    });
+
+    // Data channel for keep-alive or other data
+    webrtcSendChannel = webrtc.createDataChannel('foo');
+    webrtcSendChannel.onclose = () => console.log('sendChannel has closed');
+    webrtcSendChannel.onopen = () => {
+      console.log('sendChannel has opened');
+      webrtcSendChannel.send('ping');
+      setInterval(() => {
+        if (webrtcSendChannel.readyState === 'open') {
+          webrtcSendChannel.send('ping');
+        }
+      }, 1000);
+    }
   }
 
-  function ontrack (event){
+  function ontrack(event) {
     console.log(event.streams.length + ' track is delivered');
     mediaStream.addTrack(event.track);
   }
-
-  async function signalingstatechange (){
-        switch (webrtc.signalingState){
-            case 'have-local-offer':
-            let uuid = $('#uuid').val();
-            let channel = $('#channel').val();
-            let url = "/stream/" + uuid + "/channel/" + channel + "/webrtc?uuid=" + uuid + '&channel=' + channel;
-            $.post(url, {
-              data: btoa(webrtc.localDescription.sdp)
-            }, function(data) {
-              try {
-                console.log(data);
-                webrtc.setRemoteDescription(new RTCSessionDescription({
-                  type: 'answer',
-                  sdp: atob(data)
-                }))
-              } catch (e) {
-                console.warn(e);
-              }
-
-            });
-                break;
-            case 'stable':
-                /*
-                * There is no ongoing exchange of offer and answer underway.
-                * This may mean that the RTCPeerConnection object is new, in which case both the localDescription and remoteDescription are null;
-                * it may also mean that negotiation is complete and a connection has been established.
-                */
-                break;
-
-            case 'closed':
-                /*
-                 * The RTCPeerConnection has been closed.
-                 */
-                break;
-
-            default:
-                console.log(`unhandled signalingState is ${webrtc.signalingState}`);
-                break;
-        }
-    }
 
   async function handleNegotiationNeeded() {
     let uuid = $('#uuid').val();
     let channel = $('#channel').val();
     let url = "/stream/" + uuid + "/channel/" + channel + "/webrtc?uuid=" + uuid + '&channel=' + channel;
-    let offer = await webrtc.createOffer();
 
-    await webrtc.setLocalDescription(offer);
-    $.post(url, {
-      data: btoa(webrtc.localDescription.sdp)
-    }, function(data) {
-      try {
-        console.log(data);
-        webrtc.setRemoteDescription(new RTCSessionDescription({
-          type: 'answer',
-          sdp: atob(data)
-        }))
-      } catch (e) {
-        console.warn(e);
-      }
+    try {
+      let offer = await webrtc.createOffer();
+      await webrtc.setLocalDescription(offer);
 
-    });
+      $.post(url, {
+        data: btoa(webrtc.localDescription.sdp)
+      }, function(data) {
+        try {
+          console.log(data);
+          webrtc.setRemoteDescription(new RTCSessionDescription({
+            type: 'answer',
+            sdp: atob(data)
+          }))
+        } catch (e) {
+          console.warn(e);
+        }
+      });
+    } catch (e) {
+      console.error("Error during negotiation:", e);
+    }
   }
 
   $("#videoPlayer")[0].addEventListener('loadeddata', () => {

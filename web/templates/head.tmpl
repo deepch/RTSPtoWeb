@@ -28,6 +28,9 @@
         <li class="nav-item d-none d-sm-inline-block">
           <a href="/" class="nav-link">Inicio</a>
         </li>
+        <li class="nav-item d-none d-sm-inline-block">
+          <a href="/logout" class="nav-link">Cerrar Sesión</a>
+        </li>
       </ul>
     </nav>
 
@@ -65,14 +68,16 @@
               </a>
             </li>
 
+            {{ if eq .role "admin" }}
             <li class="nav-item">
               <a href="/pages/stream/add" class="nav-link {{ if  (eq .page "add_stream") }}
                 active
               {{end}}">
                 <i class="fas fa-plus-square nav-icon"></i>
                 <p>Agregar transmisión</p>
-              </a>`
+              </a>
             </li>
+            {{ end }}
 
           </ul>
         </nav>

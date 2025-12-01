@@ -3,10 +3,12 @@ package main
 import (
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -34,11 +36,17 @@ func HTTPAPIServer() {
 	}
 
 	public.Use(CrossOrigin())
+	// Login routes
+	public.GET("/login", HTTPAPILogin)
+	public.POST("/login", HTTPAPILoginSubmit)
+	public.GET("/logout", HTTPAPILogout)
+
 	//Add private login password protect methods
 	privat := public.Group("/")
-	if Storage.ServerHTTPLogin() != "" && Storage.ServerHTTPPassword() != "" {
-		privat.Use(gin.BasicAuth(gin.Accounts{Storage.ServerHTTPLogin(): Storage.ServerHTTPPassword()}))
-	}
+	privat.Use(AuthMiddleware())
+
+	admin := privat.Group("/")
+	admin.Use(AdminOnly())
 
 	/*
 		Static HTML Files Demo Mode
@@ -49,8 +57,8 @@ func HTTPAPIServer() {
 		if Storage.ServerHTTPAuth() {
 			privat.GET("/", HTTPAPIServerIndex)
 
-			privat.GET("/pages/stream/add", HTTPAPIAddStream)
-			privat.GET("/pages/stream/edit/:uuid", HTTPAPIEditStream)
+			admin.GET("/pages/stream/add", HTTPAPIAddStream)
+			admin.GET("/pages/stream/edit/:uuid", HTTPAPIEditStream)
 			privat.GET("/pages/player/hls/:uuid/:channel", HTTPAPIPlayHls)
 			privat.GET("/pages/player/mse/:uuid/:channel", HTTPAPIPlayMse)
 			privat.GET("/pages/player/webrtc/:uuid/:channel", HTTPAPIPlayWebrtc)
@@ -79,28 +87,28 @@ func HTTPAPIServer() {
 	*/
 
 	privat.GET("/streams", HTTPAPIServerStreams)
-	privat.POST("/stream/:uuid/add", HTTPAPIServerStreamAdd)
-	privat.POST("/stream/:uuid/edit", HTTPAPIServerStreamEdit)
-	privat.GET("/stream/:uuid/delete", HTTPAPIServerStreamDelete)
-	privat.GET("/stream/:uuid/reload", HTTPAPIServerStreamReload)
+	admin.POST("/stream/:uuid/add", HTTPAPIServerStreamAdd)
+	admin.POST("/stream/:uuid/edit", HTTPAPIServerStreamEdit)
+	admin.GET("/stream/:uuid/delete", HTTPAPIServerStreamDelete)
+	admin.GET("/stream/:uuid/reload", HTTPAPIServerStreamReload)
 	privat.GET("/stream/:uuid/info", HTTPAPIServerStreamInfo)
 
 	/*
 		Streams Multi Control elements
 	*/
 
-	privat.POST("/streams/multi/control/add", HTTPAPIServerStreamsMultiControlAdd)
-	privat.POST("/streams/multi/control/delete", HTTPAPIServerStreamsMultiControlDelete)
+	admin.POST("/streams/multi/control/add", HTTPAPIServerStreamsMultiControlAdd)
+	admin.POST("/streams/multi/control/delete", HTTPAPIServerStreamsMultiControlDelete)
 
 	/*
 		Stream Channel elements
 	*/
 
-	privat.POST("/stream/:uuid/channel/:channel/add", HTTPAPIServerStreamChannelAdd)
-	privat.POST("/stream/:uuid/channel/:channel/edit", HTTPAPIServerStreamChannelEdit)
-	privat.GET("/stream/:uuid/channel/:channel/delete", HTTPAPIServerStreamChannelDelete)
+	admin.POST("/stream/:uuid/channel/:channel/add", HTTPAPIServerStreamChannelAdd)
+	admin.POST("/stream/:uuid/channel/:channel/edit", HTTPAPIServerStreamChannelEdit)
+	admin.GET("/stream/:uuid/channel/:channel/delete", HTTPAPIServerStreamChannelDelete)
 	privat.GET("/stream/:uuid/channel/:channel/codec", HTTPAPIServerStreamChannelCodec)
-	privat.GET("/stream/:uuid/channel/:channel/reload", HTTPAPIServerStreamChannelReload)
+	admin.GET("/stream/:uuid/channel/:channel/reload", HTTPAPIServerStreamChannelReload)
 	privat.GET("/stream/:uuid/channel/:channel/info", HTTPAPIServerStreamChannelInfo)
 
 	/*
@@ -175,8 +183,71 @@ func HTTPAPIServerIndex(c *gin.Context) {
 		"streams": Storage.Streams,
 		"version": time.Now().String(),
 		"page":    "index",
+		"role":    c.GetString("role"),
 	})
 
+}
+
+// HTTPAPILogin login page
+func HTTPAPILogin(c *gin.Context) {
+	c.HTML(http.StatusOK, "login.tmpl", gin.H{
+		"port":    Storage.ServerHTTPPort(),
+		"version": time.Now().String(),
+		"page":    "login",
+	})
+}
+
+type LoginPayload struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+// HTTPAPILoginSubmit login submit
+func HTTPAPILoginSubmit(c *gin.Context) {
+	var payload LoginPayload
+	if err := c.BindJSON(&payload); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, Message{Status: 0, Payload: err.Error()})
+		return
+	}
+
+	// Check legacy config
+	if Storage.ServerHTTPLogin() != "" && Storage.ServerHTTPPassword() != "" {
+		if payload.Username == Storage.ServerHTTPLogin() && payload.Password == Storage.ServerHTTPPassword() {
+			createSession(c, payload.Username, "admin")
+			return
+		}
+	}
+
+	// Check Users map
+	if u, ok := Storage.Server.Users[payload.Username]; ok {
+		if u.Password == payload.Password {
+			createSession(c, payload.Username, u.Role)
+			return
+		}
+	}
+
+	c.IndentedJSON(http.StatusUnauthorized, Message{Status: 0, Payload: "Invalid credentials"})
+}
+
+func createSession(c *gin.Context, username, role string) {
+	sessionID := uuid.New().String()
+	Storage.Server.Sessions[sessionID] = SessionST{
+		Username: username,
+		Role:     role,
+		Expires:  time.Now().Add(24 * time.Hour),
+	}
+	c.SetCookie("RTSP_SESSION", sessionID, 3600*24, "/", "", false, true)
+	c.IndentedJSON(http.StatusOK, Message{Status: 1, Payload: "Success"})
+}
+
+// HTTPAPILogout logout
+func HTTPAPILogout(c *gin.Context) {
+	cookie, err := c.Cookie("RTSP_SESSION")
+	if err == nil {
+		delete(Storage.Server.Sessions, cookie)
+	}
+	c.SetCookie("RTSP_SESSION", "", -1, "/", "", false, true)
+	c.Redirect(http.StatusFound, "/login")
 }
 
 
@@ -191,6 +262,7 @@ func HTTPAPIPlayHls(c *gin.Context) {
 		"page":    "play_hls",
 		"uuid":    c.Param("uuid"),
 		"channel": c.Param("channel"),
+		"role":    c.GetString("role"),
 	})
 }
 func HTTPAPIPlayMse(c *gin.Context) {
@@ -201,6 +273,7 @@ func HTTPAPIPlayMse(c *gin.Context) {
 		"page":    "play_mse",
 		"uuid":    c.Param("uuid"),
 		"channel": c.Param("channel"),
+		"role":    c.GetString("role"),
 	})
 }
 func HTTPAPIPlayWebrtc(c *gin.Context) {
@@ -211,6 +284,7 @@ func HTTPAPIPlayWebrtc(c *gin.Context) {
 		"page":    "play_webrtc",
 		"uuid":    c.Param("uuid"),
 		"channel": c.Param("channel"),
+		"role":    c.GetString("role"),
 	})
 }
 func HTTPAPIAddStream(c *gin.Context) {
@@ -219,6 +293,7 @@ func HTTPAPIAddStream(c *gin.Context) {
 		"streams": Storage.Streams,
 		"version": time.Now().String(),
 		"page":    "add_stream",
+		"role":    c.GetString("role"),
 	})
 }
 func HTTPAPIEditStream(c *gin.Context) {
@@ -228,6 +303,7 @@ func HTTPAPIEditStream(c *gin.Context) {
 		"version": time.Now().String(),
 		"page":    "edit_stream",
 		"uuid":    c.Param("uuid"),
+		"role":    c.GetString("role"),
 	})
 }
 
@@ -237,6 +313,7 @@ func HTTPAPIMultiview(c *gin.Context) {
 		"streams": Storage.Streams,
 		"version": time.Now().String(),
 		"page":    "multiview",
+		"role":    c.GetString("role"),
 	})
 }
 
@@ -248,6 +325,7 @@ func HTTPAPIPlayAll(c *gin.Context) {
 		"page":    "play_all",
 		"uuid":    c.Param("uuid"),
 		"channel": c.Param("channel"),
+		"role":    c.GetString("role"),
 	})
 }
 
@@ -283,6 +361,7 @@ func HTTPAPIFullScreenMultiView(c *gin.Context) {
 		"options": createParams,
 		"page":    "fullscreenmulti",
 		"query":   c.Request.URL.Query(),
+		"role":    c.GetString("role"),
 	})
 }
 
@@ -295,6 +374,75 @@ func CrossOrigin() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	}
+}
+
+// AuthMiddleware check user and password
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// If no auth configured, allow everyone as admin (backward compatibility)
+		if Storage.ServerHTTPLogin() == "" && Storage.ServerHTTPPassword() == "" && len(Storage.Server.Users) == 0 {
+			c.Set("role", "admin")
+			c.Next()
+			return
+		}
+
+		// Check Cookie
+		cookie, err := c.Cookie("RTSP_SESSION")
+		if err == nil {
+			if session, ok := Storage.Server.Sessions[cookie]; ok {
+				if session.Expires.After(time.Now()) {
+					c.Set("role", session.Role)
+					c.Next()
+					return
+				} else {
+					delete(Storage.Server.Sessions, cookie)
+				}
+			}
+		}
+
+		// Check Basic Auth (API support)
+		user, pass, hasAuth := c.Request.BasicAuth()
+		if hasAuth {
+			// Check legacy config
+			if Storage.ServerHTTPLogin() != "" && Storage.ServerHTTPPassword() != "" {
+				if user == Storage.ServerHTTPLogin() && pass == Storage.ServerHTTPPassword() {
+					c.Set("role", "admin")
+					c.Next()
+					return
+				}
+			}
+			// Check new Users map
+			if u, ok := Storage.Server.Users[user]; ok {
+				if u.Password == pass {
+					c.Set("role", u.Role)
+					c.Next()
+					return
+				}
+			}
+		}
+
+		// Redirect to login if HTML request
+		if strings.Contains(c.Request.Header.Get("Accept"), "text/html") {
+			c.Redirect(http.StatusFound, "/login")
+			c.Abort()
+			return
+		}
+
+		c.Writer.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+}
+
+// AdminOnly check if user is admin
+func AdminOnly() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, exists := c.Get("role")
+		if !exists || role != "admin" {
+			c.AbortWithStatus(http.StatusForbidden)
 			return
 		}
 		c.Next()

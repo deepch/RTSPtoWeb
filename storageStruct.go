@@ -69,13 +69,28 @@ type ServerST struct {
 	HTTPSKey           string       `json:"https_key" groups:"api,config"`
 	HTTPSAutoTLSEnable bool         `json:"https_auto_tls" groups:"api,config"`
 	HTTPSAutoTLSName   string       `json:"https_auto_tls_name" groups:"api,config"`
-	ICEServers         []string     `json:"ice_servers" groups:"api,config"`
-	ICEUsername        string       `json:"ice_username" groups:"api,config"`
-	ICECredential      string       `json:"ice_credential" groups:"api,config"`
-	ICECandidates      []string     `json:"ice_candidates" groups:"api,config"`
-	Token              Token        `json:"token,omitempty" groups:"api,config"`
-	WebRTCPortMin      uint16       `json:"webrtc_port_min" groups:"api,config"`
-	WebRTCPortMax      uint16       `json:"webrtc_port_max" groups:"api,config"`
+	ICEServers         []string          `json:"ice_servers" groups:"api,config"`
+	ICEUsername        string            `json:"ice_username" groups:"api,config"`
+	ICECredential      string            `json:"ice_credential" groups:"api,config"`
+	ICECandidates      []string          `json:"ice_candidates" groups:"api,config"`
+	Token              Token             `json:"token,omitempty" groups:"api,config"`
+	WebRTCPortMin      uint16            `json:"webrtc_port_min" groups:"api,config"`
+	WebRTCPortMax      uint16            `json:"webrtc_port_max" groups:"api,config"`
+	Users              map[string]UserST    `json:"users" groups:"api,config"`
+	Sessions           map[string]SessionST `json:"sessions" groups:"api,config"`
+}
+
+// UserST user storage section
+type UserST struct {
+	Password string `json:"password" groups:"api,config"`
+	Role     string `json:"role" groups:"api,config"`
+}
+
+// SessionST session storage section
+type SessionST struct {
+	Username string    `json:"username"`
+	Role     string    `json:"role"`
+	Expires  time.Time `json:"expires"`
 }
 
 // Token auth

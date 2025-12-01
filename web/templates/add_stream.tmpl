@@ -32,9 +32,17 @@
                   <small  class="form-text text-muted">Puede elegir cualquier nombre para la transmisión, por ejemplo "Mi habitación" o "Mi garage"</small>
                 </div>
                 <div class="form-group">
+                  <label for="stream-username">Nombre de usuario</label>
+                  <input type="text" name="stream-username" class="form-control" placeholder="Nombre de usuario (opcional)">
+                </div>
+                <div class="form-group">
+                  <label for="stream-password">Contraseña</label>
+                  <input type="text" name="stream-password" class="form-control" placeholder="Contraseña (opcional)">
+                </div>
+                <div class="form-group">
                   <label for="exampleInputPassword1">URL de la transmisión</label>
                   <input type="text" name="stream-url" class="form-control"  placeholder="Ingrese la URL de la transmisión">
-                  <small  class="form-text text-muted">Ingrese la dirección RTSP según las instrucciones de su cámara. Se ve como <code>rtsp://&lt;username&gt;:&lt;password&gt;@&lt;ip&gt;:&lt;port&gt;/path </code> </small>
+                  <small  class="form-text text-muted">Ingrese la dirección IP y ruta. Ejemplo: <code>192.168.1.123:554/stream1</code> o <code>rtsp://192.168.1.123:554/stream1</code></small>
                 </div>
                 <div class="form-group">
                   <label for="inputStatus">Tipo de transmisión</label>
@@ -78,8 +86,23 @@ function addStreamSubmit(){
   }
 
   $('.stream-form').each(function(i){
+    var username = $(this).find('input[name="stream-username"]').val();
+    var password = $(this).find('input[name="stream-password"]').val();
+    var url = $(this).find('input[name="stream-url"]').val();
+
+    var fullUrl = url;
+    if (username && password) {
+      if (url.startsWith("rtsp://")) {
+        fullUrl = "rtsp://" + username + ":" + password + "@" + url.substring(7);
+      } else {
+        fullUrl = "rtsp://" + username + ":" + password + "@" + url;
+      }
+    } else if (url && !url.startsWith("rtsp://") && !url.startsWith("http")) {
+       fullUrl = "rtsp://" + url;
+    }
+
     params.channels[i]={
-        url:$(this).find('input[name="stream-url"]').val(),
+        url: fullUrl,
         on_demand:Boolean(parseInt($(this).find('select[name="stream-ondemand"]').val())),
         debug:Boolean($(this).find('input[name="debug"]').prop('checked')),
     }

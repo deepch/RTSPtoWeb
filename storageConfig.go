@@ -5,6 +5,7 @@ import (
 	"flag"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-version"
@@ -44,6 +45,21 @@ func NewStreamCore() *StorageST {
 			"call":   "Unmarshal",
 		}).Errorln(err.Error())
 		os.Exit(1)
+	}
+	if tmp.Server.Users == nil {
+		tmp.Server.Users = make(map[string]UserST)
+	}
+	if tmp.Server.Sessions == nil {
+		tmp.Server.Sessions = make(map[string]SessionST)
+	}
+	if envUsers := os.Getenv("RTSP_USERS"); envUsers != "" {
+		users := strings.Split(envUsers, ",")
+		for _, user := range users {
+			parts := strings.Split(user, ":")
+			if len(parts) == 3 {
+				tmp.Server.Users[parts[0]] = UserST{Password: parts[1], Role: parts[2]}
+			}
+		}
 	}
 	debug = tmp.Server.Debug
 	for i, i2 := range tmp.Streams {

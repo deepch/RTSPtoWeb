@@ -22,8 +22,17 @@ function showAddStream(streamName, streamUrl) {
       '<small class="form-text text-muted"></small>' +
       '</div>' +
       '<div class="form-group">' +
+      '<label>Nombre de usuario</label>' +
+      '<input type="text" class="form-control" id="stream-username" placeholder="Opcional">' +
+      '</div>' +
+      '<div class="form-group">' +
+      '<label>Contraseña</label>' +
+      '<input type="text" class="form-control" id="stream-password" placeholder="Opcional">' +
+      '</div>' +
+      '<div class="form-group">' +
       '  <label>URL</label>' +
       '  <input type="text" class="form-control" id="stream-url">' +
+      '  <small class="form-text text-muted">Ejemplo: 192.168.1.123:554/stream1</small>' +
       '  </div>' +
       '<div class="form-group form-check">' +
       '<input type="checkbox" class="form-check-input" id="stream-ondemand">' +
@@ -35,9 +44,23 @@ function showAddStream(streamName, streamUrl) {
     preConfirm: () => {
       var uuid = randomUuid(),
         name = $('#stream-name').val(),
+        username = $('#stream-username').val(),
+        password = $('#stream-password').val(),
         url = $('#stream-url').val(),
         ondemand = $('#stream-ondemand').val();
-      if (!validURL(url)) {
+
+      var fullUrl = url;
+      if (username && password) {
+        if (url.startsWith("rtsp://")) {
+          fullUrl = "rtsp://" + username + ":" + password + "@" + url.substring(7);
+        } else {
+          fullUrl = "rtsp://" + username + ":" + password + "@" + url;
+        }
+      } else if (url && !url.startsWith("rtsp://") && !url.startsWith("http")) {
+         fullUrl = "rtsp://" + url;
+      }
+
+      if (!validURL(fullUrl)) {
         Swal.fire({
           icon: 'error',
           title: 'Vaya...',
@@ -50,7 +73,7 @@ function showAddStream(streamName, streamUrl) {
       } else {
         goRequest('add', uuid, {
           name: name,
-          url: url,
+          url: fullUrl,
           ondemand: ondemand
         });
 
@@ -474,9 +497,17 @@ function chanellTemplate() {
           <div class="card-body">
           <form class="stream-form">
             <div class="form-group">
+              <label>Nombre de usuario</label>
+              <input type="text" name="stream-username" class="form-control" placeholder="Nombre de usuario (opcional)">
+            </div>
+            <div class="form-group">
+              <label>Contraseña</label>
+              <input type="text" name="stream-password" class="form-control" placeholder="Contraseña (opcional)">
+            </div>
+            <div class="form-group">
               <label for="exampleInputPassword1">URL de la subtransmisión</label>
               <input type="text" name="stream-url" class="form-control"  placeholder="Ingrese la URL de la transmisión" >
-              <small  class="form-text text-muted">Ingrese la dirección RTSP según las instrucciones de su cámara. Se ve como <code>rtsp://&lt;ip&gt;:&lt;port&gt;/path </code> </small>
+              <small  class="form-text text-muted">Ingrese la dirección IP y ruta. Ejemplo: <code>192.168.1.123:554/stream1</code></small>
             </div>
             <div class="form-group">
               <label for="inputStatus">Tipo de subtransmisión</label>
