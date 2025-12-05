@@ -32,7 +32,7 @@ export default function MultiView() {
       try {
           const response = await client.get('/streams');
           if (response.data.status === 1) {
-              setStreams(response.data.payload);
+              setStreams(response.data.payload || {});
           }
       } catch (error) {
           console.error("Failed to fetch streams", error);
@@ -76,24 +76,24 @@ export default function MultiView() {
     <div className="p-4 h-[calc(100vh-4rem)] flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold flex items-center gap-2">
-            <LayoutGrid className="h-6 w-6" /> MultiView
+            <LayoutGrid className="h-6 w-6" /> Vista Múltiple
         </h1>
         <div className="flex items-center gap-4">
           <Select value={layout.toString()} onValueChange={handleLayoutChange}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select Layout" />
+              <SelectValue placeholder="Seleccionar Diseño" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1">1x1 (Single)</SelectItem>
-              <SelectItem value="4">2x2 (4 views)</SelectItem>
-              <SelectItem value="9">3x3 (9 views)</SelectItem>
-              <SelectItem value="16">4x4 (16 views)</SelectItem>
+              <SelectItem value="1">1x1 (Simple)</SelectItem>
+              <SelectItem value="4">2x2 (4 vistas)</SelectItem>
+              <SelectItem value="9">3x3 (9 vistas)</SelectItem>
+              <SelectItem value="16">4x4 (16 vistas)</SelectItem>
             </SelectContent>
           </Select>
           <Button variant="outline" onClick={() => {
               setSlots({});
               localStorage.removeItem('multiview_slots');
-          }}>Clear All</Button>
+          }}>Limpiar Todo</Button>
         </div>
       </div>
 
@@ -120,12 +120,12 @@ export default function MultiView() {
                     <DialogTrigger asChild>
                         <Button variant="ghost" className="h-full w-full flex flex-col gap-2 hover:bg-muted/80">
                             <Plus className="h-8 w-8 text-muted-foreground" />
-                            <span className="text-muted-foreground">Add Camera</span>
+                            <span className="text-muted-foreground">Agregar Cámara</span>
                         </Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Select Stream</DialogTitle>
+                            <DialogTitle>Seleccionar Transmisión</DialogTitle>
                         </DialogHeader>
                         <div className="grid gap-2">
                             {Object.entries(streams).map(([uuid, stream]) => (
@@ -133,7 +133,7 @@ export default function MultiView() {
                                     {stream.name || uuid}
                                 </Button>
                             ))}
-                            {Object.keys(streams).length === 0 && <div className="text-center text-muted-foreground">No streams available</div>}
+                            {Object.keys(streams).length === 0 && <div className="text-center text-muted-foreground">No hay transmisiones disponibles</div>}
                         </div>
                     </DialogContent>
                 </Dialog>

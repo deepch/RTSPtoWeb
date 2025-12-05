@@ -11,8 +11,8 @@ export function Sidebar({ className, ...props }: SidebarProps) {
   const { logout } = useAuth();
 
   const links = [
-    { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/multiview', label: 'MultiView', icon: LayoutGrid },
+    { href: '/', label: 'Panel', icon: LayoutDashboard },
+    { href: '/multiview', label: 'Vista Múltiple', icon: LayoutGrid },
   ];
 
   return (
@@ -42,7 +42,7 @@ export function Sidebar({ className, ...props }: SidebarProps) {
       <div className="px-3 py-2 mt-auto">
           <Button variant="ghost" className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20" onClick={logout}>
             <LogOut className="mr-2 h-4 w-4" />
-            Logout
+            Cerrar sesión
           </Button>
       </div>
     </div>

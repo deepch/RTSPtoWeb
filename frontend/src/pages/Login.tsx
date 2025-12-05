@@ -17,7 +17,7 @@ export default function Login() {
     try {
       await login(username, password);
     } catch (err) {
-      setError('Invalid credentials');
+      setError('Credenciales inválidas');
     }
   };
 
@@ -25,12 +25,12 @@ export default function Login() {
     <div className="flex h-screen items-center justify-center bg-background">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">RTSPtoWeb Login</CardTitle>
+          <CardTitle className="text-2xl text-center">Inicio de sesión RTSPtoWeb</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">Nombre de usuario</Label>
               <Input
                 id="username"
                 type="text"
@@ -40,7 +40,7 @@ export default function Login() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Contraseña</Label>
               <Input
                 id="password"
                 type="password"
@@ -51,7 +51,7 @@ export default function Login() {
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
             <Button type="submit" className="w-full">
-              Login
+              Iniciar sesión
             </Button>
           </form>
         </CardContent>

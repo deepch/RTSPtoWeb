@@ -25,7 +25,7 @@ export function StreamCard({ stream, uuid, isAdmin, onDelete }: { stream: Stream
             </div>
         </div>
         <Badge variant={channelCount > 0 ? "default" : "secondary"} className="ml-2 shrikn-0">
-            {channelCount > 0 ? 'Online' : 'Offline'}
+            {channelCount > 0 ? 'En Línea' : 'Desconectado'}
         </Badge>
       </CardHeader>
 
@@ -45,18 +45,18 @@ export function StreamCard({ stream, uuid, isAdmin, onDelete }: { stream: Stream
       <CardFooter className="p-4 flex justify-between items-center gap-2 bg-background">
            <Button size="sm" className="w-full font-medium" asChild>
              <Link to={`/stream/${uuid}`}>
-               <Play className="mr-2 h-3.5 w-3.5" /> Watch
+               <Play className="mr-2 h-3.5 w-3.5" /> Ver
              </Link>
            </Button>
 
            {isAdmin && (
              <div className="flex gap-1 shrink-0">
-               <Button size="icon" variant="ghost" className="h-9 w-9 text-muted-foreground hover:text-foreground" title="Edit Stream" asChild>
+               <Button size="icon" variant="ghost" className="h-9 w-9 text-muted-foreground hover:text-foreground" title="Editar Transmisión" asChild>
                  <Link to={`/stream/${uuid}/edit`}>
                     <Settings className="h-4 w-4" />
                  </Link>
                </Button>
-               <Button size="icon" variant="ghost" className="h-9 w-9 text-muted-foreground hover:text-destructive" title="Delete Stream" onClick={onDelete}>
+               <Button size="icon" variant="ghost" className="h-9 w-9 text-muted-foreground hover:text-destructive" title="Eliminar Transmisión" onClick={onDelete}>
                  <Trash2 className="h-4 w-4" />
                </Button>
              </div>

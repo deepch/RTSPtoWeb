@@ -26,8 +26,11 @@ var configFile string
 //NewStreamCore do load config file
 func NewStreamCore() *StorageST {
 	flag.BoolVar(&debug, "debug", true, "set debug mode")
-	flag.StringVar(&configFile, "config", "config.json", "config patch (/etc/server/config.json or config.json)")
+	flag.StringVar(&configFile, "config", "config.json", "config path (/etc/server/config.json or config.json)")
 	flag.Parse()
+
+	// Initialize security subsystem
+	InitSecurity()
 
 	var tmp StorageST
 
@@ -63,6 +66,26 @@ func NewStreamCore() *StorageST {
 		}).Errorln(err.Error())
 		os.Exit(1)
 	}
+
+	// Helper to decrypt channels
+	decryptChannels := func(channels map[string]ChannelST) {
+		for id, ch := range channels {
+			if strings.HasPrefix(ch.URL, "enc:") {
+				decrypted, err := Decrypt(ch.URL)
+				if err != nil {
+					log.WithFields(logrus.Fields{
+						"module": "config",
+						"func":   "NewStreamCore",
+						"stream": id,
+					}).Errorln("Failed to decrypt URL:", err)
+				} else {
+					ch.URL = decrypted
+					channels[id] = ch
+				}
+			}
+		}
+	}
+
 	if tmp.Server.Users == nil {
 		tmp.Server.Users = make(map[string]UserST)
 	}
@@ -78,9 +101,17 @@ func NewStreamCore() *StorageST {
 			}
 		}
 	}
+
+	// Decrypt global defaults
+	// Note: We need to handle this if ChannelDefaults has a URL.
+	// decryptChannels(map[string]ChannelST{"default": tmp.ChannelDefaults}) // Assuming ChannelDefaults matches structure but it's single Struct not map
+
 	debug = tmp.Server.Debug
-	for i, i2 := range tmp.Streams {
-		for i3, i4 := range i2.Channels {
+	for i, stream := range tmp.Streams {
+		// Decrypt URLs in this stream's channels
+		decryptChannels(stream.Channels)
+
+		for i3, i4 := range stream.Channels {
 			channel := tmp.ChannelDefaults
 			err = mergo.Merge(&channel, i4)
 			if err != nil {
@@ -95,14 +126,14 @@ func NewStreamCore() *StorageST {
 			channel.ack = time.Now().Add(-255 * time.Hour)
 			channel.hlsSegmentBuffer = make(map[int]SegmentOld)
 			channel.signals = make(chan int, 100)
-			i2.Channels[i3] = channel
+			stream.Channels[i3] = channel
 		}
-		tmp.Streams[i] = i2
+		tmp.Streams[i] = stream
 	}
 	return &tmp
 }
 
-//ClientDelete Delete Client
+// ClientDelete Delete Client
 func (obj *StorageST) SaveConfig() error {
 	log.WithFields(logrus.Fields{
 		"module": "config",
@@ -112,6 +143,15 @@ func (obj *StorageST) SaveConfig() error {
 	if err != nil {
 		return err
 	}
+
+	// Create a deep copy or use Sheriff to filter, but we need to encrypt specific fields.
+	// Sheriff marshals to map[string]interface{} (recurisvely).
+	// It's easier to Marshal the object first, then modify the map, then write.
+	// Or modify the object? Modifying the live object is dangerous if other threads read it.
+	// BUT, obj.Streams is a map, writing to it is not thread safe if not locked.
+	// The SaveConfig is likely called under lock or needs to be careful.
+	// However, we can use Sheriff to marshal to interface{}, then traverse and encrypt.
+
 	data, err := sheriff.Marshal(&sheriff.Options{
 		Groups:     []string{"config"},
 		ApiVersion: v2,
@@ -119,6 +159,31 @@ func (obj *StorageST) SaveConfig() error {
 	if err != nil {
 		return err
 	}
+
+	// Encrypt URLs in the marshaled data
+	// data is map[string]interface{}
+	if streams, ok := data.(map[string]interface{})["streams"].(map[string]interface{}); ok {
+		for _, streamVal := range streams {
+			if stream, ok := streamVal.(map[string]interface{}); ok {
+				if channels, ok := stream["channels"].(map[string]interface{}); ok {
+					for _, chVal := range channels {
+						if channel, ok := chVal.(map[string]interface{}); ok {
+							if urlVal, ok := channel["url"].(string); ok && urlVal != "" {
+								// Only encrypt if not env var (rudimentary check) and not already encrypted
+								if !strings.HasPrefix(urlVal, "${") {
+									encrypted, err := Encrypt(urlVal)
+									if err == nil {
+										channel["url"] = encrypted
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	res, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return err
