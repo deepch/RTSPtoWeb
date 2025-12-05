@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
 import client from '@/api/client';
+import { cn } from '@/lib/utils';
 
 interface PlayerProps {
   uuid: string;
   channel?: string;
-  type?: 'webrtc' | 'mse' | 'hls';
+  type?: 'webrtc' | 'mse' | 'hls' | 'auto';
+  className?: string;
 }
 
-export function Player({ uuid, channel = "0", type = 'webrtc' }: PlayerProps) {
+export function Player({ uuid, channel = "0", type = 'auto', className }: PlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState<string | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -25,12 +27,17 @@ export function Player({ uuid, channel = "0", type = 'webrtc' }: PlayerProps) {
     cleanup();
     setError(null);
 
-    if (type === 'webrtc') {
-      startWebRTC();
-    } else if (type === 'mse') {
-      startMSE();
-    } else if (type === 'hls') {
-      startHLS();
+    // If type is auto or not specified, start play sequence
+    if (!type || type === 'auto') {
+        // Check for specific protocol preference in localStorage
+        const preferredProtocol = localStorage.getItem(`stream_protocol_${uuid}`);
+        if (preferredProtocol && preferredProtocol !== 'auto') {
+             playSpecific(preferredProtocol as any);
+        } else {
+             playAuto();
+        }
+    } else {
+        playSpecific(type);
     }
   }, [uuid, channel, type]);
 
@@ -53,41 +60,69 @@ export function Player({ uuid, channel = "0", type = 'webrtc' }: PlayerProps) {
     }
   };
 
+  const playSpecific = (specificType: 'webrtc' | 'mse' | 'hls') => {
+      switch (specificType) {
+          case 'webrtc': startWebRTC(); break;
+          case 'mse': startMSE(); break;
+          case 'hls': startHLS(); break;
+      }
+  }
+
+  const playAuto = async () => {
+      // Priority: WebRTC -> MSE -> HLS
+      try {
+          await startWebRTC();
+      } catch (e) {
+          console.warn("WebRTC failed, trying MSE", e);
+          cleanup();
+          try {
+              startMSE();
+          } catch (e2) {
+            console.warn("MSE failed, trying HLS", e2);
+            cleanup();
+            startHLS();
+          }
+      }
+  }
+
   const startWebRTC = async () => {
-    try {
-      const pc = new RTCPeerConnection({
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-      });
-      pcRef.current = pc;
+    return new Promise<void>(async (resolve, reject) => {
+        try {
+            const pc = new RTCPeerConnection({
+                iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+            });
+            pcRef.current = pc;
 
-      pc.ontrack = (event) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = event.streams[0];
+            pc.ontrack = (event) => {
+                if (videoRef.current) {
+                videoRef.current.srcObject = event.streams[0];
+                }
+            };
+
+            pc.addTransceiver('video', { direction: 'recvonly' });
+
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+
+            const payload = btoa(pc.localDescription?.sdp || '');
+            const formData = new URLSearchParams();
+            formData.append('data', payload);
+
+            const response = await client.post(`/stream/${uuid}/channel/${channel}/webrtc`, formData, {
+                headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
+
+            const answer = atob(response.data);
+            await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: answer }));
+            resolve();
+
+        } catch (err: any) {
+            console.error('WebRTC Error:', err);
+            reject(err);
         }
-      };
-
-      pc.addTransceiver('video', { direction: 'recvonly' });
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      const payload = btoa(pc.localDescription?.sdp || '');
-      const formData = new URLSearchParams();
-      formData.append('data', payload);
-
-      const response = await client.post(`/stream/${uuid}/channel/${channel}/webrtc`, formData, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      });
-
-      const answer = atob(response.data);
-      await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: answer }));
-
-    } catch (err: any) {
-      console.error('WebRTC Error:', err);
-      setError('WebRTC connection failed: ' + err.message);
-    }
+    });
   };
 
   const startMSE = () => {
@@ -110,6 +145,13 @@ export function Player({ uuid, channel = "0", type = 'webrtc' }: PlayerProps) {
         console.log('MSE WS Connected');
       };
 
+      ws.onerror = (e) => {
+          console.error("MSE WS Error", e);
+          // If WS fails immediately, we might want to trigger fallback, but simpler to just let it fail for now or handle in separate logic if needed.
+          // For 'auto' mode, pure function call return doesn't help with async WS errors.
+          // Ideally we'd wrap this in a promise too, but MSE is stream-based.
+      }
+
       ws.onmessage = (event) => {
         const data = new Uint8Array(event.data);
         if (data[0] === 9) { // Mime type packet
@@ -124,6 +166,8 @@ export function Player({ uuid, channel = "0", type = 'webrtc' }: PlayerProps) {
                     });
                  } catch (e) {
                      console.error('MSE addSourceBuffer error', e);
+                     // If codec not supported, this throws.
+                     // We could try to recover here?
                  }
              }
         } else {
@@ -165,7 +209,7 @@ export function Player({ uuid, channel = "0", type = 'webrtc' }: PlayerProps) {
   };
 
   return (
-    <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
+    <div className={cn("relative w-full h-full bg-muted rounded-lg overflow-hidden", className)}>
       {error && (
         <div className="absolute inset-0 flex items-center justify-center text-red-500 bg-black/80 z-10">
           {error}

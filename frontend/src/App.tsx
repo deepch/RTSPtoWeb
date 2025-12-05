@@ -8,6 +8,7 @@ import Dashboard from '@/pages/Dashboard';
 import StreamView from '@/pages/StreamView';
 import AddStream from '@/pages/AddStream';
 import EditStream from '@/pages/EditStream';
+import MultiView from '@/pages/MultiView';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />
+              <Route path="/multiview" element={<MultiView />} />
               <Route path="/stream/add" element={<AddStream />} />
               <Route path="/stream/:uuid/edit" element={<EditStream />} />
               <Route path="/stream/:uuid" element={<StreamView />} />

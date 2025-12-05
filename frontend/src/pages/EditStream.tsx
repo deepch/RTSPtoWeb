@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function EditStream() {
   const navigate = useNavigate();
@@ -17,6 +18,14 @@ export default function EditStream() {
   const [audio, setAudio] = useState(false);
   const [debug, setDebug] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [defaultProtocol, setDefaultProtocol] = useState<string>('auto');
+
+  useEffect(() => {
+    if (uuid) {
+        const savedProtocol = localStorage.getItem(`stream_protocol_${uuid}`);
+        if (savedProtocol) setDefaultProtocol(savedProtocol);
+    }
+  }, [uuid]);
 
   useEffect(() => {
     const fetchStream = async () => {
@@ -63,6 +72,13 @@ export default function EditStream() {
 
     try {
       await client.post(`/stream/${uuid}/edit`, payload);
+
+      if (defaultProtocol) {
+          localStorage.setItem(`stream_protocol_${uuid}`, defaultProtocol);
+      } else {
+          localStorage.removeItem(`stream_protocol_${uuid}`);
+      }
+
       navigate('/');
     } catch (error) {
       console.error('Failed to edit stream', error);
@@ -99,6 +115,21 @@ export default function EditStream() {
             <div className="flex items-center space-x-2">
               <Checkbox id="debug" checked={debug} onCheckedChange={(c) => setDebug(!!c)} />
               <Label htmlFor="debug">Debug</Label>
+            </div>
+
+            <div className="space-y-2">
+                <Label htmlFor="protocol">Default Protocol</Label>
+                <Select value={defaultProtocol} onValueChange={setDefaultProtocol}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select Protocol" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="auto">Auto (WebRTC to MSE to HLS)</SelectItem>
+                        <SelectItem value="webrtc">WebRTC</SelectItem>
+                        <SelectItem value="mse">MSE</SelectItem>
+                        <SelectItem value="hls">HLS</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
             <Button type="submit" className="w-full">Save Changes</Button>
           </form>

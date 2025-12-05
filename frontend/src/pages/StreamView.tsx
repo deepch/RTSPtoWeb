@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 export default function StreamView() {
   const { uuid } = useParams<{ uuid: string }>();
-  const [type, setType] = useState<'webrtc' | 'mse' | 'hls'>('webrtc');
+  const [type, setType] = useState<'webrtc' | 'mse' | 'hls' | 'auto'>('auto');
 
   if (!uuid) return <div>Invalid Stream ID</div>;
 
@@ -15,6 +15,7 @@ export default function StreamView() {
       <div className="flex-1 min-h-0">
         <Tabs value={type} onValueChange={(v) => setType(v as any)} className="h-full flex flex-col">
           <TabsList>
+            <TabsTrigger value="auto">Auto</TabsTrigger>
             <TabsTrigger value="webrtc">WebRTC</TabsTrigger>
             <TabsTrigger value="mse">MSE</TabsTrigger>
             <TabsTrigger value="hls">HLS</TabsTrigger>

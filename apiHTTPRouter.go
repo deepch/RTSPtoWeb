@@ -37,7 +37,6 @@ func HTTPAPIServer() {
 
 	public.Use(CrossOrigin())
 	// Login routes
-	public.GET("/login", HTTPAPILogin)
 	public.POST("/login", HTTPAPILoginSubmit)
 	public.GET("/logout", HTTPAPILogout)
 
@@ -49,38 +48,13 @@ func HTTPAPIServer() {
 	admin.Use(AdminOnly())
 
 	/*
-		Static HTML Files Demo Mode
+		Serve React App
 	*/
-
-	if Storage.ServerHTTPDemo() {
-		public.LoadHTMLGlob(Storage.ServerHTTPDir() + "/templates/*")
-		if Storage.ServerHTTPAuth() {
-			privat.GET("/", HTTPAPIServerIndex)
-
-			admin.GET("/pages/stream/add", HTTPAPIAddStream)
-			admin.GET("/pages/stream/edit/:uuid", HTTPAPIEditStream)
-			privat.GET("/pages/player/hls/:uuid/:channel", HTTPAPIPlayHls)
-			privat.GET("/pages/player/mse/:uuid/:channel", HTTPAPIPlayMse)
-			privat.GET("/pages/player/webrtc/:uuid/:channel", HTTPAPIPlayWebrtc)
-			privat.GET("/pages/multiview", HTTPAPIMultiview)
-			privat.Any("/pages/multiview/full", HTTPAPIFullScreenMultiView)
-
-			privat.GET("/pages/player/all/:uuid/:channel", HTTPAPIPlayAll)
-		} else {
-			public.GET("/", HTTPAPIServerIndex)
-
-			public.GET("/pages/stream/add", HTTPAPIAddStream)
-			public.GET("/pages/stream/edit/:uuid", HTTPAPIEditStream)
-			public.GET("/pages/player/hls/:uuid/:channel", HTTPAPIPlayHls)
-			public.GET("/pages/player/mse/:uuid/:channel", HTTPAPIPlayMse)
-			public.GET("/pages/player/webrtc/:uuid/:channel", HTTPAPIPlayWebrtc)
-			public.GET("/pages/multiview", HTTPAPIMultiview)
-			public.Any("/pages/multiview/full", HTTPAPIFullScreenMultiView)
-
-			public.GET("/pages/player/all/:uuid/:channel", HTTPAPIPlayAll)
-		}
-		public.StaticFS("/static", http.Dir(Storage.ServerHTTPDir()+"/static"))
-	}
+	public.Static("/assets", "./frontend/dist/assets")
+	public.StaticFile("/favicon.ico", "./frontend/dist/favicon.ico")
+	public.NoRoute(func(c *gin.Context) {
+		c.File("./frontend/dist/index.html")
+	})
 
 	/*
 		Stream Control elements
@@ -176,26 +150,7 @@ func HTTPAPIServer() {
 
 }
 
-// HTTPAPIServerIndex index file
-func HTTPAPIServerIndex(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.tmpl", gin.H{
-		"port":    Storage.ServerHTTPPort(),
-		"streams": Storage.Streams,
-		"version": time.Now().String(),
-		"page":    "index",
-		"role":    c.GetString("role"),
-	})
 
-}
-
-// HTTPAPILogin login page
-func HTTPAPILogin(c *gin.Context) {
-	c.HTML(http.StatusOK, "login.tmpl", gin.H{
-		"port":    Storage.ServerHTTPPort(),
-		"version": time.Now().String(),
-		"page":    "login",
-	})
-}
 
 type LoginPayload struct {
 	Username string `json:"username"`
@@ -254,116 +209,7 @@ func HTTPAPILogout(c *gin.Context) {
 
 
 
-func HTTPAPIPlayHls(c *gin.Context) {
-	c.HTML(http.StatusOK, "play_hls.tmpl", gin.H{
-		"port":    Storage.ServerHTTPPort(),
-		"streams": Storage.Streams,
-		"version": time.Now().String(),
-		"page":    "play_hls",
-		"uuid":    c.Param("uuid"),
-		"channel": c.Param("channel"),
-		"role":    c.GetString("role"),
-	})
-}
-func HTTPAPIPlayMse(c *gin.Context) {
-	c.HTML(http.StatusOK, "play_mse.tmpl", gin.H{
-		"port":    Storage.ServerHTTPPort(),
-		"streams": Storage.Streams,
-		"version": time.Now().String(),
-		"page":    "play_mse",
-		"uuid":    c.Param("uuid"),
-		"channel": c.Param("channel"),
-		"role":    c.GetString("role"),
-	})
-}
-func HTTPAPIPlayWebrtc(c *gin.Context) {
-	c.HTML(http.StatusOK, "play_webrtc.tmpl", gin.H{
-		"port":    Storage.ServerHTTPPort(),
-		"streams": Storage.Streams,
-		"version": time.Now().String(),
-		"page":    "play_webrtc",
-		"uuid":    c.Param("uuid"),
-		"channel": c.Param("channel"),
-		"role":    c.GetString("role"),
-	})
-}
-func HTTPAPIAddStream(c *gin.Context) {
-	c.HTML(http.StatusOK, "add_stream.tmpl", gin.H{
-		"port":    Storage.ServerHTTPPort(),
-		"streams": Storage.Streams,
-		"version": time.Now().String(),
-		"page":    "add_stream",
-		"role":    c.GetString("role"),
-	})
-}
-func HTTPAPIEditStream(c *gin.Context) {
-	c.HTML(http.StatusOK, "edit_stream.tmpl", gin.H{
-		"port":    Storage.ServerHTTPPort(),
-		"streams": Storage.Streams,
-		"version": time.Now().String(),
-		"page":    "edit_stream",
-		"uuid":    c.Param("uuid"),
-		"role":    c.GetString("role"),
-	})
-}
 
-func HTTPAPIMultiview(c *gin.Context) {
-	c.HTML(http.StatusOK, "multiview.tmpl", gin.H{
-		"port":    Storage.ServerHTTPPort(),
-		"streams": Storage.Streams,
-		"version": time.Now().String(),
-		"page":    "multiview",
-		"role":    c.GetString("role"),
-	})
-}
-
-func HTTPAPIPlayAll(c *gin.Context) {
-	c.HTML(http.StatusOK, "play_all.tmpl", gin.H{
-		"port":    Storage.ServerHTTPPort(),
-		"streams": Storage.Streams,
-		"version": time.Now().String(),
-		"page":    "play_all",
-		"uuid":    c.Param("uuid"),
-		"channel": c.Param("channel"),
-		"role":    c.GetString("role"),
-	})
-}
-
-type MultiViewOptions struct {
-	Grid   int                             `json:"grid"`
-	Player map[string]MultiViewOptionsGrid `json:"player"`
-}
-type MultiViewOptionsGrid struct {
-	UUID       string `json:"uuid"`
-	Channel    int    `json:"channel"`
-	PlayerType string `json:"playerType"`
-}
-
-func HTTPAPIFullScreenMultiView(c *gin.Context) {
-	var createParams MultiViewOptions
-	err := c.ShouldBindJSON(&createParams)
-	if err != nil {
-		log.WithFields(logrus.Fields{
-			"module": "http_page",
-			"func":   "HTTPAPIFullScreenMultiView",
-			"call":   "BindJSON",
-		}).Errorln(err.Error())
-	}
-	log.WithFields(logrus.Fields{
-		"module": "http_page",
-		"func":   "HTTPAPIFullScreenMultiView",
-		"call":   "Options",
-	}).Debugln(createParams)
-	c.HTML(http.StatusOK, "fullscreenmulti.tmpl", gin.H{
-		"port":    Storage.ServerHTTPPort(),
-		"streams": Storage.Streams,
-		"version": time.Now().String(),
-		"options": createParams,
-		"page":    "fullscreenmulti",
-		"query":   c.Request.URL.Query(),
-		"role":    c.GetString("role"),
-	})
-}
 
 // CrossOrigin Access-Control-Allow-Origin any methods
 func CrossOrigin() gin.HandlerFunc {

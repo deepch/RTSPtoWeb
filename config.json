@@ -40,14 +40,25 @@
     "webrtc_port_min": 0
   },
   "streams": {
-    "27aec28e-6181-4753-9acd-0456a75f0289": {
+    "cam1": {
       "channels": {
         "0": {
+          "name": "ch1",
           "on_demand": true,
-          "url": "rtsp://admin:JCGXFW@10.10.0.102:554/"
+          "url": "rtsp://admin:sb0x$$2020ml@192.168.110.60:554/"
         }
       },
       "name": "Cam1"
+    },
+    "cam2": {
+      "channels": {
+        "0": {
+          "name": "ch1",
+          "on_demand": true,
+          "url": "rtsp://admin:sb0x$$2020ml@192.168.110.61:554/"
+        }
+      },
+      "name": "Cam2"
     }
   }
 }
