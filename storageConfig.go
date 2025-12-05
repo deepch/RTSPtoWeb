@@ -15,6 +15,8 @@ import (
 	"github.com/liip/sheriff"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/joho/godotenv"
 )
 
 // Command line flag global variables
@@ -28,6 +30,17 @@ func NewStreamCore() *StorageST {
 	flag.Parse()
 
 	var tmp StorageST
+
+	// Load .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"module": "config",
+			"func":   "NewStreamCore",
+			"call":   "godotenv.Load",
+		}).Debugln("Error loading .env file (optional), using existing environment variables")
+	}
+
 	data, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		log.WithFields(logrus.Fields{
@@ -37,7 +50,11 @@ func NewStreamCore() *StorageST {
 		}).Errorln(err.Error())
 		os.Exit(1)
 	}
-	err = json.Unmarshal(data, &tmp)
+
+	// Expand environment variables
+	expandedData := []byte(os.ExpandEnv(string(data)))
+
+	err = json.Unmarshal(expandedData, &tmp)
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"module": "config",

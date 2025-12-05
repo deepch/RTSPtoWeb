@@ -1,0 +1,23 @@
+# Secrets
+.env
+.env.local
+server.key
+server.crt
+
+# Git
+.git
+.github
+
+# Build artifacts
+RTSPtoWeb
+RTSPtoWeb_verify
+debug
+test
+*.test
+*.out
+
+# Dependencies
+vendor/
+
+# Documentation
+docs/

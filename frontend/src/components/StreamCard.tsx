@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Play, Video } from 'lucide-react';
+import { Play, Video, Settings, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export interface Stream {
@@ -14,35 +14,54 @@ export function StreamCard({ stream, uuid, isAdmin, onDelete }: { stream: Stream
   const channelCount = stream.channels ? Object.keys(stream.channels).length : 0;
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium truncate" title={stream.name}>
-          {stream.name}
-        </CardTitle>
-        <Badge variant="secondary">{channelCount} Channels</Badge>
-      </CardHeader>
-      <CardContent>
-        <div className="aspect-video w-full bg-muted rounded-md flex items-center justify-center mb-4">
-           <Video className="h-10 w-10 text-muted-foreground" />
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg border-border/50 hover:border-primary/50">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 bg-muted/30">
+        <div className="flex flex-col gap-1 min-w-0">
+            <CardTitle className="text-base font-semibold truncate leading-none" title={stream.name}>
+            {stream.name}
+            </CardTitle>
+            <div className="text-xs text-muted-foreground font-mono opacity-70 truncate">
+                ID: {uuid}
+            </div>
         </div>
-        <div className="flex justify-end gap-2">
-           {isAdmin && (
-             <>
-               <Button size="sm" variant="outline" asChild>
-                 <Link to={`/stream/${uuid}/edit`}>Edit</Link>
-               </Button>
-               <Button size="sm" variant="destructive" onClick={onDelete}>
-                 Delete
-               </Button>
-             </>
+        <Badge variant={channelCount > 0 ? "default" : "secondary"} className="ml-2 shrikn-0">
+            {channelCount > 0 ? 'Online' : 'Offline'}
+        </Badge>
+      </CardHeader>
+
+      <CardContent className="p-0">
+        <div className="relative aspect-video w-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
+           <Video className="h-12 w-12 text-muted-foreground/50" />
+           {channelCount > 0 && (
+               <div className="absolute bottom-2 right-2">
+                   <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm text-xs">
+                       {channelCount} CH
+                   </Badge>
+               </div>
            )}
-           <Button size="sm" asChild>
-             <Link to={`/stream/${uuid}`}>
-               <Play className="mr-2 h-4 w-4" /> Watch
-             </Link>
-           </Button>
         </div>
       </CardContent>
+
+      <CardFooter className="p-4 flex justify-between items-center gap-2 bg-background">
+           <Button size="sm" className="w-full font-medium" asChild>
+             <Link to={`/stream/${uuid}`}>
+               <Play className="mr-2 h-3.5 w-3.5" /> Watch
+             </Link>
+           </Button>
+
+           {isAdmin && (
+             <div className="flex gap-1 shrink-0">
+               <Button size="icon" variant="ghost" className="h-9 w-9 text-muted-foreground hover:text-foreground" title="Edit Stream" asChild>
+                 <Link to={`/stream/${uuid}/edit`}>
+                    <Settings className="h-4 w-4" />
+                 </Link>
+               </Button>
+               <Button size="icon" variant="ghost" className="h-9 w-9 text-muted-foreground hover:text-destructive" title="Delete Stream" onClick={onDelete}>
+                 <Trash2 className="h-4 w-4" />
+               </Button>
+             </div>
+           )}
+      </CardFooter>
     </Card>
   );
 }

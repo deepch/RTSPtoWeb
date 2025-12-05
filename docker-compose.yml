@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  rtsp-to-web:
+    build: .
+    container_name: rtsp-to-web
+    ports:
+      - "8083:8083" # HTTP Port
+      - "554:554"   # RTSP Port
+    env_file:
+      - .env
+    volumes:
+       # Mount config.json if you want to persist changes made via UI back to the host
+       # or if you want to provide a custom config.
+      - ./config.json:/config/config.json
+    restart: unless-stopped

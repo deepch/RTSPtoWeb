@@ -6,8 +6,8 @@
     "http_debug": false,
     "http_demo": true,
     "http_dir": "web",
-    "http_login": "demo",
-    "http_password": "demo",
+    "http_login": "${RTSP_SERVER_HTTP_LOGIN}",
+    "http_password": "${RTSP_SERVER_HTTP_PASSWORD}",
     "http_port": ":8083",
     "https": false,
     "https_auto_tls": false,
@@ -28,11 +28,11 @@
     },
     "users": {
       "admin": {
-        "password": "admin",
+        "password": "${RTSP_ADMIN_PASSWORD}",
         "role": "admin"
       },
       "guest": {
-        "password": "guest",
+        "password": "${RTSP_GUEST_PASSWORD}",
         "role": "user"
       }
     },
@@ -45,7 +45,7 @@
         "0": {
           "name": "ch1",
           "on_demand": true,
-          "url": "rtsp://admin:sb0x$$2020ml@192.168.110.60:554/"
+          "url": "${RTSP_CAM1_URL}"
         }
       },
       "name": "Cam1"
@@ -55,7 +55,7 @@
         "0": {
           "name": "ch1",
           "on_demand": true,
-          "url": "rtsp://admin:sb0x$$2020ml@192.168.110.61:554/"
+          "url": "${RTSP_CAM2_URL}"
         }
       },
       "name": "Cam2"
