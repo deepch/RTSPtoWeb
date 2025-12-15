@@ -11,7 +11,7 @@ require (
 	github.com/gobwas/ws v1.4.0
 	github.com/hashicorp/go-version v1.8.0
 	github.com/imdario/mergo v0.3.16
-	github.com/liip/sheriff v0.12.0
+	github.com/liip/sheriff/v2 v2.0.1
 	github.com/liip/sheriff/v2 v2.0.1
 	github.com/sirupsen/logrus v1.9.3
 )
