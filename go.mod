@@ -13,7 +13,7 @@ require (
 	github.com/imdario/mergo v0.3.16
 	github.com/liip/sheriff v0.12.0
 	github.com/liip/sheriff/v2 v2.0.1
-	github.com/sirupsen/logrus v1.9.3
+	github.com/sirupsen/logrus v1.9.4
 )
 
 require (
