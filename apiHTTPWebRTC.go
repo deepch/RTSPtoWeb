@@ -12,6 +12,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// minWebRTCPacketBytes mirrors the hard-coded threshold inside
+// deepch/vdk/format/webrtcv3 Muxer.WritePacket (`len(pkt.Data) < 5`).
+const minWebRTCPacketBytes = 5
+
 // WebRTCRequest is the JSON request body for the WebRTC endpoint.
 // Clients may POST either form-encoded data (legacy) or JSON with optional ICE server overrides.
 type WebRTCRequest struct {
@@ -157,6 +161,14 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 			defer audioTC.Close()
 		}
 		var videoStart bool
+		// vdk's webrtcv3 muxer closes the peer connection on any packet whose
+		// payload is shorter than 5 bytes (WritePacket returns nil without
+		// marking success, and its deferred cleanup calls Close). libopus emits
+		// 1–3 byte frames for silence, so the first quiet moment from the camera
+		// would silently kill the session ("WebRTC Client Offline"). Skip those
+		// frames and carry their duration into the next one so the RTP
+		// timestamps stay continuous and the browser's PLC fills the gap.
+		var carriedAudio time.Duration
 		noVideo := time.NewTimer(10 * time.Second)
 		for {
 			select {
@@ -193,6 +205,12 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 						continue
 					}
 					for i := range opkts {
+						if len(opkts[i].Data) < minWebRTCPacketBytes {
+							carriedAudio += opkts[i].Duration
+							continue
+						}
+						opkts[i].Duration += carriedAudio
+						carriedAudio = 0
 						if err = muxerWebRTC.WritePacket(opkts[i]); err != nil {
 							requestLogger.WithFields(logrus.Fields{
 								"call": "WritePacket",
