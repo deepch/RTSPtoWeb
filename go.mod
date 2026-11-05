@@ -8,7 +8,7 @@ require (
 	github.com/deepch/vdk v0.0.27
 	github.com/gin-gonic/autotls v1.3.1
 	github.com/gin-gonic/gin v1.12.0
-	github.com/gobwas/ws v1.4.0
+	github.com/gobwas/ws v1.5.0
 	github.com/hashicorp/go-version v1.9.0
 	github.com/imdario/mergo v0.3.16
 	github.com/liip/sheriff v0.12.0
