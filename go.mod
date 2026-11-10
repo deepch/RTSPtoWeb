@@ -6,7 +6,7 @@ toolchain go1.27.3
 
 require (
 	github.com/deepch/vdk v0.0.27
-	github.com/gin-gonic/autotls v1.3.1
+	github.com/gin-gonic/autotls v1.3.2
 	github.com/gin-gonic/gin v1.12.0
 	github.com/gobwas/ws v1.5.0
 	github.com/hashicorp/go-version v1.9.0
@@ -69,7 +69,7 @@ require (
 	golang.org/x/arch v0.22.0 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/mod v0.41.0 // indirect
-	golang.org/x/net v0.60.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect

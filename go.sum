@@ -71,6 +71,8 @@ github.com/gin-gonic/autotls v1.3.0 h1:tFKd/rPCPQe6pZgtw8HmYmm3zAvK3sfSJLs0ACXxb
 github.com/gin-gonic/autotls v1.3.0/go.mod h1:37dFTAY0dsugtrM2l1NlF1psjmUH7HMh0hllefO3uag=
 github.com/gin-gonic/autotls v1.3.1 h1:H51sDzeL1Wb0Oq1zZQ3HJF+6mzl89mppUxxV4YOx0zA=
 github.com/gin-gonic/autotls v1.3.1/go.mod h1:8FFybK8l1L55OxZ2YqMqwoqrLbqkC3Qc/jv4FQZJhDg=
+github.com/gin-gonic/autotls v1.3.2 h1:p8XPQb+lHw5xiqXp3ZWqgIouMx7BNyz6RvhyXJVr4H4=
+github.com/gin-gonic/autotls v1.3.2/go.mod h1:4OdIEl1Zy2R6zyZfifNVXA+lfOWW+98Lo44Ifg9xtX4=
 github.com/gin-gonic/gin v1.9.1 h1:4idEAncQnU5cB7BeOkPtxjfCSye0AAm1R0RVIqJ+Jmg=
 github.com/gin-gonic/gin v1.9.1/go.mod h1:hPrL7YrpYKXt5YId3A/Tnip5kqbEAP+KLuI3SUcPTeU=
 github.com/gin-gonic/gin v1.10.0 h1:nTuyha1TYqgedzytsKYqna+DfLos46nTv2ygFy86HFU=
@@ -383,6 +385,8 @@ golang.org/x/net v0.57.0 h1:K5+3DljvIuDG9/Jv9rvyMywYNFCQ9RSUY6OOTTkT+tE=
 golang.org/x/net v0.57.0/go.mod h1:KpXc8iv+r3XplLAG/f7Jsf9RPszJzdR0f58q9vGOuEU=
 golang.org/x/net v0.60.0 h1:79p50tfZlm0J9YfoDsSi639qSXNGVwEzOPLCxM2FsYU=
 golang.org/x/net v0.60.0/go.mod h1:2DA/G1UfVbCpQPeWTmMPGY7Cs2PkBkwu743bVX5PIVg=
+golang.org/x/net v0.62.0 h1:18ELalfM5+XNRwzM2nYqXsZQ9ByS1uhj2O/U7+5jqRY=
+golang.org/x/net v0.62.0/go.mod h1:WgDCOTH8iwtB66T4/GfI94AHo/hhdb7Hah9NDseQfiI=
 golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20190423024810-112230192c58/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
