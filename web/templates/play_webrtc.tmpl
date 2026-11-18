@@ -58,7 +58,7 @@
             case 'have-local-offer':
             let uuid = $('#uuid').val();
             let channel = $('#channel').val();
-            let url = "/stream/" + uuid + "/channel/" + channel + "/webrtc?uuid=" + uuid + '&channel=' + channel;
+            let url = "/stream/" + uuid + "/channel/" + channel + "/webrtc";
             $.post(url, {
               data: btoa(webrtc.localDescription.sdp)
             }, function(data) {
